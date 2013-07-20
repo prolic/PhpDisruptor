@@ -2,7 +2,7 @@
 
 namespace PhpDisruptor;
 
-use Zend\Cache\Exception\ExceptionInterface as StorageException;;
+use Zend\Cache\Exception\ExceptionInterface as StorageException;
 use Zend\Cache\Storage\StorageInterface;
 
 class Sequence
@@ -12,31 +12,63 @@ class Sequence
     /**
      * @var string
      */
-    private $key;
+    protected $key;
 
     /**
      * @var mixed
      */
-    private $storage;
+    protected $storage;
 
     /**
      * Constructor
      *
+     * @param StorageInterface $storage
      * @param int|null $initialValue
+     * @param string|null $key (only for internal use, please don't set the key yourself)
      * @throws Exception\InvalidArgumentException
      * @throws Exception\RuntimeException
      */
-    public function __construct(StorageInterface $storage, $initialValue = null)
+    public function __construct(StorageInterface $storage, $initialValue = null, $key = null)
+    {
+        $initialValue = $this->init($storage, $initialValue, $key);
+        $this->set($initialValue);
+    }
+
+    /**
+     * @param StorageInterface $storage
+     * @param null $initialValue
+     * @param null $key
+     * @return int|null $initialValue
+     */
+    protected function init(StorageInterface $storage, $initialValue, $key)
     {
         if (null === $initialValue) {
             $initialValue = self::INITIAL_VALUE;
-        } else if (!is_numeric($initialValue)) {
+        } elseif (!is_numeric($initialValue)) {
             throw new Exception\InvalidArgumentException('initial value must be an integer or null');
         }
 
-        $this->key = spl_object_hash($this);
+        if (null === $key) {
+            $key = 'sequence_' . sha1(gethostname() . getmypid() . microtime(true));
+        }
+
+        $this->key = $key;
         $this->storage = $storage;
-        $this->set($initialValue);
+        return $initialValue;
+    }
+
+    /**
+     * Instantiate sequence from sequence key
+     *
+     * @param StorageInterface $storage
+     * @param string $key
+     * @return Sequence
+     */
+    public static function fromKey(StorageInterface $storage, $key)
+    {
+        $initialValue = $storage->getItem($key);
+        $sequence = new static($storage, $initialValue, $key);
+        return $sequence;
     }
 
     /**
@@ -113,12 +145,10 @@ class Sequence
             throw new Exception\InvalidArgumentException('increment must be an integer');
         }
 
-        do
-        {
+        do {
             $currentValue = $this->get();
             $newValue = $currentValue + $increment;
-        }
-        while (!$this->compareAndSet($currentValue, $newValue));
+        } while (!$this->compareAndSet($currentValue, $newValue));
 
         return $newValue;
     }
@@ -129,5 +159,25 @@ class Sequence
     public function __toString()
     {
         return $this->get();
+    }
+
+    /**
+     * Get the sequence key
+     * (only useful for internal use)
+     *
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
+    }
+
+    /**
+     * @param Sequence $sequence
+     * @return bool
+     */
+    public function equals(Sequence $sequence)
+    {
+        return ($this->getKey() == $sequence->getKey());
     }
 }

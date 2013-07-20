@@ -95,8 +95,7 @@ abstract class Util
             throw new Exception\InvalidArgumentException('integer expected');
         }
         $r = 0;
-        while (($i >>= 1) != 0)
-        {
+        while (($i >>= 1) != 0) {
             ++$r;
         }
         return $r;

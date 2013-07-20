@@ -8,8 +8,8 @@ abstract class AbstractSequencer implements SequencerInterface
 {
 
     /*
-private static final AtomicReferenceFieldUpdater<AbstractSequencer, Sequence[]> SEQUENCE_UPDATER =
-AtomicReferenceFieldUpdater.newUpdater(AbstractSequencer.class, Sequence[].class, "gatingSequences");
+    private static final AtomicReferenceFieldUpdater<AbstractSequencer, Sequence[]> SEQUENCE_UPDATER =
+    AtomicReferenceFieldUpdater.newUpdater(AbstractSequencer.class, Sequence[].class, "gatingSequences");
     */
 
     /**
@@ -33,11 +33,11 @@ AtomicReferenceFieldUpdater.newUpdater(AbstractSequencer.class, Sequence[].class
     protected $gatingSequences;
 
     /*
-protected final int bufferSize;
-protected final WaitStrategy waitStrategy;
-protected final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-protected volatile Sequence[] gatingSequences = new Sequence[0];
-*/
+    protected final int bufferSize;
+    protected final WaitStrategy waitStrategy;
+    protected final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
+    protected volatile Sequence[] gatingSequences = new Sequence[0];
+    */
     /**
      * @param StorageInterface $storage
      * @param int $bufferSize
@@ -80,8 +80,8 @@ protected volatile Sequence[] gatingSequences = new Sequence[0];
 
     /*
     public final void addGatingSequences(Sequence... gatingSequences)
-{
-SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
+    {
+    SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
     }
     */
 
@@ -101,7 +101,7 @@ SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
      */
     /*
     public long getMinimumSequence()
-{
+    {
         return Util.getMinimumSequence(gatingSequences, cursor.get());
     }
     */
@@ -111,7 +111,7 @@ SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
      */
     /*
     public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
-{
+    {
         return new ProcessingSequenceBarrier(this, waitStrategy, cursor, sequencesToTrack);
     }
     */

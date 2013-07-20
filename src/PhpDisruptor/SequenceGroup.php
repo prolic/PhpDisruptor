@@ -2,50 +2,61 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Util\Util;
 use Zend\Cache\Storage\StorageInterface;
 
 class SequenceGroup extends Sequence
 {
-    /*
-private static final AtomicReferenceFieldUpdater<SequenceGroup, Sequence[]> SEQUENCE_UPDATER =
-AtomicReferenceFieldUpdater.newUpdater(SequenceGroup.class, Sequence[].class, "sequences");
-private volatile Sequence[] sequences = new Sequence[0];
-    */
+    /**
+     * Constructor
+     *
+     * @param StorageInterface $storage
+     */
+    public function __construct(StorageInterface $storage, $key = null)
+    {
+        $this->init($storage, static::INITIAL_VALUE, $key);
+        $this->storage->setItem($this->key, array());
+    }
 
     /**
-     * @var Sequence[]
+     * Get the sequences
+     *
+     * @return Sequence[]
      */
-    protected $sequences;
-
-    public function __construct(StorageInterface $storage)
+    protected function sequences()
     {
-        $this->sequences[] = new Sequence($storage);
-        parent::__construct($storage, Sequence::INITIAL_VALUE);
+        $sequences = array();
+        $content = $this->storage->getItem($this->key);
+        foreach ($content as $sequence) {
+            $sequences[] = Sequence::fromKey($this->storage, $sequence);
+        }
+        return $sequences;
     }
 
     /**
      * Get the minimum sequence value for the group.
      *
-     * @return the minimum sequence value for the group.
+     * @return int the minimum sequence value for the group.
      */
-    @Override
-    public long get()
-{
-        return Util.getMinimumSequence(sequences);
+    public function get()
+    {
+        return Util::getMinimumSequence($this->sequences());
     }
 
     /**
      * Set all {@link Sequence}s in the group to a given value.
      *
-     * @param value to set the group of sequences to.
+     * @param int $value to set the group of sequences to.
+     * @throws Exception\ExceptionInterface
      */
-    @Override
-    public void set(final long value)
+    public function set($value)
     {
-        final Sequence[] sequences = this.sequences;
-        for (int i = 0, size = sequences.length; i < size; i++)
-        {
-            sequences[i].set(value);
+        if (!is_numeric($value)) {
+            throw new Exception\InvalidArgumentException('value must be an integer');
+        }
+        $sequences = $this->sequences();
+        foreach ($sequences as $sequence) {
+            $sequence->set($value);
         }
     }
 
@@ -54,42 +65,57 @@ private volatile Sequence[] sequences = new Sequence[0];
      * initialisation.  Use {@link SequenceGroup#addWhileRunning(Cursored, Sequence)}
      *
      * @see SequenceGroup#addWhileRunning(Cursored, Sequence)
-     * @param sequence to be added to the aggregate.
+     * @param Sequence $sequence to be added to the aggregate.
      */
-    public void add(final Sequence sequence)
+    public function add(Sequence $sequence)
     {
-        Sequence[] oldSequences;
-        Sequence[] newSequences;
-        do
-        {
-            oldSequences = sequences;
-            final int oldSize = oldSequences.length;
-            newSequences = new Sequence[oldSize + 1];
-            System.arraycopy(oldSequences, 0, newSequences, 0, oldSize);
-            newSequences[oldSize] = sequence;
-        }
-        while (!SEQUENCE_UPDATER.compareAndSet(this, oldSequences, newSequences));
+        do {
+            $oldSequences = $this->sequences();
+
+            $oldContent = array();
+            foreach ($oldSequences as $oldSequence) {
+                $oldContent[] = $oldSequence->getKey();
+            }
+
+            $newContent = $oldContent;
+            $newContent[] = $sequence->getKey();
+        } while (!$this->compareAndSet($oldContent, $newContent));
     }
 
     /**
      * Remove the first occurrence of the {@link Sequence} from this aggregate.
      *
-     * @param sequence to be removed from this aggregate.
-     * @return true if the sequence was removed otherwise false.
+     * @param Sequence $sequence to be removed from this aggregate.
+     * @return bool true if the sequence was removed otherwise false.
      */
-    public boolean remove(final Sequence sequence)
+    public function remove(Sequence $sequence)
     {
-        return SequenceGroups.removeSequence(this, SEQUENCE_UPDATER, sequence);
+        $found = false;
+        do {
+            $oldSequences = $this->sequences();
+            $newSequences = array();
+            $oldContent = array();
+            $newContent = array();
+            foreach ($oldSequences as $oldSequence) {
+                $oldContent[] = $oldSequence->getKey();
+                if ($oldSequence->equals($sequence)) {
+                    $found = true;
+                } else {
+                    $newContent[] = $oldSequence->getKey();
+                }
+            }
+        } while (!$this->compareAndSet($oldContent, $newContent));
+        return $found;
     }
 
     /**
      * Get the size of the group.
      *
-     * @return the size of the group.
+     * @return int the size of the group.
      */
-    public int size()
-{
-        return sequences.length;
+    public function size()
+    {
+        return count($this->sequences());
     }
 
     /**
@@ -100,9 +126,10 @@ private volatile Sequence[] sequences = new Sequence[0];
      * @param cursored The data structure that the owner of this sequence group will
      * be pulling it's events from.
      * @param sequence The sequence to add.
+     * @return void
      */
-    public void addWhileRunning(Cursored cursored, Sequence sequence)
+    public function addWhileRunning(Cursored $cursored, Sequence $sequence)
     {
-        SequenceGroups.addSequences(this, SEQUENCE_UPDATER, cursored, sequence);
+        //SequenceGroups.addSequences(this, SEQUENCE_UPDATER, cursored, sequence);
     }
 }
