@@ -33,15 +33,41 @@ class UtilTest extends TestCase
         $this->assertEquals(9, $log2);
     }
 
-    public function testShouldReturnMinimumSequence()
+    public function dataProvider()
     {
         $storage = new Storage();
-        $sequences = array();
-        $sequences[0] = new Sequence($storage, 3);
-        $sequences[1] = new Sequence($storage, 5);
-        $sequences[2] = new Sequence($storage, 7);
+        return array(
+            array(
+                array(
+                    new Sequence($storage, 3),
+                    new Sequence($storage, 5),
+                    new Sequence($storage, 7)
+                )
+            ),
+            array(
+                array(
+                    new Sequence($storage, 7),
+                    new Sequence($storage, 5),
+                    new Sequence($storage, 3)
+                )
+            ),
+            array(
+                array(
+                    new Sequence($storage, 5),
+                    new Sequence($storage, 7),
+                    new Sequence($storage, 3)
+                )
+            )
+        );
+    }
 
-        $this->assertEquals(3, Util::getMinimumSequence($sequences));
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public function testShouldReturnMinimumSequence($data)
+    {
+        $this->assertEquals(3, Util::getMinimumSequence($data));
     }
 
     public function testShouldReturnPhpIntMaxWhenNoEventProcessors()
