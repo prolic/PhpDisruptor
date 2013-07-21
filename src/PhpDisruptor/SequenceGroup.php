@@ -123,12 +123,12 @@ class SequenceGroup extends Sequence
      * the Disruptor.  It will set the sequences to cursor value of the ringBuffer
      * just after adding them.  This should prevent any nasty rewind/wrapping effects.
      *
-     * @param cursored The data structure that the owner of this sequence group will
+     * @param CursoredInterface $cursored The data structure that the owner of this sequence group will
      * be pulling it's events from.
-     * @param sequence The sequence to add.
+     * @param Sequence $sequence The sequence to add.
      * @return void
      */
-    public function addWhileRunning(Cursored $cursored, Sequence $sequence)
+    public function addWhileRunning(CursoredInterface $cursored, Sequence $sequence)
     {
         //SequenceGroups.addSequences(this, SEQUENCE_UPDATER, cursored, sequence);
     }

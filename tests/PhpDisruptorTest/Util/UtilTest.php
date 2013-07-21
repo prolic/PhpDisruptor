@@ -61,7 +61,6 @@ class UtilTest extends TestCase
         );
     }
 
-
     /**
      * @dataProvider dataProvider
      */
