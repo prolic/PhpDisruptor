@@ -78,7 +78,7 @@ interface SequencerInterface extends CursoredInterface
      * Add the specified gating sequences to this instance of the Disruptor.  They will
      * safely and atomically added to the list of gating sequences.
      *
-     * @param SequencerInterface $gatingSequences,... The sequences to add.
+     * @param SequencerInterface[] $gatingSequences The sequences to add.
      * @return void
      * @throws Exception\InvalidArgumentException
      */
@@ -97,10 +97,10 @@ interface SequencerInterface extends CursoredInterface
      * are available to be read from the ring buffer given a list of sequences to track.
      *
      * @see SequenceBarrierInterface
-     * @param SequencerInterface $sequencesToTrack,...
+     * @param SequencerInterface[] $sequencesToTrack
      * @return SequenceBarrierInterface A sequence barrier that will track the specified sequences.
      */
-    public function newBarrier();
+    public function newBarrier($sequencesToTrack);
 
     /**
      * Get the minimum sequence value from all of the gating sequences

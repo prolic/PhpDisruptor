@@ -32,12 +32,11 @@ abstract class AbstractSequencer implements SequencerInterface
      */
     protected $gatingSequences;
 
-    /*
-    protected final int bufferSize;
-    protected final WaitStrategy waitStrategy;
-    protected final Sequence cursor = new Sequence(Sequencer.INITIAL_CURSOR_VALUE);
-    protected volatile Sequence[] gatingSequences = new Sequence[0];
-    */
+    /**
+     * @var StorageInterface
+     */
+    protected $storage;
+
     /**
      * @param StorageInterface $storage
      * @param int $bufferSize
@@ -53,9 +52,11 @@ abstract class AbstractSequencer implements SequencerInterface
             throw new Exception\InvalidArgumentException('buffer size must be a power of 2');
         }
 
-        $this->cursor = new Sequence($storage);
-        $this->gatingSequences[] = new Sequence($storage);
+        $this->storage = $storage;
+        $this->bufferSize = $bufferSize;
         $this->waitStrategy = $waitStrategy;
+        $this->cursor = new Sequence($storage, SequencerInterface::INITIAL_CURSOR_VALUE);
+        $this->gatingSequences = array();
     }
 
     /**

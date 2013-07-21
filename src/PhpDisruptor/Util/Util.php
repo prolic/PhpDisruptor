@@ -64,20 +64,19 @@ abstract class Util
     /**
      * Get an array of {@link Sequence}s for the passed {@link EventProcessor}s
      *
-     * @param EventProcessorInterface[] $processors,... for which to get the sequences
+     * @param EventProcessorInterface[] $processors for which to get the sequences
      * @return Sequence[] the array of {@link Sequence}s
      */
-    public static function getSequencesFor(EventProcessorInterface $processor)
+    public static function getSequencesFor($processors)
     {
-        $processors = func_get_args();
         $sequences = array();
-        for ($i = 0; $i < func_num_args(); $i++) {
-            if (!$processors[$i] instanceof EventProcessorInterface) {
+        foreach ($processors as $eventProcessor) {
+            if (!$eventProcessor instanceof EventProcessorInterface) {
                 throw new Exception\InvalidArgumentException(
                     'processor must be an instance of PhpDisruptor\EventProcessorInterface'
                 );
             }
-            $sequences[$i] = $processors[$i]->getSequence();
+            $sequences[] = $eventProcessor->getSequence();
         }
         return $sequences;
     }
