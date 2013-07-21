@@ -13,8 +13,10 @@ abstract class SequenceGroups
      * @param Sequence[] $sequencesToAdd
      */
     public static function addSequences(
-        SequencerInterface $sequencer, // holder
-        StorageInterface $storage, // updater
+        SequencerInterface $sequencer,
+        // holder
+        StorageInterface $storage,
+        // updater
         CursoredInterface $cursor,
         $sequencesToAdd
     ) {
@@ -22,8 +24,8 @@ abstract class SequenceGroups
         $updatedSequences = array();
         $currentSequences = array();
 
-      /*
-    {
+        /*
+        {
         long cursorSequence;
         Sequence[] updatedSequences;
         Sequence[] currentSequences;
@@ -49,6 +51,6 @@ abstract class SequenceGroups
             sequence.set(cursorSequence);
         }
 
-         */
+        */
     }
 }

@@ -14,5 +14,5 @@ interface EventFactoryInterface
      *
      * @return EventInterface
      */
-   public function newInstance();
+    public function newInstance();
 }

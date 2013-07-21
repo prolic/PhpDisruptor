@@ -41,7 +41,8 @@ class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInte
             }
             if ($eventHandler->getEventClass() != $eventClass) {
                 throw new Exception\InvalidArgumentException(
-                    'all event handler must use the same event class as the aggregate event handler, this case: ' . $eventClass
+                    'all event handler must use the same event class as the aggregate event handler, '
+                    . ' in this case: "' . $eventClass .'"'
                 );
             }
         }
