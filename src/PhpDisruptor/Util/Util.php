@@ -18,7 +18,7 @@ abstract class Util
     public static function ceilingNextPowerOfTwo($x)
     {
         if (!is_numeric($x)) {
-            throw new Exception\InvalidArgumentException('integer expected');
+            throw new Exception\InvalidArgumentException('$x must be an integer');
         }
 
         $size = PHP_INT_SIZE * 8;
@@ -47,12 +47,12 @@ abstract class Util
             $minimum = PHP_INT_MAX;
         }
         if (!is_numeric($minimum)) {
-            throw new Exception\InvalidArgumentException('minimum must be an integer');
+            throw new Exception\InvalidArgumentException('$minimum must be an integer or null');
         }
 
         foreach ($sequences as $sequence) {
             if (!$sequence instanceof Sequence) {
-                throw new Exception\InvalidArgumentException('Sequence must be an instance of PhpDisruptor\Sequence');
+                throw new Exception\InvalidArgumentException('$sequence must be an instance of PhpDisruptor\Sequence');
             }
             $value = $sequence->get();
             $minimum = min($minimum, $value);
@@ -73,7 +73,7 @@ abstract class Util
         foreach ($processors as $eventProcessor) {
             if (!$eventProcessor instanceof EventProcessorInterface) {
                 throw new Exception\InvalidArgumentException(
-                    'processor must be an instance of PhpDisruptor\EventProcessorInterface'
+                    '$processor must be an instance of PhpDisruptor\EventProcessorInterface'
                 );
             }
             $sequences[] = $eventProcessor->getSequence();
@@ -91,7 +91,7 @@ abstract class Util
     public static function log2($i)
     {
         if (!is_numeric($i)) {
-            throw new Exception\InvalidArgumentException('integer expected');
+            throw new Exception\InvalidArgumentException('$i must be an integer');
         }
         $r = 0;
         while (($i >>= 1) != 0) {

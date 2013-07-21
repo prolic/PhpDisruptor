@@ -41,6 +41,7 @@ abstract class AbstractSequencer implements SequencerInterface
      * @param StorageInterface $storage
      * @param int $bufferSize
      * @param WaitStrategyInterface $waitStrategy
+     * @throws Exception\InvalidArgumentException
      */
     public function __construct(StorageInterface $storage, $bufferSize, WaitStrategyInterface $waitStrategy)
     {
