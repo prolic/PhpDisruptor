@@ -15,8 +15,11 @@ class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInte
     protected $eventHandlers;
 
     /**
+     * Constructor
+     *
      * @param string $eventClass
      * @param EventHandlerInterface[] $eventHandlers
+     * @throws Exception\InvalidArgumentException
      */
     public function __construct($eventClass, $eventHandlers)
     {
@@ -28,18 +31,15 @@ class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInte
         $event = new $eventClass;
         if (!$event instanceof EventInterface) {
             throw new Exception\InvalidArgumentException(
-                'invalid event class given, must be an instance of PhpDisruptor\EventInterface'
+                'invalid event class given, must be an implementation of PhpDisruptor\EventInterface'
             );
         }
         $this->eventClass = $eventClass;
 
         foreach ($eventHandlers as $eventHandler) {
-            if (!$eventHandler instanceof EventHandlerInterface) {
-                throw new Exception\InvalidArgumentException(
-                    'event handler, must be an instance of PhpDisruptor\EventHandlerInterface'
-                );
-            }
-            if ($eventHandler->getEventClass() != $eventClass) {
+            if (!$eventHandler instanceof EventHandlerInterface
+                || $eventHandler->getEventClass() != $eventClass
+            ) {
                 throw new Exception\InvalidArgumentException(
                     'all event handler must use the same event class as the aggregate event handler, '
                     . ' in this case: "' . $eventClass .'"'
@@ -68,9 +68,15 @@ class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInte
      */
     public function onEvent(EventInterface $event, $sequence, $endOfBatch)
     {
+        if (!is_numeric($sequence)) {
+            throw new Exception\InvalidArgumentException('$sequence must be an integer');
+        }
+        if (!is_bool($endOfBatch)) {
+            throw new Exception\InvalidArgumentException('$endOfBatch must be a boolean');
+        }
         $eventClass = $this->getEventClass();
         if ($event instanceof $eventClass) {
-            throw new Exception\InvalidArgumentException('event class must be an instance of ' . $eventClass);
+            throw new Exception\InvalidArgumentException('$event must be an instance of ' . $eventClass);
         }
 
         foreach ($this->eventHandlers as $eventHandler) {
