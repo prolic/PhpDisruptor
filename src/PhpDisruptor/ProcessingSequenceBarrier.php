@@ -2,6 +2,8 @@
 
 namespace PhpDisruptor;
 
+use Traversable;
+
 class ProcessingSequenceBarrier implements SequenceBarrierInterface
 {
     /**
@@ -41,7 +43,7 @@ class ProcessingSequenceBarrier implements SequenceBarrierInterface
         SequencerInterface $sequencer,
         WaitStrategyInterface $waitStrategy,
         Sequence $cursorSequence,
-        $dependentSequences
+        array $dependentSequences
     ) {
         $this->sequencer = $sequencer;
         $this->waitStrategy = $waitStrategy;

@@ -21,7 +21,7 @@ class FixedSequenceGroup extends Sequence
      *
      * @param Sequence[] $sequences the list of sequences to be tracked under this sequence group
      */
-    public function __construct($sequences)
+    public function __construct(array $sequences)
     {
         foreach ($sequences as $sequence) {
             if (!$sequence instanceof Sequence) {

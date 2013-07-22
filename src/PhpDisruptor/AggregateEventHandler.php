@@ -21,7 +21,7 @@ class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInte
      * @param EventHandlerInterface[] $eventHandlers
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct($eventClass, $eventHandlers)
+    public function __construct($eventClass, array $eventHandlers)
     {
         if (!class_exists($eventClass)) {
             throw new Exception\InvalidArgumentException(

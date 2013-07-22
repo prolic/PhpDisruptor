@@ -18,7 +18,7 @@ abstract class SequenceGroups
         StorageInterface $storage,
         // updater
         CursoredInterface $cursor,
-        $sequencesToAdd
+        array $sequencesToAdd
     ) {
 
         $updatedSequences = array();

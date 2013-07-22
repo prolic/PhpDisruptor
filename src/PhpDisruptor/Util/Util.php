@@ -67,7 +67,7 @@ abstract class Util
      * @param EventProcessorInterface[] $processors for which to get the sequences
      * @return Sequence[] the array of {@link Sequence}s
      */
-    public static function getSequencesFor($processors)
+    public static function getSequencesFor(array $processors)
     {
         $sequences = array();
         foreach ($processors as $eventProcessor) {
