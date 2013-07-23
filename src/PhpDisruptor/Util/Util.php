@@ -23,13 +23,7 @@ abstract class Util
 
         $size = PHP_INT_SIZE * 8;
         $binary = str_pad(decbin($x -1), $size, 0, STR_PAD_LEFT);
-
-        $matches = array();
-        if (!preg_match('/^(0+)[10]*/', $binary, $matches)) {
-            $numberOfLeadingZeros = 0;
-        } else {
-            $numberOfLeadingZeros = strlen($matches[1]);
-        }
+        $numberOfLeadingZeros = strpos($binary, '1');
 
         return 1 << ($size - $numberOfLeadingZeros);
     }
