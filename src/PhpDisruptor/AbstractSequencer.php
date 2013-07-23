@@ -2,16 +2,11 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Util\Util;
 use Zend\Cache\Storage\StorageInterface;
 
 abstract class AbstractSequencer implements SequencerInterface
 {
-
-    /*
-    private static final AtomicReferenceFieldUpdater<AbstractSequencer, Sequence[]> SEQUENCE_UPDATER =
-    AtomicReferenceFieldUpdater.newUpdater(AbstractSequencer.class, Sequence[].class, "gatingSequences");
-    */
-
     /**
      * @var int
      */
@@ -38,6 +33,8 @@ abstract class AbstractSequencer implements SequencerInterface
     protected $storage;
 
     /**
+     * Construct a Sequencer with the selected wait strategy and buffer size.
+     *
      * @param StorageInterface $storage
      * @param int $bufferSize
      * @param WaitStrategyInterface $waitStrategy
@@ -99,14 +96,12 @@ abstract class AbstractSequencer implements SequencerInterface
     */
 
     /**
-     * @see Sequencer#getMinimumSequence()
+     * @inheritdoc
      */
-    /*
-    public long getMinimumSequence()
+    public function getMinimumSequence()
     {
-        return Util.getMinimumSequence(gatingSequences, cursor.get());
+        return Util::getMinimumSequence($this->gatingSequences, $this->cursor->get());
     }
-    */
 
     /**
      * @see Sequencer#newBarrier(Sequence...)
