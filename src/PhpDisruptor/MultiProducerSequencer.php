@@ -266,11 +266,11 @@ class MultiProducerSequencer extends AbstractSequencer
      */
     protected function calculateAvailabilityFlag($sequence)
     {
-        return (int) $sequence >> $this->indexShift;
+        return (int) ($sequence >> $this->indexShift);
     }
 
     protected function calculateIndex($sequence)
     {
-        return ((int) $sequence & $this->indexMask);
+        return (int) ($sequence & $this->indexMask);
     }
 }
