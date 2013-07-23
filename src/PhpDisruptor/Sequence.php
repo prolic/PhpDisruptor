@@ -15,7 +15,7 @@ class Sequence
     protected $key;
 
     /**
-     * @var mixed
+     * @var StorageInterface
      */
     protected $storage;
 
@@ -49,7 +49,7 @@ class Sequence
         }
 
         if (null === $key) {
-            $key = 'sequence_' . sha1(gethostname() . getmypid() . microtime(true));
+            $key = 'sequence_' . sha1(gethostname() . getmypid() . microtime(true) . spl_object_hash($this));
         }
 
         $this->key = $key;
