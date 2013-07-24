@@ -35,23 +35,12 @@ class SequenceGroup extends Sequence implements SequenceHolderInterface
     }
 
     /**
-     * Cas the sequences
-     *
-     * @param array $sequences
-     * @return bool, true on success, false on failure, (will always use cas)
-     * @throws Exception\InvalidArgumentException
+     * @param Sequence[] $sequences
+     * @return bool
      */
     public function casSequences(array $sequences)
     {
-        $oldSequences = $this->getSequences();
-        foreach ($sequences as $sequence) {
-            if (!$sequence instanceof Sequence) {
-                throw new Exception\InvalidArgumentException(
-                    '$sequences must be an array of PhpDisruptor\Sequence'
-                );
-            }
-        }
-        return $this->storage->checkAndSetItem($oldSequences, $this->key, $sequences);
+        return Util::casSequences($this->storage, $this->key, $sequences);
     }
 
     /**

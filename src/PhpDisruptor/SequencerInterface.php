@@ -2,7 +2,7 @@
 
 namespace PhpDisruptor;
 
-interface SequencerInterface extends CursoredInterface
+interface SequencerInterface extends CursoredInterface, SequenceHolderInterface
 {
     const INITIAL_CURSOR_VALUE = -1;
 
@@ -78,7 +78,7 @@ interface SequencerInterface extends CursoredInterface
      * Add the specified gating sequences to this instance of the Disruptor.  They will
      * safely and atomically added to the list of gating sequences.
      *
-     * @param SequencerInterface[] $gatingSequences The sequences to add.
+     * @param Sequence[] $gatingSequences The sequences to add.
      * @return void
      * @throws Exception\InvalidArgumentException
      */
@@ -87,17 +87,17 @@ interface SequencerInterface extends CursoredInterface
     /**
      * Remove the specified sequence from this sequencer.
      *
-     * @param SequencerInterface $sequence to be removed.
+     * @param Sequence $sequence to be removed.
      * @return bool true if this sequence was found, false otherwise.
      */
-    public function removeGatingSequence(SequencerInterface $sequence);
+    public function removeGatingSequence(Sequence $sequence);
 
     /**
      * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
      * are available to be read from the ring buffer given a list of sequences to track.
      *
      * @see SequenceBarrierInterface
-     * @param SequencerInterface[] $sequencesToTrack
+     * @param Sequence[] $sequencesToTrack
      * @return SequenceBarrierInterface A sequence barrier that will track the specified sequences.
      */
     public function newBarrier($sequencesToTrack);

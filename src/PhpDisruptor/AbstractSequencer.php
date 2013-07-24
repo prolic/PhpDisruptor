@@ -13,6 +13,11 @@ abstract class AbstractSequencer implements SequencerInterface
     protected $bufferSize;
 
     /**
+     * @var string
+     */
+    protected $key;
+
+    /**
      * @var WaitStrategyInterface
      */
     protected $waitStrategy;
@@ -21,11 +26,6 @@ abstract class AbstractSequencer implements SequencerInterface
      * @var Sequence
      */
     protected $cursor;
-
-    /**
-     * @var Sequence[]
-     */
-    protected $gatingSequences;
 
     /**
      * @var StorageInterface
@@ -43,18 +43,48 @@ abstract class AbstractSequencer implements SequencerInterface
     public function __construct(StorageInterface $storage, $bufferSize, WaitStrategyInterface $waitStrategy)
     {
         if ($bufferSize < 1) {
-            throw new Exception\InvalidArgumentException('buffer size must not be less than 1');
+            throw new Exception\InvalidArgumentException('$bufferSize must not be less than 1');
         }
 
         if (($bufferSize & ($bufferSize - 1)) == 0) {
-            throw new Exception\InvalidArgumentException('buffer size must be a power of 2');
+            throw new Exception\InvalidArgumentException('$bufferSize must be a power of 2');
         }
 
         $this->storage = $storage;
         $this->bufferSize = $bufferSize;
         $this->waitStrategy = $waitStrategy;
-        $this->cursor = new Sequence($storage, SequencerInterface::INITIAL_CURSOR_VALUE);
-        $this->gatingSequences = array();
+
+        $keySuffix = sha1(gethostname() . getmypid() . microtime(true) . spl_object_hash($this));
+        $this->key = 'sequencer_' . $keySuffix;
+        $cursorKey = 'cursor_' . $keySuffix;
+
+        $this->cursor = new Sequence($storage, SequencerInterface::INITIAL_CURSOR_VALUE, $cursorKey);
+
+        $this->storage->setItem($this->key, array());
+    }
+
+    /**
+     * Returns the gating sequences
+     *
+     * @return Sequence[]
+     */
+    public function getSequences()
+    {
+        $sequences = array();
+        $content = $this->storage->getItem($this->key);
+        foreach ($content as $sequence) {
+            $sequences[] = Sequence::fromKey($this->storage, $sequence);
+        }
+        return $sequences;
+    }
+
+    /**
+     * @param Sequence[] $sequences
+     * @return bool
+     */
+    public function casSequences(array $sequences)
+    {
+        return Util::casSequences($this->storage, $this->key, $sequences);
     }
 
     /**
@@ -77,30 +107,30 @@ abstract class AbstractSequencer implements SequencerInterface
         return $this->bufferSize;
     }
 
-    /*
-    public final void addGatingSequences(Sequence... gatingSequences)
+    /**
+     * @param Sequence[] $gatingSequences
+     * @return void
+     */
+    public function addGatingSequences($gatingSequences)
     {
-    SequenceGroups.addSequences(this, SEQUENCE_UPDATER, this, gatingSequences);
+        SequenceGroups::addSequences($this, $this, $gatingSequences);
     }
-    */
 
     /**
-     * @see Sequencer#removeGatingSequence(Sequence)
+     * @param Sequence $sequence
+     * @return bool|void
      */
-
-    /*
-    public boolean removeGatingSequence(Sequence sequence)
+    public function removeGatingSequence(Sequence $sequence)
     {
-        return SequenceGroups.removeSequence(this, SEQUENCE_UPDATER, sequence);
+        return SequenceGroups::removeSequence($this, $sequence);
     }
-    */
 
     /**
      * @inheritdoc
      */
     public function getMinimumSequence()
     {
-        return Util::getMinimumSequence($this->gatingSequences, $this->cursor->get());
+        return Util::getMinimumSequence($this->getSequences(), $this->cursor->get());
     }
 
     /**

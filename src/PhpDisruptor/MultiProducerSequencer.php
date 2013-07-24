@@ -63,7 +63,7 @@ class MultiProducerSequencer extends AbstractSequencer
     }
 
     /**
-     * @return SplFixedArray
+     * @return array
      */
     protected function availableBuffer()
     {

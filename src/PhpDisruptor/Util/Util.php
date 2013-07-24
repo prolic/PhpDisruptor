@@ -5,6 +5,7 @@ namespace PhpDisruptor\Util;
 use PhpDisruptor\EventProcessorInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
+use Zend\Cache\Storage\StorageInterface;
 
 abstract class Util
 {
@@ -60,6 +61,7 @@ abstract class Util
      *
      * @param EventProcessorInterface[] $processors for which to get the sequences
      * @return Sequence[] the array of {@link Sequence}s
+     * @throws Exception\InvalidArgumentException
      */
     public static function getSequencesFor(array $processors)
     {
@@ -76,11 +78,28 @@ abstract class Util
     }
 
     /**
+     * @param StorageInterface $storage
+     * @param $key
+     * @param Sequence[] $sequences
+     * @return bool
+     */
+    public static function casSequences(StorageInterface $storage, $key, array $sequences)
+    {
+        $oldContent = $storage->getItem($key);
+        $newContent = array();
+        foreach ($sequences as $sequence) {
+            $newContent[] = $sequence->getKey();
+        }
+        return $storage->checkAndSetItem($oldContent, $key, $newContent);
+    }
+
+    /**
      * Calculate the log base 2 of the supplied integer, essentially reports the location
      * of the highest bit.
      *
      * @param int $i Value to calculate log2 for.
      * @return int The log2 value
+     * @throws Exception\InvalidArgumentException
      */
     public static function log2($i)
     {
