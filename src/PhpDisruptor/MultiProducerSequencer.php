@@ -4,12 +4,10 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\Exception\InsufficientCapacityException;
 use PhpDisruptor\Util\Util;
-use SplFixedArray;
 use Zend\Cache\Storage\StorageInterface;
 
 class MultiProducerSequencer extends AbstractSequencer
 {
-
     /**
      * @var Sequence
      */

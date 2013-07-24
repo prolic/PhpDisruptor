@@ -111,7 +111,7 @@ abstract class AbstractSequencer implements SequencerInterface
      * @param Sequence[] $gatingSequences
      * @return void
      */
-    public function addGatingSequences($gatingSequences)
+    public function addGatingSequences(array $gatingSequences)
     {
         SequenceGroups::addSequences($this, $this, $gatingSequences);
     }
@@ -134,12 +134,11 @@ abstract class AbstractSequencer implements SequencerInterface
     }
 
     /**
-     * @see Sequencer#newBarrier(Sequence...)
+     * @param array $sequencesToTrack
+     * @return ProcessingSequenceBarrier
      */
-    /*
-    public SequenceBarrier newBarrier(Sequence... sequencesToTrack)
+    public function newBarrier(array $sequencesToTrack)
     {
-        return new ProcessingSequenceBarrier(this, waitStrategy, cursor, sequencesToTrack);
+        return new ProcessingSequenceBarrier($this, $this->waitStrategy, $this->cursor, $sequencesToTrack);
     }
-    */
 }

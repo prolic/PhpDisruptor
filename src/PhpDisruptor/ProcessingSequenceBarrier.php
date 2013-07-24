@@ -2,8 +2,6 @@
 
 namespace PhpDisruptor;
 
-use Traversable;
-
 class ProcessingSequenceBarrier implements SequenceBarrierInterface
 {
     /**
