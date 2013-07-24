@@ -7,7 +7,7 @@ interface DataProviderInterface
     /**
      * @return string
      */
-    public function getDataClass();
+    public function getEventClass();
 
     /**
      * @param int $sequence
