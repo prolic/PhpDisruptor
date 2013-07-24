@@ -48,7 +48,7 @@ class SingleProducerSequencer extends AbstractSequencer
         $cachedGatingSequence = $this->cachedValue;
 
         if ($wrapPoint > $cachedGatingSequence || $cachedGatingSequence > $nextValue) {
-            $minSequence = Util::getMinimumSequence($this->gatingSequences, $nextValue);
+            $minSequence = Util::getMinimumSequence($this->getSequences(), $nextValue);
             $this->cachedValue = $minSequence;
 
             if ($wrapPoint > $minSequence) {
@@ -78,7 +78,7 @@ class SingleProducerSequencer extends AbstractSequencer
 
         if ($wrapPoint > $cachedGatingSequence || $cachedGatingSequence >  $nextValue) {
 
-            while ($wrapPoint > ($minSequence = Util::getMinimumSequence($this->gatingSequences, $nextValue))) {
+            while ($wrapPoint > ($minSequence = Util::getMinimumSequence($this->getSequences(), $nextValue))) {
                 time_nanosleep(0, 1); // @todo: Use waiting strategy to spin?
             }
             $this->cachedValue = $minSequence;
@@ -116,7 +116,7 @@ class SingleProducerSequencer extends AbstractSequencer
     {
         $nextValue = $this->nextValue;
 
-        $consumed = Util::getMinimumSequence($this->gatingSequences, $nextValue);
+        $consumed = Util::getMinimumSequence($this->getSequences(), $nextValue);
         $produced = $nextValue;
 
         return $this->getBufferSize() - ($produced - $consumed);

@@ -80,7 +80,7 @@ class MultiProducerSequencer extends AbstractSequencer
         if (!is_numeric($requiredCapacity)) {
             throw new Exception\InvalidArgumentException('$requiredCapacity must be an integer');
         }
-        return $this->internalHasAvailableCapacity($this->gatingSequences, $requiredCapacity, $this->cursor->get());
+        return $this->internalHasAvailableCapacity($this->getSequences(), $requiredCapacity, $this->cursor->get());
     }
 
     /**
@@ -130,7 +130,7 @@ class MultiProducerSequencer extends AbstractSequencer
             $cachedGatingSequence = $this->gatingSequenceCache->get();
 
             if ($wrapPoint > $cachedGatingSequence || $cachedGatingSequence > $current) {
-                $gatingSequence = Util::getMinimumSequence($this->gatingSequences, $current);
+                $gatingSequence = Util::getMinimumSequence($this->getSequences(), $current);
 
                 if ($wrapPoint > $gatingSequence) {
                     time_nanosleep(0, 1); // @todo: should we spin based on the wait strategy?
@@ -159,7 +159,7 @@ class MultiProducerSequencer extends AbstractSequencer
             $current = $this->cursor->get();
             $next = $current + $n;
 
-            if (!$this->hasAvailableCapacity($this->gatingSequences, $n, $current)) {
+            if (!$this->hasAvailableCapacity($this->getSequences(), $n, $current)) {
                 throw new Exception\InsufficientCapacityException('insufficient capacity');
             }
         } while (!$this->cursor->compareAndSet($current, $next));
@@ -172,7 +172,7 @@ class MultiProducerSequencer extends AbstractSequencer
      */
     public function remainingCapacity()
     {
-        $consumed = Util::getMinimumSequence($this->gatingSequences, $this->cursor->get());
+        $consumed = Util::getMinimumSequence($this->getSequences(), $this->cursor->get());
         $produced = $this->cursor->get();
         return $this->getBufferSize() - ($produced - $consumed);
     }
@@ -269,6 +269,10 @@ class MultiProducerSequencer extends AbstractSequencer
         return (int) ($sequence >> $this->indexShift);
     }
 
+    /**
+     * @param int $sequence
+     * @return int
+     */
     protected function calculateIndex($sequence)
     {
         return (int) ($sequence & $this->indexMask);
