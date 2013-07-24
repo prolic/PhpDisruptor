@@ -7,7 +7,7 @@ interface EventProcessorInterface extends RunnableInterface
     /**
      * Get a reference to the {@link Sequence} being used by this {@link EventProcessor}.
      *
-     * @return SequencerInterface reference to the {@link Sequence} for this {@link EventProcessor}
+     * @return Sequence reference to the {@link Sequence} for this {@link EventProcessor}
      */
     public function getSequence();
 
