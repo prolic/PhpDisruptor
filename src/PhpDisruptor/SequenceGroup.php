@@ -5,12 +5,13 @@ namespace PhpDisruptor;
 use PhpDisruptor\Util\Util;
 use Zend\Cache\Storage\StorageInterface;
 
-class SequenceGroup extends Sequence
+class SequenceGroup extends Sequence implements SequenceHolderInterface
 {
     /**
      * Constructor
      *
      * @param StorageInterface $storage
+     * @param string|null $key (only for internal use, please don't set the key yourself)
      */
     public function __construct(StorageInterface $storage, $key = null)
     {
@@ -23,7 +24,7 @@ class SequenceGroup extends Sequence
      *
      * @return Sequence[]
      */
-    protected function sequences()
+    public function getSequences()
     {
         $sequences = array();
         $content = $this->storage->getItem($this->key);
@@ -34,19 +35,40 @@ class SequenceGroup extends Sequence
     }
 
     /**
+     * Cas the sequences
+     *
+     * @param array $sequences
+     * @return bool, true on success, false on failure, (will always use cas)
+     * @throws Exception\InvalidArgumentException
+     */
+    public function casSequences(array $sequences)
+    {
+        $oldSequences = $this->getSequences();
+        foreach ($sequences as $sequence) {
+            if (!$sequence instanceof Sequence) {
+                throw new Exception\InvalidArgumentException(
+                    '$sequences must be an array of PhpDisruptor\Sequence'
+                );
+            }
+        }
+        return $this->storage->checkAndSetItem($oldSequences, $this->key, $sequences);
+    }
+
+    /**
      * Get the minimum sequence value for the group.
      *
      * @return int the minimum sequence value for the group.
      */
     public function get()
     {
-        return Util::getMinimumSequence($this->sequences());
+        return Util::getMinimumSequence($this->getSequences());
     }
 
     /**
      * Set all {@link Sequence}s in the group to a given value.
      *
      * @param int $value to set the group of sequences to.
+     * @return void
      * @throws Exception\ExceptionInterface
      */
     public function set($value)
@@ -54,7 +76,7 @@ class SequenceGroup extends Sequence
         if (!is_numeric($value)) {
             throw new Exception\InvalidArgumentException('value must be an integer');
         }
-        $sequences = $this->sequences();
+        $sequences = $this->getSequences();
         foreach ($sequences as $sequence) {
             $sequence->set($value);
         }
@@ -64,13 +86,13 @@ class SequenceGroup extends Sequence
      * Add a {@link Sequence} into this aggregate.  This should only be used during
      * initialisation.  Use {@link SequenceGroup#addWhileRunning(Cursored, Sequence)}
      *
-     * @see SequenceGroup#addWhileRunning(Cursored, Sequence)
      * @param Sequence $sequence to be added to the aggregate.
+     * @return void
      */
     public function add(Sequence $sequence)
     {
         do {
-            $oldSequences = $this->sequences();
+            $oldSequences = $this->getSequences();
 
             $oldContent = array();
             foreach ($oldSequences as $oldSequence) {
@@ -90,22 +112,7 @@ class SequenceGroup extends Sequence
      */
     public function remove(Sequence $sequence)
     {
-        $found = false;
-        do {
-            $oldSequences = $this->sequences();
-            $newSequences = array();
-            $oldContent = array();
-            $newContent = array();
-            foreach ($oldSequences as $oldSequence) {
-                $oldContent[] = $oldSequence->getKey();
-                if ($oldSequence->equals($sequence)) {
-                    $found = true;
-                } else {
-                    $newContent[] = $oldSequence->getKey();
-                }
-            }
-        } while (!$this->compareAndSet($oldContent, $newContent));
-        return $found;
+        return SequenceGroups::removeSequence($this, $sequence);
     }
 
     /**
@@ -115,7 +122,7 @@ class SequenceGroup extends Sequence
      */
     public function size()
     {
-        return count($this->sequences());
+        return count($this->getSequences());
     }
 
     /**
@@ -125,11 +132,11 @@ class SequenceGroup extends Sequence
      *
      * @param CursoredInterface $cursored The data structure that the owner of this sequence group will
      * be pulling it's events from.
-     * @param Sequence $sequence The sequence to add.
+     * @param Sequence[] $sequences The sequence to add.
      * @return void
      */
-    public function addWhileRunning(CursoredInterface $cursored, Sequence $sequence)
+    public function addWhileRunning(CursoredInterface $cursored, array $sequences)
     {
-        //SequenceGroups.addSequences(this, SEQUENCE_UPDATER, cursored, sequence);
+        SequenceGroups::addSequences($this, $cursored, $sequences);
     }
 }
