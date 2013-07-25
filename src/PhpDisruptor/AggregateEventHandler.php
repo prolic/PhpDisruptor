@@ -28,12 +28,6 @@ class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInte
                 'event class "' . $eventClass . '" does not exist'
             );
         }
-        $event = new $eventClass;
-        if (!$event instanceof EventInterface) {
-            throw new Exception\InvalidArgumentException(
-                'invalid event class given, must be an implementation of PhpDisruptor\EventInterface'
-            );
-        }
         $this->eventClass = $eventClass;
 
         foreach ($eventHandlers as $eventHandler) {
@@ -60,14 +54,17 @@ class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInte
     /**
      * Called when a publisher has published an event to the {@link RingBuffer}
      *
-     * @param EventInterface $event published to the {@link RingBuffer}
+     * @param object $event published to the {@link RingBuffer}
      * @param int $sequence of the event being processed
      * @param bool $endOfBatch flag to indicate if this is the last event in a batch from the {@link RingBuffer}
      * @return void
      * @throws Exception\ExceptionInterface if the EventHandler would like the exception handled further up the chain.
      */
-    public function onEvent(EventInterface $event, $sequence, $endOfBatch)
+    public function onEvent($event, $sequence, $endOfBatch)
     {
+        if (!is_object($event)) {
+            throw new Exception\InvalidArgumentException('event must be an object');
+        }
         if (!is_numeric($sequence)) {
             throw new Exception\InvalidArgumentException('$sequence must be an integer');
         }
@@ -75,7 +72,7 @@ class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInte
             throw new Exception\InvalidArgumentException('$endOfBatch must be a boolean');
         }
         $eventClass = $this->getEventClass();
-        if ($event instanceof $eventClass) {
+        if (!$event instanceof $eventClass) {
             throw new Exception\InvalidArgumentException('$event must be an instance of ' . $eventClass);
         }
 

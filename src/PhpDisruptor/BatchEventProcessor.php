@@ -74,12 +74,6 @@ class BatchEventProcessor implements EventProcessorInterface
                 'event class "' . $eventClass . '" does not exist'
             );
         }
-        $event = new $eventClass;
-        if (!$event instanceof EventInterface) {
-            throw new Exception\InvalidArgumentException(
-                'invalid event class given, must be an implementation of PhpDisruptor\EventInterface'
-            );
-        }
         if ($dataProvider->getEventClass() != $eventClass) {
             throw new Exception\InvalidArgumentException(
                 'invalid data provider given, must use the event class: "' . $eventClass . '"'
