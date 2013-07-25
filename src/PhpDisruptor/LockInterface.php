@@ -1,8 +1,30 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: sasa
- * Date: 25.07.13
- * Time: 15:26
- * To change this template use File | Settings | File Templates.
- */
+
+namespace PhpDisruptor;
+
+use DateInterval;
+
+interface LockInterface
+{
+    /**
+     * Acquires the lock.
+     *
+     * @return void
+     */
+    public function lock();
+
+    /**
+     * Acquires the lock if it is free within the given waiting time and the current thread has not been interrupted.
+     *
+     * @param DateInterval $interval
+     * @return bool
+     */
+    public function tryLock(DateInterval $interval);
+
+    /**
+     * Releases the lock.
+     *
+     * @return void
+     */
+    public function unLock();
+}
