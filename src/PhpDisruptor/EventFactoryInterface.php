@@ -12,7 +12,7 @@ interface EventFactoryInterface
     /*
      * Implementations should instantiate an event object, with all memory already allocated where possible.
      *
-     * @return EventInterface
+     * @return object
      */
     public function newInstance();
 }

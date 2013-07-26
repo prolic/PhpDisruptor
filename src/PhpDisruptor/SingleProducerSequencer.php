@@ -60,7 +60,7 @@ class SingleProducerSequencer extends AbstractSequencer
     }
 
     /**
-     * @param int|null $n
+     * @param int $n
      * @return int
      * @throws Exception\InvalidArgumentException
      */

@@ -25,10 +25,10 @@ interface SequencerInterface extends CursoredInterface, SequenceHolderInterface
     /**
      * Claim the next event in sequence for publishing.
      *
-     * @param int|null $n
+     * @param int $n
      * @return int the claimed sequence value
      */
-    public function next($n = null);
+    public function next($n = 1);
 
     /**
      * Attempt to claim the next event in sequence for publishing.  Will return the

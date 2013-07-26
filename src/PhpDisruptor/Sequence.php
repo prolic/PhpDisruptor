@@ -30,51 +30,26 @@ class Sequence
      */
     public function __construct(StorageInterface $storage, $initialValue = null, $key = null)
     {
-        $initialValue = $this->init($storage, $initialValue, $key);
-        $this->set($initialValue);
-    }
-
-    /**
-     * @param StorageInterface $storage
-     * @param null $initialValue
-     * @param null $key
-     * @return int|null $initialValue
-     */
-    protected function init(StorageInterface $storage, $initialValue, $key)
-    {
-        if (null === $initialValue) {
-            $initialValue = self::INITIAL_VALUE;
+        if (null === $initialValue && null !== $key) {
+            $initialValue = $storage->getItem($key);
         } elseif (!is_numeric($initialValue)) {
-            throw new Exception\InvalidArgumentException('initial value must be an integer or null');
+            throw new Exception\InvalidArgumentException('$initialValue must be an integer or null');
+        } elseif (null === $initialValue) {
+            $initialValue = self::INITIAL_VALUE;
         }
-
         if (null === $key) {
             $key = 'sequence_' . sha1(gethostname() . getmypid() . microtime(true) . spl_object_hash($this));
+            $storage->setItem($key, $initialValue);
         }
-
         $this->key = $key;
         $this->storage = $storage;
-        return $initialValue;
-    }
-
-    /**
-     * Instantiate sequence from sequence key
-     *
-     * @param StorageInterface $storage
-     * @param string $key
-     * @return Sequence
-     */
-    public static function fromKey(StorageInterface $storage, $key)
-    {
-        $initialValue = $storage->getItem($key);
-        $sequence = new static($storage, $initialValue, $key);
-        return $sequence;
     }
 
     /**
      * Perform a volatile read of this sequence's value.
      *
      * @return int The current value of the sequence.
+     * @throws Exception\RuntimeException
      */
     public function get()
     {
@@ -93,6 +68,7 @@ class Sequence
      * @param int $value The new value for the sequence.
      * @return bool
      * @throws Exception\InvalidArgumentException
+     * @throws Exception\RuntimeException
      */
     public function set($value)
     {
@@ -112,6 +88,7 @@ class Sequence
      * @param int $expectedValue The expected current value.
      * @param int $newValue The value to update to.
      * @return bool true if the operation succeeds, false otherwise.
+     * @throws Exception\RuntimeException
      */
     public function compareAndSet($expectedValue, $newValue)
     {

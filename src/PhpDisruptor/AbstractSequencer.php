@@ -73,7 +73,7 @@ abstract class AbstractSequencer implements SequencerInterface
         $sequences = array();
         $content = $this->storage->getItem($this->key);
         foreach ($content as $sequence) {
-            $sequences[] = Sequence::fromKey($this->storage, $sequence);
+            $sequences[] = new Sequence($this->storage, $sequence);
         }
         return $sequences;
     }
