@@ -14,8 +14,8 @@ interface EventTranslatorInterface
      *
      * @param object $event into which the data should be translated.
      * @param int $sequence that is assigned to event.
-     * @param array|null $args
+     * @param array $args
      * @return void
      */
-    public function translateTo($event, $sequence, array $args);
+    public function translateTo($event, $sequence, array $args = array());
 }
