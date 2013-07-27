@@ -61,6 +61,16 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
     }
 
     /**
+     * Get the event class
+     *
+     * @return string
+     */
+    public function getEventClass()
+    {
+        return $this->eventClass;
+    }
+
+    /**
      * Create a new multiple producer RingBuffer with the specified wait strategy.
      *
      * @param StorageInterface $storage
@@ -544,5 +554,39 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
             throw new $e;
         }
         $this->sequencer->publish($sequence);
+    }
+
+    /**
+     * @param EventTranslatorInterface $translator
+     * @param $batchStartsAt
+     * @param $batchSize
+     * @param $finalSequence
+     * @param array $args
+     * @return void
+     * @throws \Exception
+     */
+    protected function translateAndPublishBatch(
+        EventTranslatorInterface $translator,
+        $batchStartsAt,
+        $batchSize,
+        $finalSequence,
+        array $args = array()
+    ) {
+        $initialSequence = $finalSequence - ($batchSize - 1);
+        try {
+            $sequence = $initialSequence;
+            $batchEndsAt = $batchStartsAt + $batchSize;
+            for ($i = $batchStartsAt; $i < $batchEndsAt; $i++) {
+                $translateArgs = array();
+                foreach ($args as $arg) {
+                    $translateArgs[] = $arg[$i];
+                }
+                $translator->translateTo($this->get($sequence), $sequence++, $translateArgs);
+            }
+        } catch (\Exception $e) {
+            $this->sequencer->publish($initialSequence, $finalSequence);
+            throw $e;
+        }
+        $this->sequencer->publish($initialSequence, $finalSequence);
     }
 }
