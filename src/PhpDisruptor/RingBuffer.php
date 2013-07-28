@@ -545,22 +545,33 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
         }
     }
 
+    /**
+     * Translate and publish
+     *
+     * @param EventTranslatorInterface $translator
+     * @param int $sequence
+     * @param array $args
+     * @return void
+     * @throws \Exception
+     */
     protected function translateAndPublish(EventTranslatorInterface $translator, $sequence, array $args = array())
     {
         try {
             $translator->translateTo($this->get($sequence), $sequence, $args);
         } catch (\Exception $e) {
             $this->sequencer->publish($sequence);
-            throw new $e;
+            throw $e;
         }
         $this->sequencer->publish($sequence);
     }
 
     /**
+     * Translate and publish batch
+     *
      * @param EventTranslatorInterface $translator
-     * @param $batchStartsAt
-     * @param $batchSize
-     * @param $finalSequence
+     * @param int $batchStartsAt
+     * @param int $batchSize
+     * @param int $finalSequence
      * @param array $args
      * @return void
      * @throws \Exception
