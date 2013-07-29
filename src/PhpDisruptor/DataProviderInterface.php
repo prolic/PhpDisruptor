@@ -2,13 +2,8 @@
 
 namespace PhpDisruptor;
 
-interface DataProviderInterface
+interface DataProviderInterface extends EventClassCapableInterface
 {
-    /**
-     * @return string
-     */
-    public function getEventClass();
-
     /**
      * @param int $sequence
      * @return DataInterface

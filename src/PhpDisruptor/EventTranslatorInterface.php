@@ -2,13 +2,8 @@
 
 namespace PhpDisruptor;
 
-interface EventTranslatorInterface
+interface EventTranslatorInterface extends EventClassCapableInterface
 {
-    /**
-     * @return string
-     */
-    public function getEventClass();
-
     /**
      * Translate a data representation into fields set in given event
      *

@@ -2,13 +2,8 @@
 
 namespace PhpDisruptor;
 
-interface EventFactoryInterface
+interface EventFactoryInterface extends EventClassCapableInterface
 {
-    /**
-     * @return string
-     */
-    public function getEventClass();
-
     /*
      * Implementations should instantiate an event object, with all memory already allocated where possible.
      *

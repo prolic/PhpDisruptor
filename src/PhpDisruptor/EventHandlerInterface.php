@@ -7,13 +7,8 @@ namespace PhpDisruptor;
  *
  * @see BatchEventProcessor#setExceptionHandler(ExceptionHandler)
  */
-interface EventHandlerInterface
+interface EventHandlerInterface extends EventClassCapableInterface
 {
-    /**
-     * @return string
-     */
-    public function getEventClass();
-
     /**
      * Called when a publisher has published an event to the {@link RingBuffer}
      *
