@@ -53,7 +53,7 @@ abstract class SequenceGroups
                 break;
             }
             $oldSize = count($oldSequences);
-            $newSequences = new Sequence($oldSize - $numToRemove);
+            $newSequences = new Sequence($oldSize - $numToRemove); // @todo: bug !!! false parameters
             for ($i = 0, $pos = 0; $i < $oldSize; $i++) {
                 $testSequence = $oldSequences[$i];
                 if (!$testSequence->equals($sequence)) {
