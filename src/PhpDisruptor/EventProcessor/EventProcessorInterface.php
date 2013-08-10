@@ -1,6 +1,9 @@
 <?php
 
-namespace PhpDisruptor;
+namespace PhpDisruptor\EventProcessor;
+
+use PhpDisruptor\RunnableInterface;
+use PhpDisruptor\Sequence;
 
 interface EventProcessorInterface extends RunnableInterface
 {
@@ -13,7 +16,7 @@ interface EventProcessorInterface extends RunnableInterface
 
     /**
      * Signal that this EventProcessor should stop when it has finished consuming at the next clean break.
-     * It will call {@link SequenceBarrier#alert()} to notify the thread to check status.
+     * It will call {@link SequenceBarrierInterface#alert()} to notify the thread to check status.
      *
      * @return void
      */

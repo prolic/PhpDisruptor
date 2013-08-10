@@ -63,6 +63,16 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
     }
 
     /**
+     * Get storage
+     *
+     * @return StorageInterface
+     */
+    public function getStorage()
+    {
+        return $this->storage;
+    }
+
+    /**
      * Get the event class
      *
      * @return string
