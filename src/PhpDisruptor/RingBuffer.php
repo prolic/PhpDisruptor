@@ -360,7 +360,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @return void
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function publishEvent(EventTranslatorInterface $translator, array $args = array()) // @todo: add more parameters
+    public function publishEvent(EventTranslatorInterface $translator, array $args = array()) // @todo: more parameters
     {
         $this->checkTranslator($translator);
         $this->translateAndPublish($translator, $this->sequencer->next(), $args);
@@ -549,7 +549,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      */
     protected function batchOverRuns(array $args, $batchStartsAt, $batchSize)
     {
-        if($batchStartsAt + $batchSize > count($args)) {
+        if ($batchStartsAt + $batchSize > count($args)) {
             throw new Exception\InvalidArgumentException(
                 'A batchSize of: ' . $batchSize . ' with batchStartsAt of: ' . $batchStartsAt
                 . ' will overrun the available number of arguments: ' . (count($args) - $batchStartsAt)
