@@ -156,6 +156,7 @@ class BatchEventProcessor implements EventProcessorInterface
                     break;
                 }
             } catch (\Exception $e) {
+                $event = isset($event) ? $event : '';
                 $this->exceptionHandler->handleEventException($e, $nextSequence, $event);
                 $this->getSequence()->set($nextSequence);
                 $nextSequence++;
