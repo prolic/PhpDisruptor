@@ -1,6 +1,17 @@
 <?php
 
-namespace PhpDisruptor;
+namespace PhpDisruptor\EventProcessor;
+
+use PhpDisruptor\DataProviderInterface;
+use PhpDisruptor\Exception;
+use PhpDisruptor\ExceptionHandlerInterface;
+use PhpDisruptor\FatalExceptionHandler;
+use PhpDisruptor\SequenceBarrierInterface;
+use PhpDisruptor\EventHandlerInterface;
+use PhpDisruptor\LifecycleAwareInterface
+use PhpDisruptor\Sequence;
+use PhpDisruptor\SequencerInterface;
+use PhpDisruptor\TimeoutHandlerInterface;
 use Zend\Log\LoggerInterface;
 
 /**
@@ -192,8 +203,7 @@ class BatchEventProcessor implements EventProcessorInterface
      */
     protected function notifyShutdown()
     {
-        if ($this->eventHandler instanceof LifecycleAwareInterface)
-        {
+        if ($this->eventHandler instanceof LifecycleAwareInterface) {
             try {
                 $this->eventHandler->onShutdown();
             } catch (\Exception $e) {
