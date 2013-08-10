@@ -81,13 +81,13 @@ class BlockingWaitStrategy implements WaitStrategyInterface
     {
         // disabled for non condition implementation
 
-//        $this->lock->lock();
-//        try {
-//            $this->condition->signalAll();
-//        } catch (\Exception $e) {
-//            $this->lock->unlock();
-//            throw $e;
-//        }
-//        $this->lock->unlock();
+        //$this->lock->lock();
+        //try {
+        //    $this->condition->signalAll();
+        //} catch (\Exception $e) {
+        //    $this->lock->unlock();
+        //    throw $e;
+        //}
+        //$this->lock->unlock();
     }
 }
