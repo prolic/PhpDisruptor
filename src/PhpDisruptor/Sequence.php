@@ -30,19 +30,20 @@ class Sequence
      */
     public function __construct(StorageInterface $storage, $initialValue = null, $key = null)
     {
-        if (null === $initialValue && null !== $key) {
-            $initialValue = $storage->getItem($key);
-        } elseif (!is_numeric($initialValue)) {
-            throw new Exception\InvalidArgumentException('$initialValue must be an integer or null');
-        } elseif (null === $initialValue) {
-            $initialValue = self::INITIAL_VALUE;
-        }
+        $this->storage = $storage;
         if (null === $key) {
             $key = 'sequence_' . sha1(gethostname() . getmypid() . microtime(true) . spl_object_hash($this));
+            if (null === $initialValue) {
+                $initialValue = static::INITIAL_VALUE;
+            }
+            if (!is_numeric($initialValue)) {
+                throw new Exception\InvalidArgumentException(
+                    '$initialValue must be an integer'
+                );
+            }
             $storage->setItem($key, $initialValue);
         }
         $this->key = $key;
-        $this->storage = $storage;
     }
 
     /**

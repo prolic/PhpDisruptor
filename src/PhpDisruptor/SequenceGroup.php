@@ -15,7 +15,7 @@ class SequenceGroup extends Sequence implements SequenceHolderInterface
      */
     public function __construct(StorageInterface $storage, $key = null)
     {
-        $this->init($storage, static::INITIAL_VALUE, $key);
+        parent::__construct($storage, static::INITIAL_VALUE, $key);
         $this->storage->setItem($this->key, array());
     }
 
@@ -29,7 +29,7 @@ class SequenceGroup extends Sequence implements SequenceHolderInterface
         $sequences = array();
         $content = $this->storage->getItem($this->key);
         foreach ($content as $sequence) {
-            $sequences[] = new Sequence($this->storage, $sequence);
+            $sequences[] = new Sequence($this->storage, Sequence::INITIAL_VALUE, $sequence);
         }
         return $sequences;
     }

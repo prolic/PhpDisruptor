@@ -2,6 +2,8 @@
 
 namespace PhpDisruptor;
 
+use Zend\Cache\Storage\StorageInterface;
+
 abstract class SequenceGroups
 {
     /**
@@ -52,8 +54,10 @@ abstract class SequenceGroups
             if (0 == $numToRemove) {
                 break;
             }
+
             $oldSize = count($oldSequences);
-            $newSequences = new Sequence($oldSize - $numToRemove); // @todo: bug !!! false parameters
+
+            $newSequences = array();
             for ($i = 0, $pos = 0; $i < $oldSize; $i++) {
                 $testSequence = $oldSequences[$i];
                 if (!$testSequence->equals($sequence)) {
