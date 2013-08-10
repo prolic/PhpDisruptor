@@ -2,6 +2,8 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\WaitStrategy\BlockingWaitStrategy;
+use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use SplFixedArray;
 use Zend\Cache\Storage\StorageInterface;
 
@@ -86,7 +88,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
         WaitStrategyInterface $waitStrategy = null
     ) {
         if (null === $waitStrategy) {
-            $waitStrategy = new BlockingWaitStrategy(); // @todo: implement
+            $waitStrategy = new BlockingWaitStrategy($storage);
         }
         $sequencer = new MultiProducerSequencer($storage, $bufferSize, $waitStrategy);
         return new static($factory, $sequencer);
@@ -108,7 +110,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
         WaitStrategyInterface $waitStrategy = null
     ) {
         if (null === $waitStrategy) {
-            $waitStrategy = new BlockingWaitStrategy(); // @todo: implement
+            $waitStrategy = new BlockingWaitStrategy($storage);
         }
         $sequencer = new SingleProducerSequencer($storage, $bufferSize, $waitStrategy);
         return new static($factory, $sequencer);
