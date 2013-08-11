@@ -4,6 +4,7 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\Exception\InsufficientCapacityException;
 use PhpDisruptor\Util\Util;
+use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use Zend\Cache\Storage\StorageInterface;
 
 class MultiProducerSequencer extends AbstractSequencer
