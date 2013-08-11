@@ -1,6 +1,10 @@
 <?php
 
-namespace PhpDisruptor;
+namespace PhpDisruptor\WaitStrategy;
+
+use PhpDisruptor\Exception;
+use PhpDisruptor\Sequence;
+use PhpDisruptor\SequenceBarrierInterface;
 
 class BusySpinWaitStrategy implements WaitStrategyInterface
 {
@@ -25,6 +29,9 @@ class BusySpinWaitStrategy implements WaitStrategyInterface
         return $availableSequence;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function signalAllWhenBlocking()
     {
     }
