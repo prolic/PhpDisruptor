@@ -1,6 +1,10 @@
 <?php
 
-namespace PhpDisruptor;
+namespace PhpDisruptor\Dsl;
+
+use PhpDisruptor\ExecutorInterface;
+use PhpDisruptor\SequenceBarrierInterface;
+use PhpDisruptor\SequencerInterface;
 
 interface ConsumerInfoInterface
 {
