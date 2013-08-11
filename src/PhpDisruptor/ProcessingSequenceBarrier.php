@@ -2,6 +2,8 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
+
 class ProcessingSequenceBarrier implements SequenceBarrierInterface
 {
     /**
