@@ -3,6 +3,7 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Util\Util;
+use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use Zend\Cache\Storage\StorageInterface;
 
 abstract class AbstractSequencer implements SequencerInterface
