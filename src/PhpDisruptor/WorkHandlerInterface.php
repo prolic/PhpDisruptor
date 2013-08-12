@@ -2,7 +2,7 @@
 
 namespace PhpDisruptor;
 
-interface WorkHandler extends EventClassCapableInterface
+interface WorkHandlerInterface extends EventClassCapableInterface
 {
     /**
      * @param object $event
