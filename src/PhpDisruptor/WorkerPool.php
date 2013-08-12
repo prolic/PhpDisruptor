@@ -54,7 +54,13 @@ class WorkerPool implements EventClassCapableInterface
         $this->workProcessors = array();
         foreach ($workHandlers as $workHandler) {
             $this->validateWorkHandler($workHandler);
-            $this->workProcessors[] = new WorkProcessor($ringBuffer, $sequenceBarrier, $workHandler, $exceptionHandler, $this->workSequence);
+            $this->workProcessors[] = new WorkProcessor(
+                $ringBuffer,
+                $sequenceBarrier,
+                $workHandler,
+                $exceptionHandler,
+                $this->workSequence
+            );
         }
     }
 
