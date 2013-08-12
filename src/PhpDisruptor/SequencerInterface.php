@@ -100,7 +100,7 @@ interface SequencerInterface extends CursoredInterface, SequenceHolderInterface
      * @param Sequence[] $sequencesToTrack
      * @return SequenceBarrierInterface A sequence barrier that will track the specified sequences.
      */
-    public function newBarrier(array $sequencesToTrack);
+    public function newBarrier(array $sequencesToTrack = array());
 
     /**
      * Get the minimum sequence value from all of the gating sequences

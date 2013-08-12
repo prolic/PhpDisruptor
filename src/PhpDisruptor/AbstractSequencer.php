@@ -138,7 +138,7 @@ abstract class AbstractSequencer implements SequencerInterface
      * @param array $sequencesToTrack
      * @return ProcessingSequenceBarrier
      */
-    public function newBarrier(array $sequencesToTrack)
+    public function newBarrier(array $sequencesToTrack = array())
     {
         return new ProcessingSequenceBarrier($this, $this->waitStrategy, $this->cursor, $sequencesToTrack);
     }
