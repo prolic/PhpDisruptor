@@ -275,7 +275,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @param Sequence[] $sequencesToTrack the additional sequences to track
      * @return SequenceBarrierInterface A sequence barrier that will track the specified sequences.
      */
-    public function newBarrier(array $sequencesToTrack)
+    public function newBarrier(array $sequencesToTrack = array())
     {
         return $this->sequencer->newBarrier($sequencesToTrack);
     }
