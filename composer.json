@@ -14,7 +14,8 @@
     "require": {
         "php": ">=5.3.3",
         "zendframework/zend-cache": ">=2.2.1",
-        "prolic/humus-lock": "0.*"
+        "prolic/humus-lock": "0.*",
+        "marc-mabe/php-enum": "1.0.0-beta1"
     },
     "require-dev": {
         "zendframework/zendframework": ">=2.2.1",
