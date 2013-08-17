@@ -30,7 +30,7 @@ interface SequenceBarrierInterface
     public function isAlerted();
 
     /**
-     * Alert the {@link EventProcessor}s of a status change and stay in this status until cleared.
+     * Alert the EventProcessors of a status change and stay in this status until cleared.
      *
      * @return void
      */
@@ -44,7 +44,7 @@ interface SequenceBarrierInterface
     public function clearAlert();
 
     /**
-     * Check if an alert has been raised and throw an {@link AlertException} if it has.
+     * Check if an alert has been raised and throw an AlertException if it has.
      *
      * @return void
      * @throws Exception\AlertException if alert has been raised.

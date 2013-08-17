@@ -12,7 +12,7 @@ interface WaitStrategyInterface
      * Wait for the given sequence to be available.  It is possible for this method to return a value
      * less than the sequence number supplied depending on the implementation of the WaitStrategy.  A common
      * use for this is to signal a timeout.  Any EventProcessor that is using a WaitStragegy to get notifications
-     * about message becoming available should remember to handle this case.  The {@link BatchEventProcessor} explicitly
+     * about message becoming available should remember to handle this case.  The BatchEventProcessor explicitly
      * handles this case and will signal a timeout if required.
      *
      * @param int $sequence to be waited on.
@@ -33,7 +33,7 @@ interface WaitStrategyInterface
     );
 
     /**
-     * Implementations should signal the waiting {@link EventProcessor}s that the cursor has advanced.
+     * Implementations should signal the waiting EventProcessors that the cursor has advanced.
      *
      * @return void
      */

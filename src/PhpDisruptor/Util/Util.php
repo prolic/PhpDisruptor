@@ -57,10 +57,10 @@ abstract class Util
     }
 
     /**
-     * Get an array of {@link Sequence}s for the passed {@link EventProcessor}s
+     * Get an array of Sequences for the passed EventProcessors
      *
      * @param EventProcessorInterface[] $processors for which to get the sequences
-     * @return Sequence[] the array of {@link Sequence}s
+     * @return Sequence[] the array of Sequences
      * @throws Exception\InvalidArgumentException
      */
     public static function getSequencesFor(array $processors)

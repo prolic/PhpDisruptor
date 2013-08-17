@@ -9,10 +9,10 @@ interface ExceptionHandlerInterface
     /**
      * <p>Strategy for handling uncaught exceptions when processing an event.</p>
      *
-     * <p>If the strategy wishes to terminate further processing by the {@link BatchEventProcessor}
-     * then it should throw a {@link RuntimeException}.</p>
+     * <p>If the strategy wishes to terminate further processing by the BatchEventProcessor
+     * then it should throw a RuntimeException.</p>
      *
-     * @param Exception $ex the exception that propagated from the {@link EventHandler}.
+     * @param Exception $ex the exception that propagated from the EventHandler.
      * @param int $sequence of the event which cause the exception.
      * @param object $event being processed when the exception occurred.  This can be null.
      * @return void

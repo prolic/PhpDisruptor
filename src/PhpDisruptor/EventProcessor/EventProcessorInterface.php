@@ -8,9 +8,9 @@ use PhpDisruptor\Sequence;
 interface EventProcessorInterface extends RunnableInterface
 {
     /**
-     * Get a reference to the {@link Sequence} being used by this {@link EventProcessor}.
+     * Get a reference to the Sequence being used by this EventProcessor.
      *
-     * @return Sequence reference to the {@link Sequence} for this {@link EventProcessor}
+     * @return Sequence reference to the Sequence for this EventProcessor
      */
     public function getSequence();
 

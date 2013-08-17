@@ -54,7 +54,7 @@ class SequenceGroup extends Sequence implements SequenceHolderInterface
     }
 
     /**
-     * Set all {@link Sequence}s in the group to a given value.
+     * Set all Sequences in the group to a given value.
      *
      * @param int $value to set the group of sequences to.
      * @return void
@@ -72,7 +72,7 @@ class SequenceGroup extends Sequence implements SequenceHolderInterface
     }
 
     /**
-     * Add a {@link Sequence} into this aggregate.  This should only be used during
+     * Add a Sequence into this aggregate.  This should only be used during
      * initialisation.  Use {@link SequenceGroup#addWhileRunning(Cursored, Sequence)}
      *
      * @param Sequence $sequence to be added to the aggregate.
@@ -94,7 +94,7 @@ class SequenceGroup extends Sequence implements SequenceHolderInterface
     }
 
     /**
-     * Remove the first occurrence of the {@link Sequence} from this aggregate.
+     * Remove the first occurrence of the Sequence from this aggregate.
      *
      * @param Sequence $sequence to be removed from this aggregate.
      * @return bool true if the sequence was removed otherwise false.

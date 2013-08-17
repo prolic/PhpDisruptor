@@ -209,7 +209,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * }
      * </pre>
      * <p>This method will not block if there is not space available in the ring
-     * buffer, instead it will throw an {@link InsufficientCapacityException}.
+     * buffer, instead it will throw an InsufficientCapacityException.
      *
      * @param int $n
      * @return int The next sequence to publish to.

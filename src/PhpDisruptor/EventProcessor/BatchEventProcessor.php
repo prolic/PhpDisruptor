@@ -15,10 +15,10 @@ use PhpDisruptor\TimeoutHandlerInterface;
 use Zend\Log\LoggerInterface;
 
 /**
- * Convenience class for handling the batching semantics of consuming entries from a {@link RingBuffer}
- * and delegating the available events to an {@link EventHandler}.
+ * Convenience class for handling the batching semantics of consuming entries from a RingBuffer
+ * and delegating the available events to an EventHandler.
  *
- * If the {@link EventHandler} also implements {@link LifecycleAware} it will be notified just after the thread
+ * If the EventHandler also implements LifecycleAware it will be notified just after the thread
  * is started and just before the thread is shutdown.
  */
 class BatchEventProcessor implements EventProcessorInterface

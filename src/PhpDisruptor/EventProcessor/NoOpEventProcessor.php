@@ -8,9 +8,9 @@ use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\SequencerFollowingSequence;
 
 /**
- * No operation version of a {@link EventProcessor} that simply tracks a {@link Sequence}.
+ * No operation version of a EventProcessor that simply tracks a Sequence.
  *
- * This is useful in tests or for pre-filling a {@link RingBuffer} from a publisher.
+ * This is useful in tests or for pre-filling a RingBuffer from a publisher.
  */
 class NoOpEventProcessor implements EventProcessorInterface
 {
