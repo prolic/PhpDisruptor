@@ -2,6 +2,7 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Dsl\ProducerType;
 use PhpDisruptor\WaitStrategy\BusySpinWaitStrategy;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use SplFixedArray;
@@ -9,7 +10,7 @@ use Zend\Cache\Storage\StorageInterface;
 
 /**
  * Ring based store of reusable entries containing the data representing
- * an event being exchanged between event producer and {@link EventProcessor}s.
+ * an event being exchanged between event producer and EventProcessors.
  */
 class RingBuffer implements CursoredInterface, DataProviderInterface
 {
@@ -124,6 +125,31 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
         }
         $sequencer = new SingleProducerSequencer($storage, $bufferSize, $waitStrategy);
         return new static($factory, $sequencer);
+    }
+
+    /**
+     * Create a new Ring Buffer with the specified producer type (SINGLE or MULTI)
+     *
+     * @param StorageInterface $storage
+     * @param ProducerType $producerType
+     * @param EventFactoryInterface $eventFactory
+     * @param int $bufferSize
+     * @param WaitStrategyInterface|null $waitStrategy
+     * @return RingBuffer
+     */
+    public function create(
+        StorageInterface $storage,
+        ProducerType $producerType,
+        EventFactoryInterface $eventFactory,
+        $bufferSize,
+        WaitStrategyInterface $waitStrategy = null
+    ) {
+        switch ($producerType) {
+            case ProducerType::SINGLE:
+                return static::createSingleProducer($storage, $eventFactory, $bufferSize, $waitStrategy);
+            case ProducerType::MULTI:
+                return static::createMultiProducer($storage, $eventFactory, $bufferSize, $waitStrategy);
+        }
     }
 
     /**
