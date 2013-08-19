@@ -23,7 +23,7 @@ class Histogram
     protected  $upperBounds;
 
     /**
-     * @var SplFixedArray
+     * @var array
      */
     protected $counts;
 
