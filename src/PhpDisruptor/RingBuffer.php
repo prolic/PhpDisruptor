@@ -137,7 +137,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @param WaitStrategyInterface|null $waitStrategy
      * @return RingBuffer
      */
-    public function create(
+    public static function create(
         StorageInterface $storage,
         ProducerType $producerType,
         EventFactoryInterface $eventFactory,
