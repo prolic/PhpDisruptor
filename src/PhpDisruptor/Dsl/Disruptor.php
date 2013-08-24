@@ -4,11 +4,15 @@ namespace PhpDisruptor\Dsl;
 
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventHandlerInterface;
+use PhpDisruptor\EventProcessor\BatchEventProcessor;
 use PhpDisruptor\EventProcessor\EventProcessorInterface;
 use PhpDisruptor\EventTranslatorInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandlerInterface;
 use PhpDisruptor\RingBuffer;
+use PhpDisruptor\Sequence;
+use PhpDisruptor\SequenceBarrierInterface;
+use PhpDisruptor\WorkerPool;
 use PhpDisruptor\WorkHandlerInterface;
 use PhpDisruptor\Util\Util;
 use Zend\Cache\Storage\StorageInterface;
@@ -310,5 +314,143 @@ class Disruptor implements EventClassCapableInterface
          */
     }
 
+    /**
+     * The RingBuffer used by this Disruptor.  This is useful for creating custom
+     * event processors if the behaviour of BatchEventProcessor is not suitable.
+     *
+     * @return RingBuffer
+     */
+    public function getRingBuffer()
+    {
+        return $this->ringBuffer;
+    }
 
+    /**
+     * Get the value of the cursor indicating the published sequence.
+     *
+     * @return int value of the cursor for events that have been published.
+     */
+    public function getCursor()
+    {
+        return $this->ringBuffer->getCursor();
+    }
+
+    /**
+     * The capacity of the data structure to hold entries.
+     *
+     * @return int the size of the RingBuffer.
+     */
+    public function getBufferSize()
+    {
+        return $this->ringBuffer->getBufferSize();
+    }
+
+    /**
+     * Get the event for a given sequence in the RingBuffer.
+     *
+     * @param int $sequence for the event.
+     * @return object event for the sequence.
+     */
+    public function get($sequence)
+    {
+        return $this->ringBuffer->get($sequence);
+    }
+
+    /**
+     * Get the SequenceBarrier used by a specific handler. Note that the SequenceBarrier
+     * may be shared by multiple event handlers.
+     *
+     * @param EventHandlerInterface $handler the handler to get the barrier for.
+     * @return SequenceBarrierInterface the SequenceBarrier used by handler.
+     */
+    public function getBarrierFor(EventHandlerInterface $handler)
+    {
+        return $this->consumerRepository->getBarrierFor($handler);
+    }
+
+    /**
+     * Confirms if all messages have been consumed by all event processors
+     *
+     * @return bool
+     */
+    private function hasBacklog()
+    {
+        $cursor = $this->ringBuffer->getCursor();
+        foreach ($this->consumerRepository->getLastSequenceInChain(false) as $consumer) {
+            if ($cursor > $consumer->get()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Create event processors
+     *
+     * @param Sequence[] $barrierSequences
+     * @param EventHandlerInterface[] $eventHandlers
+     * @return EventHandlerGroup
+     */
+    public function createEventProcessors(array $barrierSequences, array $eventHandlers)
+    {
+        $this->checkNotStarted();
+        $processorSequences = array();
+        $barrier = $this->ringBuffer->newBarrier($barrierSequences);
+
+        foreach ($eventHandlers as $eventHandler) {
+            $batchEventProcessor = new BatchEventProcessor(
+                $this->ringBuffer->getEventClass(),
+                $this->ringBuffer,
+                $barrier,
+                $eventHandler,
+                new \Zend\Log\Writer\Syslog() // @todo bug !!!
+            );
+            if (null !== $this->exceptionHandler) {
+                $batchEventProcessor->setExceptionHandler($this->exceptionHandler);
+            }
+            $this->consumerRepository->addEventProcessor($batchEventProcessor, $eventHandler, $barrier);
+            $processorSequences[] = $batchEventProcessor->getSequence();
+        }
+
+        if (count($processorSequences)) {
+            $this->consumerRepository->unMarkEventProcessorsAsEndOfChain($barrierSequences);
+        }
+
+        return new EventHandlerGroup($this, $this->consumerRepository, $processorSequences);
+    }
+
+    /**
+     * Create worker pool
+     *
+     * @param Sequence[] $barrierSequences
+     * @param WorkHandlerInterface[] $workHandlers
+     * @return EventHandlerGroup
+     */
+    public function createWorkerPool(array $barrierSequences, array $workHandlers)
+    {
+        $sequenceBarrier = $this->ringBuffer->newBarrier($barrierSequences);
+        $workerPool = WorkerPool::createFromRingBuffer(
+            $this->ringBuffer,
+            $sequenceBarrier,
+            $this->exceptionHandler,
+            $workHandlers
+        );
+        $this->consumerRepository->addWorkerPool($workerPool, $sequenceBarrier);
+        return new EventHandlerGroup($this, $this->consumerRepository, $workerPool->getWorkerSequences());
+    }
+
+    /**
+     * Check not started
+     *
+     * @return void
+     * @throws Exception\InvalidArgumentException
+     */
+    private function checkNotStarted()
+    {
+        if ($this->started->get()) {
+            throw new Exception\InvalidArgumentException(
+                'All event handlers must be added before calling starts'
+            );
+        }
+    }
 }
