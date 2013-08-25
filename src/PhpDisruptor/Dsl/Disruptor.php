@@ -2,7 +2,9 @@
 
 namespace PhpDisruptor\Dsl;
 
+use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\EventFactoryInterface;
+use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\BatchEventProcessor;
 use PhpDisruptor\EventProcessor\EventProcessorInterface;
@@ -12,51 +14,15 @@ use PhpDisruptor\ExceptionHandlerInterface;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
+use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use PhpDisruptor\WorkerPool;
 use PhpDisruptor\WorkHandlerInterface;
 use PhpDisruptor\Util\Util;
 use Zend\Cache\Storage\StorageInterface;
 
-/*
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.lmax.disruptor.BatchEventProcessor;
-import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.EventProcessor;
-import com.lmax.disruptor.EventTranslator;
-import com.lmax.disruptor.EventTranslatorOneArg;
-import com.lmax.disruptor.ExceptionHandler;
-import com.lmax.disruptor.RingBuffer;
-import com.lmax.disruptor.Sequence;
-import com.lmax.disruptor.SequenceBarrier;
-import com.lmax.disruptor.TimeoutException;
-import com.lmax.disruptor.WaitStrategy;
-import com.lmax.disruptor.WorkHandler;
-import com.lmax.disruptor.WorkerPool;
-import com.lmax.disruptor.util.Util;
-*/
-use PhpDisruptor\EventClassCapableInterface;
-use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
-
 /**
-* A DSL-style API for setting up the disruptor pattern around a ring buffer (aka the Builder pattern).
-*
-* A simple example of setting up the disruptor with two event handlers that must process events in order:
-*
-* <pre><code> Disruptor&lt;MyEvent&gt; disruptor = new Disruptor&lt;MyEvent&gt;(MyEvent.FACTORY, 32, Executors.newCachedThreadPool());
-        * EventHandler&lt;MyEvent&gt; handler1 = new EventHandler&lt;MyEvent&gt;() { ... };
-        * EventHandler&lt;MyEvent&gt; handler2 = new EventHandler&lt;MyEvent&gt;() { ... };
-        * disruptor.handleEventsWith(handler1);
-        * disruptor.after(handler1).handleEventsWith(handler2);
-        *
-        * RingBuffer ringBuffer = disruptor.start();</code></pre>
-*
-* @param <T> the type of event used.
-    */
-
+ * A DSL-style API for setting up the disruptor pattern around a ring buffer (aka the Builder pattern).
+ */
 class Disruptor implements EventClassCapableInterface
 {
     /**
@@ -72,9 +38,9 @@ class Disruptor implements EventClassCapableInterface
     protected $consumerRepository;
 
     /**
-     * @var bool
+     * @var ZendCacheVolatile
      */
-    protected $started = false; // @todo: make atomic
+    protected $started;
 
     /**
      * @var ExceptionHandlerInterface
@@ -91,6 +57,10 @@ class Disruptor implements EventClassCapableInterface
     {
         $this->ringBuffer = $ringBuffer;
         $this->executor = $executor;
+
+        $storage = $ringBuffer->getStorage();
+        $started = new ZendCacheVolatile($storage, get_class($this) . '::started', false);
+        $this->started = $started;
     }
 
     /**
@@ -125,6 +95,15 @@ class Disruptor implements EventClassCapableInterface
     {
         return new static($ringBuffer, $executor);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getEventClass()
+    {
+        return $this->ringBuffer->getEventClass();
+    }
+
 
     /**
      * Set up event handlers to handle events from the ring buffer. These handlers will process events
@@ -450,6 +429,15 @@ class Disruptor implements EventClassCapableInterface
         if ($this->started->get()) {
             throw new Exception\InvalidArgumentException(
                 'All event handlers must be added before calling starts'
+            );
+        }
+    }
+
+    private function checkOnlyStartedOnce()
+    {
+        if (!$this->started->compareAndSwap(false, true)) {
+            throw new Exception\InvalidArgumentException(
+                'Disruptor.start() must only be called once'
             );
         }
     }
