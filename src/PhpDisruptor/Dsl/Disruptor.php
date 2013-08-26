@@ -382,6 +382,7 @@ class Disruptor implements EventClassCapableInterface
                 $this->ringBuffer,
                 $barrier,
                 $eventHandler,
+                $this->ringBuffer->getStorage(),
                 new \Zend\Log\Writer\Syslog() // @todo bug !!!
             );
             if (null !== $this->exceptionHandler) {
