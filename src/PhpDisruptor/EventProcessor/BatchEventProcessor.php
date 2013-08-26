@@ -2,16 +2,18 @@
 
 namespace PhpDisruptor\EventProcessor;
 
+use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\DataProviderInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandlerInterface;
 use PhpDisruptor\FatalExceptionHandler;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\EventHandlerInterface;
-use PhpDisruptor\LifecycleAwareInterface
+use PhpDisruptor\LifecycleAwareInterface;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequencerInterface;
 use PhpDisruptor\TimeoutHandlerInterface;
+use Zend\Cache\Storage\StorageInterface;
 use Zend\Log\LoggerInterface;
 
 /**
@@ -24,9 +26,9 @@ use Zend\Log\LoggerInterface;
 class BatchEventProcessor implements EventProcessorInterface
 {
     /**
-     * @var bool
+     * @var ZendCacheVolatile
      */
-    protected $running = false; // @todo: save in storage ???
+    protected $running;
 
     /**
      * @var DataProviderInterface
@@ -70,6 +72,7 @@ class BatchEventProcessor implements EventProcessorInterface
      * @param DataProviderInterface $dataProvider
      * @param SequenceBarrierInterface $sequenceBarrier
      * @param EventHandlerInterface $eventHandler
+     * @param StorageInterface $storage
      * @param LoggerInterface $logger
      * @throws Exception\InvalidArgumentException
      */
@@ -78,6 +81,7 @@ class BatchEventProcessor implements EventProcessorInterface
         DataProviderInterface $dataProvider,
         SequenceBarrierInterface $sequenceBarrier,
         EventHandlerInterface $eventHandler,
+        StorageInterface $storage,
         LoggerInterface $logger
     ) {
         if (!class_exists($eventClass)) {
@@ -103,6 +107,8 @@ class BatchEventProcessor implements EventProcessorInterface
         $this->exceptionHandler = new FatalExceptionHandler($logger);
 
         $this->timeoutHandler = ($eventHandler instanceof TimeoutHandlerInterface) ? $eventHandler : null;
+
+        $this->running = new ZendCacheVolatile($storage, get_class($this) . '::running', false);
     }
 
     /**
@@ -115,13 +121,13 @@ class BatchEventProcessor implements EventProcessorInterface
 
     public function halt()
     {
-        $this->running = false;
+        $this->running->set(false);
         $this->sequencerBarrier->alert();
     }
 
     public function isRunning()
     {
-        return $this->running;
+        return $this->running->get();
     }
 
     /**
@@ -134,7 +140,7 @@ class BatchEventProcessor implements EventProcessorInterface
 
     public function run()
     {
-        if (true === $this->running) {
+        if (true === $this->running->get()) {
             throw new Exception\RuntimeException('already running');
         }
         $this->sequencerBarrier->clearAlert();
@@ -152,7 +158,7 @@ class BatchEventProcessor implements EventProcessorInterface
             } catch (Exception\TimeoutException $e) {
                 $this->notifyTimeout($this->getSequence()->get());
             } catch (Exception\AlertException $e) {
-                if (!$this->running) {
+                if (!$this->running->get()) {
                     break;
                 }
             } catch (\Exception $e) {
@@ -163,7 +169,7 @@ class BatchEventProcessor implements EventProcessorInterface
             }
         }
         $this->notifyShutdown();
-        $this->running = false;
+        $this->running->set(false);
     }
 
     /**
