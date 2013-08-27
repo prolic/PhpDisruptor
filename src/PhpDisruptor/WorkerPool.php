@@ -5,34 +5,34 @@ namespace PhpDisruptor;
 use PhpDisruptor\Util\Util;
 use Zend\Cache\Storage\StorageInterface;
 
-class WorkerPool implements EventClassCapableInterface
+final class WorkerPool implements EventClassCapableInterface
 {
     //private final AtomicBoolean started = new AtomicBoolean(false); todo: make atomic !!!
 
     /**
      * @var bool
      */
-    protected $started;
+    private $started;
 
     /**
      * @var Sequence
      */
-    protected $workSequence;
+    private $workSequence;
 
     /**
      * @var RingBuffer
      */
-    protected $ringBuffer;
+    private $ringBuffer;
 
     /**
      * @var WorkProcessor[]
      */
-    protected $workProcessors;
+    private $workProcessors;
 
     /**
      * @var string
      */
-    protected $eventClass;
+    private $eventClass;
 
     /**
      * Protected Constructor, use createFromRingBuffer or createFromEventFactory instead
