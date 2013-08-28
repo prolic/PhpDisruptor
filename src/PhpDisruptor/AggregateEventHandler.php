@@ -2,17 +2,17 @@
 
 namespace PhpDisruptor;
 
-class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInterface
+final class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**
      * @var string
      */
-    protected $eventClass;
+    private $eventClass;
 
     /**
      * @var EventHandlerInterface[]
      */
-    protected $eventHandlers;
+    private $eventHandlers;
 
     /**
      * Constructor
