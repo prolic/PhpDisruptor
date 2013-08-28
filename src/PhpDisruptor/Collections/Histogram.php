@@ -15,27 +15,27 @@ use PhpDisruptor\Exception;
  * 0-10 will fall into the first interval bar, values 11-20 will fall into the
  * second bar, and so on.
  */
-class Histogram
+final class Histogram
 {
     /**
      * @var array
      */
-    protected  $upperBounds;
+    private $upperBounds;
 
     /**
      * @var array
      */
-    protected $counts;
+    private $counts;
 
     /**
      * @var int
      */
-    protected $minValue;
+    private $minValue;
 
     /**
      * @var int
      */
-    protected $maxValue;
+    private $maxValue;
 
     /**
      * Constructor
@@ -57,7 +57,7 @@ class Histogram
      * @param array $upperBounds
      * @throws Exception\InvalidArgumentException
      */
-    protected function validateUpperBounds(array $upperBounds)
+    private function validateUpperBounds(array $upperBounds)
     {
         $lastBound = -1;
         if (count($upperBounds) <= 0) {
@@ -151,7 +151,7 @@ class Histogram
      * @param int $value
      * @return void
      */
-    protected function trackRange($value)
+    private function trackRange($value)
     {
         if ($value < $this->minValue) {
             $this->minValue = $value;
