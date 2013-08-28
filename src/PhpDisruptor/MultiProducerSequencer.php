@@ -7,27 +7,27 @@ use PhpDisruptor\Util\Util;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use Zend\Cache\Storage\StorageInterface;
 
-class MultiProducerSequencer extends AbstractSequencer
+final class MultiProducerSequencer extends AbstractSequencer
 {
     /**
      * @var Sequence
      */
-    protected $gatingSequenceCache;
+    private $gatingSequenceCache;
 
     /**
      * @var array
      */
-    protected $availableBufferKeys;
+    private $availableBufferKeys;
 
     /**
      * @var int
      */
-    protected $indexMask;
+    private $indexMask;
 
     /**
      * @var int
      */
-    protected $indexShift;
+    private $indexShift;
 
     /**
      * @inheritdoc
@@ -47,7 +47,7 @@ class MultiProducerSequencer extends AbstractSequencer
      * @return void
      * @throws Exception\RuntimeException
      */
-    protected function initAvailableBuffer()
+    private function initAvailableBuffer()
     {
         $buffer = array();
         for ($i = 0; $i < $this->bufferSize; $i++) {
@@ -64,7 +64,7 @@ class MultiProducerSequencer extends AbstractSequencer
     /**
      * @return array
      */
-    protected function availableBuffer()
+    private function availableBuffer()
     {
         return $this->storage->getItems($this->availableBufferKeys);
     }
@@ -88,7 +88,7 @@ class MultiProducerSequencer extends AbstractSequencer
      * @param int $cursorValue
      * @return bool
      */
-    protected function internalHasAvailableCapacity(array $gatingSequences, $requiredCapacity, $cursorValue)
+    private function internalHasAvailableCapacity(array $gatingSequences, $requiredCapacity, $cursorValue)
     {
         $wrapPoint = ($cursorValue + $requiredCapacity) - $this->bufferSize;
         $cachedGatingSequence = $this->gatingSequenceCache->get();
@@ -213,7 +213,7 @@ class MultiProducerSequencer extends AbstractSequencer
      * @param int $sequence
      * @return void
      */
-    protected function setAvailable($sequence)
+    private function setAvailable($sequence)
     {
         $this->setAvailableBufferValue($this->calculateIndex($sequence), $this->calculateAvailabilityFlag($sequence));
     }
@@ -223,7 +223,7 @@ class MultiProducerSequencer extends AbstractSequencer
      * @param int $flag
      * @return void
      */
-    protected function setAvailableBufferValue($index, $flag)
+    private function setAvailableBufferValue($index, $flag)
     {
         do {
             $oldValue = $this->storage->getItem($this->availableBufferKeys[$index]);
@@ -263,7 +263,7 @@ class MultiProducerSequencer extends AbstractSequencer
      * @param int $sequence
      * @return int
      */
-    protected function calculateAvailabilityFlag($sequence)
+    private function calculateAvailabilityFlag($sequence)
     {
         return (int) ($sequence >> $this->indexShift);
     }
@@ -272,7 +272,7 @@ class MultiProducerSequencer extends AbstractSequencer
      * @param int $sequence
      * @return int
      */
-    protected function calculateIndex($sequence)
+    private function calculateIndex($sequence)
     {
         return (int) ($sequence & $this->indexMask);
     }
