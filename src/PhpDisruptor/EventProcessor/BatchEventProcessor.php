@@ -23,47 +23,47 @@ use Zend\Log\LoggerInterface;
  * If the EventHandler also implements LifecycleAware it will be notified just after the thread
  * is started and just before the thread is shutdown.
  */
-class BatchEventProcessor implements EventProcessorInterface
+final class BatchEventProcessor implements EventProcessorInterface
 {
     /**
      * @var ZendCacheVolatile
      */
-    protected $running;
+    private $running;
 
     /**
      * @var DataProviderInterface
      */
-    protected $dataProvider;
+    private $dataProvider;
 
     /**
      * @var string
      */
-    protected $eventClass;
+    private $eventClass;
 
     /**
      * @var ExceptionHandlerInterface
      */
-    protected $exceptionHandler;
+    private $exceptionHandler;
 
     /**
      * @var SequenceBarrierInterface
      */
-    protected $sequencerBarrier;
+    private $sequencerBarrier;
 
     /**
      * @var EventHandlerInterface
      */
-    protected $eventHandler;
+    private $eventHandler;
 
     /**
      * @var Sequence
      */
-    protected $sequence;
+    private $sequence;
 
     /**
      * @var TimeoutHandlerInterface|null
      */
-    protected $timeoutHandler;
+    private $timeoutHandler;
 
     /**
      * Constructor
@@ -176,7 +176,7 @@ class BatchEventProcessor implements EventProcessorInterface
      * @param $availableSequence
      * @return void
      */
-    protected function notifyTimeout($availableSequence)
+    private function notifyTimeout($availableSequence)
     {
         try {
             if (null !== $this->timeoutHandler) {
@@ -192,7 +192,7 @@ class BatchEventProcessor implements EventProcessorInterface
      *
      * @return void
      */
-    protected function notifyStart()
+    private function notifyStart()
     {
         if ($this->eventHandler instanceof LifecycleAwareInterface) {
             try {
@@ -208,7 +208,7 @@ class BatchEventProcessor implements EventProcessorInterface
      *
      * @return void
      */
-    protected function notifyShutdown()
+    private function notifyShutdown()
     {
         if ($this->eventHandler instanceof LifecycleAwareInterface) {
             try {
