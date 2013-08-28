@@ -12,37 +12,37 @@ use Zend\Cache\Storage\StorageInterface;
  * Ring based store of reusable entries containing the data representing
  * an event being exchanged between event producer and EventProcessors.
  */
-class RingBuffer implements CursoredInterface, DataProviderInterface
+final class RingBuffer implements CursoredInterface, DataProviderInterface
 {
     /**
      * @var int
      */
-    protected $indexMask;
+    private $indexMask;
 
     /**
      * @var object[]
      */
-    protected $entries;
+    private $entries;
 
     /**
      * @var int
      */
-    protected $bufferSize;
+    private $bufferSize;
 
     /**
      * @var SequencerInterface
      */
-    protected $sequencer;
+    private $sequencer;
 
     /**
      * @var string
      */
-    protected $eventClass;
+    private $eventClass;
 
     /**
      * @var StorageInterface
      */
-    protected $storage;
+    private $storage;
 
     /**
      * Construct a RingBuffer with the full option set.
@@ -348,7 +348,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    protected function checkTranslator(EventTranslatorInterface $translator)
+    private function checkTranslator(EventTranslatorInterface $translator)
     {
         if ($translator->getEventClass() != $this->getEventClass()) {
             throw new Exception\InvalidArgumentException(
@@ -363,7 +363,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    protected function checkTranslators(array $translators)
+    private function checkTranslators(array $translators)
     {
         foreach ($translators as $translator) {
             if ($translator->getEventClass() != $this->getEventClass()) {
@@ -450,7 +450,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @param EventTranslatorInterface[] $translators The user specified translation for each event
      * @param array $args
      */
-    protected function calcBatchSize($batchSize, array $translators, array $args)
+    private function calcBatchSize($batchSize, array $translators, array $args)
     {
         if (0 != $batchSize) {
             return $batchSize;
@@ -526,7 +526,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @param int $batchSize
      * @return void
      */
-    protected function checkTranslatorsBounds(array $translators, $batchStartsAt, $batchSize)
+    private function checkTranslatorsBounds(array $translators, $batchStartsAt, $batchSize)
     {
         $this->checkBatchSizing($batchStartsAt, $batchSize);
         $this->batchOverRuns($translators, $batchStartsAt, $batchSize);
@@ -538,7 +538,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @param int $batchSize
      * @return void
      */
-    protected function checkArgumentsBounds(array $args, $batchStartsAt, $batchSize)
+    private function checkArgumentsBounds(array $args, $batchStartsAt, $batchSize)
     {
         $this->checkBatchSizing($batchStartsAt, $batchSize);
         foreach ($args as $arg) {
@@ -552,7 +552,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    protected function checkBatchSizing($batchStartsAt, $batchSize)
+    private function checkBatchSizing($batchStartsAt, $batchSize)
     {
         if ($batchStartsAt < 0 || $batchSize < 0) {
             throw new Exception\InvalidArgumentException(
@@ -573,7 +573,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    protected function batchOverRuns(array $args, $batchStartsAt, $batchSize)
+    private function batchOverRuns(array $args, $batchStartsAt, $batchSize)
     {
         if ($batchStartsAt + $batchSize > count($args)) {
             throw new Exception\InvalidArgumentException(
@@ -592,7 +592,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @return void
      * @throws \Exception
      */
-    protected function translateAndPublish(EventTranslatorInterface $translator, $sequence, array $args = array())
+    private function translateAndPublish(EventTranslatorInterface $translator, $sequence, array $args = array())
     {
         try {
             $translator->translateTo($this->get($sequence), $sequence, $args);
@@ -614,7 +614,7 @@ class RingBuffer implements CursoredInterface, DataProviderInterface
      * @return void
      * @throws \Exception
      */
-    protected function translateAndPublishBatch(
+    private function translateAndPublishBatch(
         EventTranslatorInterface $translator,
         $batchStartsAt,
         $batchSize,
