@@ -12,7 +12,7 @@ use PhpDisruptor\SequenceBarrierInterface;
  * This strategy will use CPU resource to avoid syscalls which can introduce latency jitter.  It is best
  * used when threads can be bound to specific CPU cores.
  */
-class BusySpinWaitStrategy implements WaitStrategyInterface
+final class BusySpinWaitStrategy implements WaitStrategyInterface
 {
     /**
      * @param int $sequence
