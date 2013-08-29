@@ -4,32 +4,32 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 
-class ProcessingSequenceBarrier implements SequenceBarrierInterface
+final class ProcessingSequenceBarrier implements SequenceBarrierInterface
 {
     /**
      * @var WaitStrategyInterface
      */
-    protected $waitStrategy;
+    private $waitStrategy;
 
     /**
      * @var Sequence
      */
-    protected $dependentSequence;
+    private $dependentSequence;
 
     /**
      * @var bool
      */
-    protected $alerted = false;
+    private $alerted = false;
 
     /**
      * @var Sequence
      */
-    protected $cursorSequence;
+    private $cursorSequence;
 
     /**
      * @var SequencerInterface
      */
-    protected $sequencer;
+    private $sequencer;
 
     /**
      * Constructor
