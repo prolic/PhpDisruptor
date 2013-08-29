@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpDisruptor;
+namespace PhpDisruptor\ExceptionHandler;
 
 use Exception;
 

@@ -5,7 +5,7 @@ namespace PhpDisruptor\Dsl;
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
-use PhpDisruptor\ExceptionHandlerInterface;
+use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 
 class ExceptionHandlerSetting implements EventClassCapableInterface
 {

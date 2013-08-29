@@ -5,7 +5,7 @@ namespace PhpDisruptor\EventProcessor;
 use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\DataProviderInterface;
 use PhpDisruptor\Exception;
-use PhpDisruptor\ExceptionHandlerInterface;
+use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\FatalExceptionHandler;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\EventHandlerInterface;

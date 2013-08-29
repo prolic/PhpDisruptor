@@ -10,7 +10,7 @@ use PhpDisruptor\EventProcessor\BatchEventProcessor;
 use PhpDisruptor\EventProcessor\EventProcessorInterface;
 use PhpDisruptor\EventTranslatorInterface;
 use PhpDisruptor\Exception;
-use PhpDisruptor\ExceptionHandlerInterface;
+use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;

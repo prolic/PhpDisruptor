@@ -2,6 +2,7 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\Util\Util;
 use Zend\Cache\Storage\StorageInterface;
 
