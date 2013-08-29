@@ -4,12 +4,12 @@ namespace PhpDisruptor;
 
 use Zend\Log\LoggerInterface;
 
-class FatalExceptionHandler implements ExceptionHandlerInterface
+final class FatalExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    private $logger;
 
     public function __construct(LoggerInterface $logger)
     {
