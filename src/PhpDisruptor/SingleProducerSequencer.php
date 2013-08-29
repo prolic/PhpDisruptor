@@ -11,17 +11,17 @@ use Zend\Cache\Storage\StorageInterface;
  *
  * <p>Generally not safe for use from multiple threads as it does not implement any barriers.</p>
  */
-class SingleProducerSequencer extends AbstractSequencer
+final class SingleProducerSequencer extends AbstractSequencer
 {
     /**
      * @var int
      */
-    protected $nextValue;
+    private $nextValue;
 
     /**
      * @var int
      */
-    protected $cachedValue;
+    private $cachedValue;
 
     /**
      * @inheritdoc
