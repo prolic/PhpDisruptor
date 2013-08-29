@@ -9,17 +9,18 @@ use PhpDisruptor\Util\Util;
 /**
  * Hides a group of Sequences behind a single Sequence
  */
-class FixedSequenceGroup extends Sequence
+final class FixedSequenceGroup extends Sequence
 {
     /**
      * @var Sequence[]
      */
-    protected $sequences;
+    private $sequences;
 
     /**
      * Constructor
      *
      * @param Sequence[] $sequences the list of sequences to be tracked under this sequence group
+     * @throws Exception\InvalidArgumentException
      */
     public function __construct(array $sequences)
     {
@@ -70,7 +71,7 @@ class FixedSequenceGroup extends Sequence
      *
      * @throws Exception\UnsupportedMethodCallException
      */
-    final public function set($value)
+    public function set($value)
     {
         throw new Exception\UnsupportedMethodCallException('not supported');
     }
@@ -80,7 +81,7 @@ class FixedSequenceGroup extends Sequence
      *
      * @throws Exception\UnsupportedMethodCallException
      */
-    final public function compareAndSet($expectedValue, $newValue)
+    public function compareAndSet($expectedValue, $newValue)
     {
         throw new Exception\UnsupportedMethodCallException('not supported');
     }
@@ -90,7 +91,7 @@ class FixedSequenceGroup extends Sequence
      *
      * @throws Exception\UnsupportedMethodCallException
      */
-    final public function incrementAndGet()
+    public function incrementAndGet()
     {
         throw new Exception\UnsupportedMethodCallException('not supported');
     }
@@ -100,7 +101,7 @@ class FixedSequenceGroup extends Sequence
      *
      * @throws Exception\UnsupportedMethodCallException
      */
-    final public function addAndGet($increment)
+    public function addAndGet($increment)
     {
         throw new Exception\UnsupportedMethodCallException('not supported');
     }
