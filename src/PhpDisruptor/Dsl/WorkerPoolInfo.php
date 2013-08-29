@@ -13,22 +13,22 @@ class WorkerPoolInfo implements ConsumerInfoInterface, EventClassCapableInterfac
     /**
      * @var WorkerPool
      */
-    protected $workerPool;
+    private $workerPool;
 
     /**
      * @var SequenceBarrierInterface
      */
-    protected $sequenceBarrier;
+    private $sequenceBarrier;
 
     /**
      * @var bool
      */
-    protected $endOfChain = true;
+    private $endOfChain = true;
 
     /**
      * @var string
      */
-    protected $eventClass;
+    private $eventClass;
 
     /**
      * Constructor
