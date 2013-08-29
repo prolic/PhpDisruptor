@@ -15,22 +15,22 @@ class EventHandlerGroup implements EventClassCapableInterface
     /**
      * @var string
      */
-    protected $eventClass;
+    private $eventClass;
 
     /**
      * @var Disruptor
      */
-    protected $disruptor;
+    private $disruptor;
 
     /**
      * @var ConsumerRepository
      */
-    protected $consumerRepository;
+    private $consumerRepository;
 
     /**
      * @var Sequence[]
      */
-    protected $sequences;
+    private $sequences;
 
     /**
      * Constructor
