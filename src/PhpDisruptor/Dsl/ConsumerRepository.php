@@ -22,22 +22,22 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
     /**
      * @var SplObjectStorage
      */
-    protected $eventProcessorInfoByEventHandler;
+    private $eventProcessorInfoByEventHandler;
 
     /**
      * @var SplObjectStorage
      */
-    protected $eventProcessorInfoBySequence;
+    private $eventProcessorInfoBySequence;
 
     /**
      * @var ConsumerInfoInterface[]
      */
-    protected $consumerInfos;
+    private $consumerInfos;
 
     /**
      * @var string
      */
-    protected $eventClass;
+    private $eventClass;
 
     /**
      * Constructor
@@ -208,7 +208,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
      * @param EventHandlerInterface $handler
      * @return EventProcessorInfo
      */
-    protected function getEventProcessorInfo(EventHandlerInterface $handler)
+    private function getEventProcessorInfo(EventHandlerInterface $handler)
     {
         return $this->eventProcessorInfoByEventHandler->offsetGet($handler);
     }
@@ -219,7 +219,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
      * @param Sequence $barrierEventProcessor
      * @return EventProcessorInfo
      */
-    protected function getEventProcessorInfoBySequence(Sequence $barrierEventProcessor)
+    private function getEventProcessorInfoBySequence(Sequence $barrierEventProcessor)
     {
         return $this->eventProcessorInfoBySequence->offsetGet($barrierEventProcessor);
     }
