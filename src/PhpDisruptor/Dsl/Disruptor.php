@@ -28,24 +28,24 @@ class Disruptor implements EventClassCapableInterface
     /**
      * @var RingBuffer
      */
-    protected $ringBuffer;
+    private $ringBuffer;
 
-    protected $executor;
+    private $executor;
 
     /**
      * @var ConsumerRepository
      */
-    protected $consumerRepository;
+    private $consumerRepository;
 
     /**
      * @var ZendCacheVolatile
      */
-    protected $started;
+    private $started;
 
     /**
      * @var ExceptionHandlerInterface
      */
-    protected $exceptionHandler;
+    private $exceptionHandler;
 
     /**
      * Constructor
