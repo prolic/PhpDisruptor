@@ -12,17 +12,17 @@ class ExceptionHandlerSetting implements EventClassCapableInterface
     /**
      * @var string
      */
-    protected $eventClass;
+    private $eventClass;
 
     /**
      * @var EventHandlerInterface
      */
-    protected $eventHandler;
+    private $eventHandler;
 
     /**
      * @var ConsumerRepository
      */
-    protected $consumerRepository;
+    private $consumerRepository;
 
     /**
      * Constructor
