@@ -11,7 +11,7 @@ abstract class AbstractSequencer implements SequencerInterface
     /**
      * @var int
      */
-    private $bufferSize;
+    protected $bufferSize;
 
     /**
      * @var string
@@ -21,17 +21,17 @@ abstract class AbstractSequencer implements SequencerInterface
     /**
      * @var WaitStrategyInterface
      */
-    private $waitStrategy;
+    protected $waitStrategy;
 
     /**
      * @var Sequence
      */
-    private $cursor;
+    protected $cursor;
 
     /**
      * @var StorageInterface
      */
-    private $storage;
+    protected $storage;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
