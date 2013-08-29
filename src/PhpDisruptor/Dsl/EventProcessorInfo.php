@@ -12,22 +12,22 @@ class EventProcessorInfo implements ConsumerInfoInterface
     /**
      * @var EventProcessorInterface
      */
-    protected $eventProcessor;
+    private $eventProcessor;
 
     /**
      * @var EventHandlerInterface
      */
-    protected $handler;
+    private $handler;
 
     /**
      * @var SequenceBarrierInterface
      */
-    protected $barrier;
+    private $barrier;
 
     /**
      * @var bool
      */
-    protected $endOfChain = true;
+    private $endOfChain = true;
 
     /**
      * Constructor
