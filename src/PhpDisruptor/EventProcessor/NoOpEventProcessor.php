@@ -12,17 +12,17 @@ use PhpDisruptor\SequencerFollowingSequence;
  *
  * This is useful in tests or for pre-filling a RingBuffer from a publisher.
  */
-class NoOpEventProcessor implements EventProcessorInterface
+final class NoOpEventProcessor implements EventProcessorInterface
 {
     /**
      * @var SequencerFollowingSequence
      */
-    protected $sequence;
+    private $sequence;
 
     /**
      * @var ZendCacheVolatile
      */
-    protected $running;
+    private $running;
 
     /**
      * Constructor
@@ -31,8 +31,7 @@ class NoOpEventProcessor implements EventProcessorInterface
      */
     public function __construct(RingBuffer $sequencer)
     {
-        $this->running = new ZendCacheVolatile($sequencer->getStorage(), $this);
-        $this->running->add(false);
+        $this->running = new ZendCacheVolatile($sequencer->getStorage(), get_class($this) . '::running', false);
         $this->sequence = new SequencerFollowingSequence($sequencer);
     }
 
