@@ -7,7 +7,7 @@ use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
 use Zend\Cache\Storage\StorageInterface;
 
-abstract class Util
+final class Util
 {
     /**
      * Calculate the next power of 2, greater than or equal to x.<p>
