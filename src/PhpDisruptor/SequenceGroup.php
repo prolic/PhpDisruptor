@@ -5,7 +5,7 @@ namespace PhpDisruptor;
 use PhpDisruptor\Util\Util;
 use Zend\Cache\Storage\StorageInterface;
 
-class SequenceGroup extends Sequence implements SequenceHolderInterface
+final class SequenceGroup extends Sequence implements SequenceHolderInterface
 {
     /**
      * Constructor
