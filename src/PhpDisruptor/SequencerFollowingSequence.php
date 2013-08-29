@@ -2,12 +2,12 @@
 
 namespace PhpDisruptor;
 
-class SequencerFollowingSequence extends Sequence
+final class SequencerFollowingSequence extends Sequence
 {
     /**
      * @var RingBuffer
      */
-    protected $sequencer;
+    private $sequencer;
 
     /**
      * Constructor
