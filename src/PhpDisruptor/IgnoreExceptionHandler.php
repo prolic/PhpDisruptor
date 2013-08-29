@@ -5,12 +5,12 @@ namespace PhpDisruptor;
 use Exception;
 use Zend\Log\LoggerInterface;
 
-class IgnoreExceptionHandler implements ExceptionHandlerInterface
+final class IgnoreExceptionHandler implements ExceptionHandlerInterface
 {
     /**
      * @var LoggerInterface
      */
-    protected $logger;
+    private $logger;
 
     /**
      * Constructor
