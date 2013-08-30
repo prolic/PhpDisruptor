@@ -7,10 +7,10 @@ use Exception;
 interface ExceptionHandlerInterface
 {
     /**
-     * <p>Strategy for handling uncaught exceptions when processing an event.</p>
+     * Strategy for handling uncaught exceptions when processing an event.
      *
-     * <p>If the strategy wishes to terminate further processing by the BatchEventProcessor
-     * then it should throw a RuntimeException.</p>
+     * If the strategy wishes to terminate further processing by the BatchEventProcessor
+     * then it should throw a RuntimeException.
      *
      * @param Exception $ex the exception that propagated from the EventHandler.
      * @param int $sequence of the event which cause the exception.
@@ -20,7 +20,7 @@ interface ExceptionHandlerInterface
     public function handleEventException(Exception $ex, $sequence, $event);
 
     /**
-     * Callback to notify of an exception during {@link LifecycleAware#onStart()}
+     * Callback to notify of an exception during LifecycleAware#onStart()
      *
      * @param Exception $ex throw during the starting process.
      * @return void
@@ -28,7 +28,7 @@ interface ExceptionHandlerInterface
     public function handleOnStartException(Exception $ex);
 
     /**
-     * Callback to notify of an exception during {@link LifecycleAware#onShutdown()}
+     * Callback to notify of an exception during LifecycleAware#onShutdown()
      *
      * @param Exception $ex throw during the shutdown process.
      */
