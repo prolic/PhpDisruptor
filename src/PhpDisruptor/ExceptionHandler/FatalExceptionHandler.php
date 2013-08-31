@@ -2,6 +2,7 @@
 
 namespace PhpDisruptor\ExceptionHandler;
 
+use PhpDisruptor\Exception;
 use Zend\Log\LoggerInterface;
 
 final class FatalExceptionHandler implements ExceptionHandlerInterface

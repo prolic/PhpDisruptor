@@ -2,7 +2,7 @@
 
 namespace PhpDisruptor\Util;
 
-use PhpDisruptor\EventProcessorInterface;
+use PhpDisruptor\EventProcessor\EventProcessorInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
 use Zend\Cache\Storage\StorageInterface;
@@ -15,6 +15,7 @@ final class Util
      *
      * @param int $x Value to round up
      * @return int The next power of 2 from x inclusive
+     * @throws Exception\InvalidArgumentException
      */
     public static function ceilingNextPowerOfTwo($x)
     {
@@ -34,7 +35,8 @@ final class Util
      *
      * @param Sequence[] $sequences to compare.
      * @param int|null  $minimum
-     * @return int the minimum sequence found or PHP_INT_MAX if the array is empty.
+     * @return int the minimum sequence found or PHP_INT_MAX if the array is empty
+     * @throws Exception\InvalidArgumentException
      */
     public static function getMinimumSequence($sequences, $minimum = null)
     {

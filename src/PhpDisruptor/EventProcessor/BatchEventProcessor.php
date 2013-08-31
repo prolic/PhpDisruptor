@@ -6,7 +6,7 @@ use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\DataProviderInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
-use PhpDisruptor\FatalExceptionHandler;
+use PhpDisruptor\ExceptionHandler\FatalExceptionHandler;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\LifecycleAwareInterface;
