@@ -2,10 +2,53 @@
 
 namespace PhpDisruptor\EventProcessor;
 
+use HumusVolatile\ZendCacheVolatile;
+use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
+use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
+use PhpDisruptor\SequenceBarrierInterface;
+use PhpDisruptor\WorkHandlerInterface;
 
-class WorkProcessor implements EventProcessorInterface
+
+final class WorkProcessor implements EventProcessorInterface
 {
+    /**
+     * @var ZendCacheVolatile
+     */
+    private $running;
+
+    /**
+     * @var Sequence
+     */
+    private $sequence;
+
+    /**
+     * @var RingBuffer
+     */
+    private $ringBuffer;
+
+    /**
+     * @var SequenceBarrierInterface
+     */
+    private $sequenceBarrier;
+
+    /**
+     * @var WorkHandlerInterface
+     */
+    private $workHandler;
+
+    /**
+     * @var ExceptionHandlerInterface
+     */
+    private $exceptionHandler;
+
+    /**
+     * @var Sequence
+     */
+    private $workSequence;
+
+    
+
     /**
      * Get a reference to the Sequence being used by this EventProcessor.
      *
