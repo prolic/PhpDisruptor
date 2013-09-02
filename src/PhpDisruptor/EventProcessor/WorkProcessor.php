@@ -8,6 +8,7 @@ use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkHandlerInterface;
+use Zend\Cache\Storage\StorageInterface;
 
 
 final class WorkProcessor implements EventProcessorInterface
@@ -47,7 +48,31 @@ final class WorkProcessor implements EventProcessorInterface
      */
     private $workSequence;
 
-    
+    /**
+     * Constructor
+     *
+     * @param RingBuffer $ringBuffer
+     * @param SequenceBarrierInterface $sequenceBarrier
+     * @param WorkHandlerInterface $workHandler
+     * @param ExceptionHandlerInterface $exceptionHandler
+     * @param Sequence $workSequence
+     */
+    public function __construct(
+        RingBuffer $ringBuffer,
+        SequenceBarrierInterface $sequenceBarrier,
+        WorkHandlerInterface $workHandler,
+        ExceptionHandlerInterface $exceptionHandler,
+        Sequence $workSequence
+    ) {
+        $storage = $ringBuffer->getStorage();
+        $this->sequence = new Sequence($storage);
+        $this->running = new ZendCacheVolatile($storage, get_class($this) . '::running', false);
+        $this->ringBuffer = $ringBuffer;
+        $this->sequenceBarrier = $sequenceBarrier;
+        $this->workHandler = $workHandler;
+        $this->exceptionHandler = $exceptionHandler;
+        $this->workSequence = $workSequence;
+    }
 
     /**
      * Get a reference to the Sequence being used by this EventProcessor.
