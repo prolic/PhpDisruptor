@@ -5,6 +5,7 @@ namespace PhpDisruptor\EventProcessor;
 use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
+use PhpDisruptor\LifecycleAwareInterface;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
@@ -204,7 +205,13 @@ final class WorkProcessor implements EventProcessorInterface
      */
     private function notifyStart()
     {
-        // TODO: Implement notifyStart() method.
+        if ($this->workHandler instanceof LifecycleAwareInterface) {
+            try {
+                $this->workHandler->onStart();
+            } catch (\Exception $e) {
+                $this->exceptionHandler->handleOnStartException($e);
+            }
+        }
     }
 
     /**
@@ -212,6 +219,12 @@ final class WorkProcessor implements EventProcessorInterface
      */
     private function notifyShutdown()
     {
-        // TODO: Implement notifyShutdown() mehtod.
+        if ($this->workHandler instanceof LifecycleAwareInterface) {
+            try {
+                $this->workHandler->onShutdown();
+            } catch (\Exception $e) {
+                $this->exceptionHandler->handleOnShutdownException($e);
+            }
+        }
     }
 }
