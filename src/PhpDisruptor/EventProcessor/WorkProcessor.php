@@ -88,6 +88,7 @@ final class WorkProcessor implements EventProcessorInterface
      * It will call {@link SequenceBarrierInterface#alert()} to notify the thread to check status.
      *
      * @return void
+     * @throws Exception\RuntimeException
      */
     public function halt()
     {
@@ -100,7 +101,7 @@ final class WorkProcessor implements EventProcessorInterface
         $this->notifyStart();
 
         $processedSequence = true;
-        $cachedAvailableSequence = 0; // todo: PHP_INT_MIN ???
+        $cachedAvailableSequence = - PHP_INT_MAX - 1;
         $nextSequence = $this->sequence->get();
         $event = null;
         while (true) {
@@ -141,15 +142,61 @@ final class WorkProcessor implements EventProcessorInterface
      */
     public function isRunning()
     {
-        // TODO: Implement isRunning() method.
+        return $this->running->get();
     }
 
     /**
      * @return void
+     * @throws Exception\RuntimeException
      */
     public function run()
     {
-        // TODO: Implement run() method.
+        if (!$this->running->compareAndSwap(false, true)) {
+            throw new Exception\RuntimeException(
+                'Thread is already running'
+            );
+        }
+
+        $this->sequenceBarrier->clearAlert();
+        $this->notifyStart();
+
+        $processedSequence = true;
+        $cachedAvailableSequence = - PHP_INT_MAX - 1;
+        $nextSequence = $this->sequence->get();
+        $event = null;
+
+        while (true) {
+            try {
+                // if previous sequence was processed - fetch the next sequence and set
+                // that we have successfully processed the previous sequence
+                // typically, this will be true
+                // this prevents the sequence getting too far forward if an exception
+                // is thrown from the WorkHandler
+                if ($processedSequence) {
+                    $processedSequence = false;
+                    $nextSequence = $this->workSequence->incrementAndGet();
+                    $this->sequence->set($nextSequence - 1);
+                }
+
+                if ($cachedAvailableSequence >= $nextSequence) {
+                    $event = $this->ringBuffer->get($nextSequence);
+                    $this->workHandler->onEvent($event);
+                    $processedSequence = true;
+                } else {
+                    $cachedAvailableSequence = $this->sequenceBarrier->waitFor($nextSequence);
+                }
+            } catch (Exception\AlertException $e) {
+                if (!$this->running->get()) {
+                    break;
+                }
+            } catch (\Exception $e) {
+                $this->exceptionHandler->handleEventException($e, $nextSequence, $event);
+                $processedSequence = true;
+            }
+        }
+
+        $this->notifyShutdown();
+        $this->running->set(false);
     }
 
     /**
