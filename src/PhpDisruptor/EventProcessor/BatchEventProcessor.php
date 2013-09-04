@@ -13,6 +13,7 @@ use PhpDisruptor\LifecycleAwareInterface;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequencerInterface;
 use PhpDisruptor\TimeoutHandlerInterface;
+use Thread;
 use Zend\Cache\Storage\StorageInterface;
 use Zend\Log\LoggerInterface;
 
@@ -23,7 +24,7 @@ use Zend\Log\LoggerInterface;
  * If the EventHandler also implements LifecycleAware it will be notified just after the thread
  * is started and just before the thread is shutdown.
  */
-final class BatchEventProcessor implements EventProcessorInterface
+final class BatchEventProcessor extends Thread implements AbstractEventProcessor
 {
     /**
      * @var ZendCacheVolatile

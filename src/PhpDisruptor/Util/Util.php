@@ -2,7 +2,7 @@
 
 namespace PhpDisruptor\Util;
 
-use PhpDisruptor\EventProcessor\EventProcessorInterface;
+use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
 use Zend\Cache\Storage\StorageInterface;
@@ -69,7 +69,7 @@ final class Util
     {
         $sequences = array();
         foreach ($processors as $eventProcessor) {
-            if (!$eventProcessor instanceof EventProcessorInterface) {
+            if (!$eventProcessor instanceof AbstractEventProcessor) {
                 throw new Exception\InvalidArgumentException(
                     '$processor must be an instance of PhpDisruptor\EventProcessorInterface'
                 );

@@ -7,7 +7,7 @@ use IteratorAggregate;
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventHandlerInterface;
-use PhpDisruptor\EventProcessor\EventProcessorInterface;
+use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
@@ -77,7 +77,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
      * @throws Exception\InvalidArgumentException
      */
     public function addEventProcessor(
-        EventProcessorInterface $eventProcessor,
+        AbstractEventProcessor $eventProcessor,
         EventHandlerInterface $handler = null,
         SequenceBarrierInterface $barrier = null
     ) {

@@ -10,8 +10,9 @@ use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkHandlerInterface;
+use Thread;
 
-final class WorkProcessor implements EventProcessorInterface
+final class WorkProcessor extends Thread implements AbstractEventProcessor
 {
     /**
      * @var ZendCacheVolatile

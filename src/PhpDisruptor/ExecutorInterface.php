@@ -1,6 +1,7 @@
 <?php
 
 namespace PhpDisruptor;
+use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 
 /**
  * ExecutorInterface
@@ -9,8 +10,8 @@ namespace PhpDisruptor;
 interface ExecutorInterface
 {
     /**
-     * @param RunnableInterface $r
+     * @param AbstractEventProcessor $eventProcessor
      * @return void
      */
-    public function execute(RunnableInterface $r);
+    public function execute(AbstractEventProcessor $eventProcessor);
 }

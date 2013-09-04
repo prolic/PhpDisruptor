@@ -7,7 +7,7 @@ use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\BatchEventProcessor;
-use PhpDisruptor\EventProcessor\EventProcessorInterface;
+use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\EventTranslatorInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;

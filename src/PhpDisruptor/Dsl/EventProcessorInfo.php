@@ -3,7 +3,7 @@
 namespace PhpDisruptor\Dsl;
 
 use PhpDisruptor\EventHandlerInterface;
-use PhpDisruptor\EventProcessor\EventProcessorInterface;
+use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\ExecutorInterface;
 use PhpDisruptor\SequenceBarrierInterface;
 
@@ -37,7 +37,7 @@ class EventProcessorInfo implements ConsumerInfoInterface
      * @param SequenceBarrierInterface $barrier
      */
     public function __construct(
-        EventProcessorInterface $eventProcessor,
+        AbstractEventProcessor $eventProcessor,
         EventHandlerInterface $handler,
         SequenceBarrierInterface $barrier
     ) {

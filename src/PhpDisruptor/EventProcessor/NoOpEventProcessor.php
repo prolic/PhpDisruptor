@@ -6,13 +6,14 @@ use PhpDisruptor\Exception;
 use PhpDisruptor\RingBuffer;
 use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\SequencerFollowingSequence;
+use Thread;
 
 /**
  * No operation version of a EventProcessor that simply tracks a Sequence.
  *
  * This is useful in tests or for pre-filling a RingBuffer from a publisher.
  */
-final class NoOpEventProcessor implements EventProcessorInterface
+final class NoOpEventProcessor extends Thread implements AbstractEventProcessor
 {
     /**
      * @var SequencerFollowingSequence

@@ -2,17 +2,17 @@
 
 namespace PhpDisruptor\EventProcessor;
 
-use PhpDisruptor\RunnableInterface;
 use PhpDisruptor\Sequence;
+use Thread;
 
-interface EventProcessorInterface extends RunnableInterface
+abstract class AbstractEventProcessor extends Thread
 {
     /**
      * Get a reference to the Sequence being used by this EventProcessor.
      *
      * @return Sequence reference to the Sequence for this EventProcessor
      */
-    public function getSequence();
+    abstract public function getSequence();
 
     /**
      * Signal that this EventProcessor should stop when it has finished consuming at the next clean break.
@@ -20,10 +20,10 @@ interface EventProcessorInterface extends RunnableInterface
      *
      * @return void
      */
-    public function halt();
+    abstract public function halt();
 
     /**
      * @return bool
      */
-    public function isRunning();
+    abstract public function isRunning();
 }

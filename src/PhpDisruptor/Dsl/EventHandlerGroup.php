@@ -4,7 +4,7 @@ namespace PhpDisruptor\Dsl;
 
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventHandlerInterface;
-use PhpDisruptor\EventProcessor\EventProcessorInterface;
+use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
