@@ -126,7 +126,7 @@ class Disruptor implements EventClassCapableInterface
      * Set up custom event processors to handle events from the ring buffer. The Disruptor will
      * automatically start this processors when #start() is called
      *
-     * @param EventProcessorInterface[] $processors
+     * @param AbstractEventProcessor[] $processors
      * @return EventHandlerGroup that can be used to chain dependencies
      */
     public function handleEventsWithEventProcessors(array $processors)
@@ -196,7 +196,7 @@ class Disruptor implements EventClassCapableInterface
     /**
      * Create a group of event processors to be used as a dependency.
      *
-     * @param EventProcessorInterface[] $processors the event processors
+     * @param AbstractEventProcessor[] $processors the event processors
      * @return EventHandlerGroup that can be used to setup a SequenceBarrier over the specified event processors
      */
     public function afterEventProcessors($processors)

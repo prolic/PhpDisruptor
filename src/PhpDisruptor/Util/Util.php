@@ -61,7 +61,7 @@ final class Util
     /**
      * Get an array of Sequences for the passed EventProcessors
      *
-     * @param EventProcessorInterface[] $processors for which to get the sequences
+     * @param AbstractEventProcessor[] $processors for which to get the sequences
      * @return Sequence[] the array of Sequences
      * @throws Exception\InvalidArgumentException
      */
@@ -71,7 +71,7 @@ final class Util
         foreach ($processors as $eventProcessor) {
             if (!$eventProcessor instanceof AbstractEventProcessor) {
                 throw new Exception\InvalidArgumentException(
-                    '$processor must be an instance of PhpDisruptor\EventProcessorInterface'
+                    '$processor must be an instance of PhpDisruptor\AbstractEventProcessor'
                 );
             }
             $sequences[] = $eventProcessor->getSequence();

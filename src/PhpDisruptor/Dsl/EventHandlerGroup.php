@@ -89,7 +89,7 @@ class EventHandlerGroup implements EventClassCapableInterface
     /**
      * Create a new event handler group that combines the handlers in this group with <tt>processors</tt>.
      *
-     * @param EventProcessorInterface[] $processors the processors to combine.
+     * @param AbstractEventProcessor[] $processors the processors to combine.
      * @return EventHandlerGroup a new EventHandlerGroup combining the existing and new processors
      */
     public function andProcessors(array $processors)

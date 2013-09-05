@@ -10,7 +10,7 @@ use PhpDisruptor\SequenceBarrierInterface;
 class EventProcessorInfo implements ConsumerInfoInterface
 {
     /**
-     * @var EventProcessorInterface
+     * @var AbstractEventProcessor
      */
     private $eventProcessor;
 
@@ -32,7 +32,7 @@ class EventProcessorInfo implements ConsumerInfoInterface
     /**
      * Constructor
      *
-     * @param EventProcessorInterface $eventProcessor
+     * @param AbstractEventProcessor $eventProcessor
      * @param EventHandlerInterface $handler
      * @param SequenceBarrierInterface $barrier
      */
@@ -47,7 +47,7 @@ class EventProcessorInfo implements ConsumerInfoInterface
     }
 
     /**
-     * @return EventProcessorInterface
+     * @return AbstractEventProcessor
      */
     public function getEventProcessor()
     {

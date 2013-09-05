@@ -71,7 +71,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
     /**
      * Add event processor
      *
-     * @param EventProcessorInterface $eventProcessor
+     * @param AbstractEventProcessor $eventProcessor
      * @param EventHandlerInterface $handler
      * @param SequenceBarrierInterface $barrier
      * @throws Exception\InvalidArgumentException
@@ -144,7 +144,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
      * Get event processor for event handler
      *
      * @param EventHandlerInterface $handler
-     * @return EventProcessorInterface
+     * @return AbstractEventProcessor
      * @throws Exception\InvalidArgumentException
      */
     public function getEventProcessorFor(EventHandlerInterface $handler)
