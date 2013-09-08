@@ -12,7 +12,7 @@ use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkHandlerInterface;
 use Thread;
 
-final class WorkProcessor extends Thread implements AbstractEventProcessor
+final class WorkProcessor extends AbstractEventProcessor
 {
     /**
      * @var ZendCacheVolatile

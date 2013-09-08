@@ -13,7 +13,7 @@ use Thread;
  *
  * This is useful in tests or for pre-filling a RingBuffer from a publisher.
  */
-final class NoOpEventProcessor extends Thread implements AbstractEventProcessor
+final class NoOpEventProcessor extends AbstractEventProcessor
 {
     /**
      * @var SequencerFollowingSequence

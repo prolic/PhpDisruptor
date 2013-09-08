@@ -24,7 +24,7 @@ use Zend\Log\LoggerInterface;
  * If the EventHandler also implements LifecycleAware it will be notified just after the thread
  * is started and just before the thread is shutdown.
  */
-final class BatchEventProcessor extends Thread implements AbstractEventProcessor
+final class BatchEventProcessor extends AbstractEventProcessor
 {
     /**
      * @var ZendCacheVolatile
