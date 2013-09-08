@@ -3,9 +3,9 @@
 namespace PhpDisruptor\EventProcessor;
 
 use PhpDisruptor\Sequence;
-use Thread;
+use Worker;
 
-abstract class AbstractEventProcessor extends Thread
+abstract class AbstractEventProcessor extends Worker
 {
     /**
      * Get a reference to the Sequence being used by this EventProcessor.

@@ -6,7 +6,6 @@ use PhpDisruptor\Exception;
 use PhpDisruptor\RingBuffer;
 use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\SequencerFollowingSequence;
-use Thread;
 
 /**
  * No operation version of a EventProcessor that simply tracks a Sequence.
