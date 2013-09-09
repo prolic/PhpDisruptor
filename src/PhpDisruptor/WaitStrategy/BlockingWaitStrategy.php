@@ -75,6 +75,9 @@ final class BlockingWaitStrategy implements WaitStrategyInterface
         Mutex::unlock($this->mutex);
     }
 
+    /**
+     * Destroy the mutex
+     */
     public function __destruct()
     {
         Mutex::destroy($this->mutex);

@@ -3,7 +3,7 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Dsl\ProducerType;
-use PhpDisruptor\WaitStrategy\BusySpinWaitStrategy;
+use PhpDisruptor\WaitStrategy\BlockingWaitStrategy;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use SplFixedArray;
 use Zend\Cache\Storage\StorageInterface;
@@ -89,7 +89,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
      * @param StorageInterface $storage
      * @param EventFactoryInterface $factory used to create the events within the ring buffer.
      * @param int $bufferSize number of elements to create within the ring buffer.
-     * @param WaitStrategyInterface|null $waitStrategy used
+     * @param WaitStrategyInterface|null $waitStrategy used, default: BlockingWaitStrategy
      * @return RingBuffer
      */
     public static function createMultiProducer(
@@ -99,7 +99,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
         WaitStrategyInterface $waitStrategy = null
     ) {
         if (null === $waitStrategy) {
-            $waitStrategy = new BusySpinWaitStrategy();
+            $waitStrategy = new BlockingWaitStrategy();
         }
         $sequencer = new MultiProducerSequencer($storage, $bufferSize, $waitStrategy);
         return new static($factory, $sequencer);
@@ -111,7 +111,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
      * @param StorageInterface $storage
      * @param EventFactoryInterface $factory used to create the events within the ring buffer.
      * @param int $bufferSize number of elements to create within the ring buffer.
-     * @param WaitStrategyInterface|null $waitStrategy used
+     * @param WaitStrategyInterface|null $waitStrategy used, default: BlockingWaitStrategy
      * @return RingBuffer
      */
     public static function createSingleProducer(
@@ -121,7 +121,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
         WaitStrategyInterface $waitStrategy = null
     ) {
         if (null === $waitStrategy) {
-            $waitStrategy = new BusySpinWaitStrategy();
+            $waitStrategy = new BlockingWaitStrategy();
         }
         $sequencer = new SingleProducerSequencer($storage, $bufferSize, $waitStrategy);
         return new static($factory, $sequencer);
