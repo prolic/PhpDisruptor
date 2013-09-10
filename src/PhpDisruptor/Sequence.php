@@ -2,63 +2,33 @@
 
 namespace PhpDisruptor;
 
-use Zend\Cache\Exception\ExceptionInterface as StorageException;
-use Zend\Cache\Storage\StorageInterface;
-
 class Sequence
 {
     const INITIAL_VALUE = -1;
 
     /**
-     * @var string
+     * @var int
      */
-    protected $key;
-
-    /**
-     * @var StorageInterface
-     */
-    protected $storage;
+    protected $value;
 
     /**
      * Constructor
      *
-     * @param StorageInterface $storage
      * @param int|null $initialValue
-     * @param string|null $key (only for internal use, please don't set the key yourself)
-     * @throws Exception\InvalidArgumentException
-     * @throws Exception\RuntimeException
      */
-    public function __construct(StorageInterface $storage, $initialValue = null, $key = null)
+    public function __construct($initialValue = self::INITIAL_VALUE)
     {
-        $this->storage = $storage;
-        if (null === $key) {
-            $key = 'sequence_' . sha1(gethostname() . getmypid() . microtime(true) . spl_object_hash($this));
-            if (null === $initialValue) {
-                $initialValue = static::INITIAL_VALUE;
-            }
-            if (!is_numeric($initialValue)) {
-                throw new Exception\InvalidArgumentException(
-                    '$initialValue must be an integer'
-                );
-            }
-            $storage->setItem($key, $initialValue);
-        }
-        $this->key = $key;
+        $this->value = $initialValue;
     }
 
     /**
      * Perform a volatile read of this sequence's value.
      *
      * @return int The current value of the sequence.
-     * @throws Exception\RuntimeException
      */
     public function get()
     {
-        try {
-            return $this->storage->getItem($this->key);
-        } catch (StorageException $e) {
-            throw new Exception\RuntimeException('Storage error');
-        }
+        return $this->value;
     }
 
     /**
@@ -67,20 +37,11 @@ class Sequence
      * store.
      *
      * @param int $value The new value for the sequence.
-     * @return bool
-     * @throws Exception\InvalidArgumentException
-     * @throws Exception\RuntimeException
+     * @return void
      */
     public function set($value)
     {
-        if (!is_numeric($value)) {
-            throw new Exception\InvalidArgumentException('value must be an integer');
-        }
-        try {
-            return $this->storage->setItem($this->key, $value);
-        } catch (StorageException $e) {
-            throw new Exception\RuntimeException('Storage error');
-        }
+        $this->value = $value;
     }
 
     /**
@@ -89,15 +50,14 @@ class Sequence
      * @param int $expectedValue The expected current value.
      * @param int $newValue The value to update to.
      * @return bool true if the operation succeeds, false otherwise.
-     * @throws Exception\RuntimeException
      */
     public function compareAndSet($expectedValue, $newValue)
     {
-        try {
-            return $this->storage->checkAndSetItem($expectedValue, $this->key, $newValue);
-        } catch (StorageException $e) {
-            throw new Exception\RuntimeException('Storage error');
+        if ($this->value == $expectedValue) {
+            $this->value = $newValue;
+            return true;
         }
+        return false;
     }
 
     /**
@@ -119,10 +79,6 @@ class Sequence
      */
     public function addAndGet($increment)
     {
-        if (!is_numeric($increment)) {
-            throw new Exception\InvalidArgumentException('increment must be an integer');
-        }
-
         do {
             $currentValue = $this->get();
             $newValue = $currentValue + $increment;
@@ -137,25 +93,5 @@ class Sequence
     public function __toString()
     {
         return $this->get();
-    }
-
-    /**
-     * Get the sequence key
-     * (only useful for internal use)
-     *
-     * @return string
-     */
-    public function getKey()
-    {
-        return $this->key;
-    }
-
-    /**
-     * @param Sequence $sequence
-     * @return bool
-     */
-    public function equals(Sequence $sequence)
-    {
-        return ($this->getKey() == $sequence->getKey());
     }
 }
