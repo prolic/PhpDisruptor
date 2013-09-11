@@ -5,7 +5,6 @@ namespace PhpDisruptorTest\Util;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\Util\Util;
 use PHPUnit_Framework_TestCase as TestCase;
-use Zend\Cache\Storage\Adapter\Memory as Storage;
 
 class UtilTest extends TestCase
 {
@@ -35,27 +34,26 @@ class UtilTest extends TestCase
 
     public function dataProvider()
     {
-        $storage = new Storage();
         return array(
             array(
                 array(
-                    new Sequence($storage, 3),
-                    new Sequence($storage, 5),
-                    new Sequence($storage, 7)
+                    new Sequence(3),
+                    new Sequence(5),
+                    new Sequence(7)
                 )
             ),
             array(
                 array(
-                    new Sequence($storage, 7),
-                    new Sequence($storage, 5),
-                    new Sequence($storage, 3)
+                    new Sequence(7),
+                    new Sequence(5),
+                    new Sequence(3)
                 )
             ),
             array(
                 array(
-                    new Sequence($storage, 5),
-                    new Sequence($storage, 7),
-                    new Sequence($storage, 3)
+                    new Sequence(5),
+                    new Sequence(7),
+                    new Sequence(3)
                 )
             )
         );

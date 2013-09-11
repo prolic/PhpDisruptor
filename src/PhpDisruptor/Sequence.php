@@ -28,7 +28,7 @@ class Sequence extends Stackable
      *
      * @return int The current value of the sequence.
      */
-    protected function get()
+    public function get()
     {
         return $this->value;
     }
@@ -41,7 +41,7 @@ class Sequence extends Stackable
      * @param int $value The new value for the sequence.
      * @return void
      */
-    protected function set($value)
+    public function set($value)
     {
         $this->value = $value;
     }
@@ -53,13 +53,16 @@ class Sequence extends Stackable
      * @param int $newValue The value to update to.
      * @return bool true if the operation succeeds, false otherwise.
      */
-    protected function compareAndSet($expectedValue, $newValue)
+    public function compareAndSet($expectedValue, $newValue)
     {
+        $set = false;
+        $this->lock();
         if ($this->value == $expectedValue) {
             $this->value = $newValue;
-            return true;
+            $set = true;
         }
-        return false;
+        $this->unlock();
+        return $set;
     }
 
     /**
@@ -67,7 +70,7 @@ class Sequence extends Stackable
      *
      * @return int The value after the increment
      */
-    protected function incrementAndGet()
+    public function incrementAndGet()
     {
         return $this->addAndGet(1);
     }
@@ -79,7 +82,7 @@ class Sequence extends Stackable
      * @return int The value after the increment.
      * @throws Exception\InvalidArgumentException
      */
-    protected function addAndGet($increment)
+    public function addAndGet($increment)
     {
         do {
             $currentValue = $this->get();
@@ -92,9 +95,9 @@ class Sequence extends Stackable
     /**
      * @return string
      */
-    protected function __toString()
+    public function __toString()
     {
-        return $this->get();
+        return (string) $this->get();
     }
 
     public function run()

@@ -14,7 +14,7 @@ final class FixedSequenceGroup extends Sequence
     /**
      * @var Sequence[]
      */
-    private $sequences;
+    protected $sequences = array();
 
     /**
      * Constructor

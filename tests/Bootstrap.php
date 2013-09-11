@@ -35,6 +35,6 @@ if (! isset($loader)) {
 }
 
 /* @var $loader \Composer\Autoload\ClassLoader */
-$loader->add('HumusStreamResponseSenderTest\\', __DIR__);
+$loader->add('PhpDisruptorTest\\', __DIR__);
 
 unset($files, $file, $loader);

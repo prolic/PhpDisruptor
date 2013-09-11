@@ -3,20 +3,17 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Util\Util;
-use Zend\Cache\Storage\StorageInterface;
 
-final class SequenceGroup extends Sequence implements SequenceHolderInterface
+final class SequenceGroup extends Sequence
 {
     /**
-     * Constructor
-     *
-     * @param StorageInterface $storage
-     * @param string|null $key (only for internal use, please don't set the key yourself)
+     * @var array Sequence[]
      */
-    public function __construct(StorageInterface $storage, $key = null)
+    protected $sequences;
+
+    public function __construct()
     {
-        parent::__construct($storage, static::INITIAL_VALUE, $key);
-        $this->storage->setItem($this->key, array());
+        $this->sequences = array();
     }
 
     /**
@@ -26,21 +23,7 @@ final class SequenceGroup extends Sequence implements SequenceHolderInterface
      */
     public function getSequences()
     {
-        $sequences = array();
-        $content = $this->storage->getItem($this->key);
-        foreach ($content as $sequence) {
-            $sequences[] = new Sequence($this->storage, Sequence::INITIAL_VALUE, $sequence);
-        }
-        return $sequences;
-    }
-
-    /**
-     * @param Sequence[] $sequences
-     * @return bool
-     */
-    public function casSequences(array $sequences)
-    {
-        return Util::casSequences($this->storage, $this->key, $sequences);
+        return $this->sequences;
     }
 
     /**
@@ -58,16 +41,11 @@ final class SequenceGroup extends Sequence implements SequenceHolderInterface
      *
      * @param int $value to set the group of sequences to.
      * @return void
-     * @throws Exception\ExceptionInterface
      */
     public function set($value)
     {
-        if (!is_numeric($value)) {
-            throw new Exception\InvalidArgumentException('value must be an integer');
-        }
-        $sequences = $this->getSequences();
-        foreach ($sequences as $sequence) {
-            $sequence->set($value);
+        foreach ($this->getSequences() as $sequence) {
+            $sequence->value = $value;
         }
     }
 
@@ -80,17 +58,15 @@ final class SequenceGroup extends Sequence implements SequenceHolderInterface
      */
     public function add(Sequence $sequence)
     {
-        do {
-            $oldSequences = $this->getSequences();
+        $this->lock();
 
-            $oldContent = array();
-            foreach ($oldSequences as $oldSequence) {
-                $oldContent[] = $oldSequence->getKey();
-            }
+        $oldSequences = $this->sequences;
+        $newSequences = $oldSequences;
+        $newSequences[] = $sequence;
 
-            $newContent = $oldContent;
-            $newContent[] = $sequence->getKey();
-        } while (!$this->compareAndSet($oldContent, $newContent));
+        $this->sequences = $newSequences;
+
+        $this->unlock();
     }
 
     /**

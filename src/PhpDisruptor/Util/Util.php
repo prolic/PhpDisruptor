@@ -38,7 +38,7 @@ final class Util
      * @return int the minimum sequence found or PHP_INT_MAX if the array is empty
      * @throws Exception\InvalidArgumentException
      */
-    public static function getMinimumSequence($sequences, $minimum = null)
+    public static function getMinimumSequence(array $sequences, $minimum = null)
     {
         if (null === $minimum) {
             $minimum = PHP_INT_MAX;
@@ -77,22 +77,6 @@ final class Util
             $sequences[] = $eventProcessor->getSequence();
         }
         return $sequences;
-    }
-
-    /**
-     * @param StorageInterface $storage
-     * @param $key
-     * @param Sequence[] $sequences
-     * @return bool
-     */
-    public static function casSequences(StorageInterface $storage, $key, array $sequences)
-    {
-        $oldContent = $storage->getItem($key);
-        $newContent = array();
-        foreach ($sequences as $sequence) {
-            $newContent[] = $sequence->getKey();
-        }
-        return $storage->checkAndSetItem($oldContent, $key, $newContent);
     }
 
     /**
