@@ -2,7 +2,9 @@
 
 namespace PhpDisruptor;
 
-class Sequence
+use Stackable;
+
+class Sequence extends Stackable
 {
     const INITIAL_VALUE = -1;
 
@@ -14,11 +16,11 @@ class Sequence
     /**
      * Constructor
      *
-     * @param int|null $initialValue
+     * @param int $initialValue
      */
     public function __construct($initialValue = self::INITIAL_VALUE)
     {
-        $this->value = $initialValue;
+        $this->set($initialValue);
     }
 
     /**
@@ -26,7 +28,7 @@ class Sequence
      *
      * @return int The current value of the sequence.
      */
-    public function get()
+    protected function get()
     {
         return $this->value;
     }
@@ -39,7 +41,7 @@ class Sequence
      * @param int $value The new value for the sequence.
      * @return void
      */
-    public function set($value)
+    protected function set($value)
     {
         $this->value = $value;
     }
@@ -51,7 +53,7 @@ class Sequence
      * @param int $newValue The value to update to.
      * @return bool true if the operation succeeds, false otherwise.
      */
-    public function compareAndSet($expectedValue, $newValue)
+    protected function compareAndSet($expectedValue, $newValue)
     {
         if ($this->value == $expectedValue) {
             $this->value = $newValue;
@@ -65,7 +67,7 @@ class Sequence
      *
      * @return int The value after the increment
      */
-    public function incrementAndGet()
+    protected function incrementAndGet()
     {
         return $this->addAndGet(1);
     }
@@ -77,7 +79,7 @@ class Sequence
      * @return int The value after the increment.
      * @throws Exception\InvalidArgumentException
      */
-    public function addAndGet($increment)
+    protected function addAndGet($increment)
     {
         do {
             $currentValue = $this->get();
@@ -90,8 +92,12 @@ class Sequence
     /**
      * @return string
      */
-    public function __toString()
+    protected function __toString()
     {
         return $this->get();
+    }
+
+    public function run()
+    {
     }
 }
