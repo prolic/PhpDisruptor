@@ -47,11 +47,16 @@ class SequenceGroupTest extends TestCase
     public function testShouldReportSizeOfGroup()
     {
         $sequenceGroup = new SequenceGroup();
-        $sequenceGroup->add(new Sequence());
-        $sequenceGroup->add(new Sequence());
-        $sequenceGroup->add(new Sequence());
-
-        $this->assertEquals(3, $sequenceGroup->size());
+        $sequence1 = new Sequence();
+        $sequence2 = new Sequence();
+        $sequence3 = new Sequence();
+        $sequenceGroup->add($sequence1);
+        $sequenceGroup->add($sequence2);
+        $sequenceGroup->add($sequence3);
+//        $sequenceGroup->add(new Sequence());
+//        $sequenceGroup->add(new Sequence());
+//        $sequenceGroup->add(new Sequence());
+        $this->assertEquals(3, $sequenceGroup->count());
     }
 //
 //    public function testShouldRemoveSequenceFromGroup()
@@ -67,7 +72,7 @@ class SequenceGroupTest extends TestCase
 //
 //        $this->assertTrue($sequenceGroup->remove($sequenceThree));
 //        $this->assertEquals($sequenceSeven->get(), $sequenceGroup->get());
-//        $this->assertEquals(1, $sequenceGroup->size());
+//        $this->assertEquals(1, $sequenceGroup->count());
 //    }
 //
 //    public function testShouldRemoveSequenceFromGroupWhereItBeenAddedMultipleTimes()
@@ -84,7 +89,7 @@ class SequenceGroupTest extends TestCase
 //
 //        $this->assertTrue($sequenceGroup->remove($sequenceThree));
 //        $this->assertEquals($sequenceSeven->get(), $sequenceGroup->get());
-//        $this->assertEquals(1, $sequenceGroup->size());
+//        $this->assertEquals(1, $sequenceGroup->count());
 //    }
 //
     public function testShouldSetGroupSequenceToSameValue()

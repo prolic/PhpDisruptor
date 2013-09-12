@@ -2,9 +2,10 @@
 
 namespace PhpDisruptor;
 
+use Countable;
 use PhpDisruptor\Util\Util;
 
-final class SequenceGroup extends Sequence
+final class SequenceGroup extends Sequence implements Countable
 {
     /**
      * @var array Sequence[]
@@ -85,9 +86,9 @@ final class SequenceGroup extends Sequence
      *
      * @return int the size of the group.
      */
-    public function size()
+    public function count()
     {
-        return count($this->getSequences());
+        return count($this->sequences);
     }
 
     /**
