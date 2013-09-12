@@ -24,14 +24,17 @@ class SequenceGroupTest extends TestCase
         $this->assertEquals($sequence->get(), $sequenceGroup->get());
     }
 
-//    public function testShouldNotFailIfTryingToRemoveNotExistingSequence()
-//    {
-//        $sequenceGroup = new SequenceGroup();
-//        $sequenceGroup->add(new Sequence());
-//        $sequenceGroup->add(new Sequence());
-//        $this->assertFalse($sequenceGroup->remove(new Sequence()));
-//    }
-//
+    public function testShouldNotFailIfTryingToRemoveNotExistingSequence()
+    {
+        $sequenceGroup = new SequenceGroup();
+        $sequence1 = new Sequence();
+        $sequence2 = new Sequence();
+        $sequence3 = new Sequence();
+        $sequenceGroup->add($sequence1);
+        $sequenceGroup->add($sequence2);
+        $this->assertTrue($sequenceGroup->remove($sequence3));
+    }
+
     public function testShouldReportTheMinimumSequenceForGroupOfTwo()
     {
         $sequenceThree = new Sequence(3);
@@ -53,45 +56,42 @@ class SequenceGroupTest extends TestCase
         $sequenceGroup->add($sequence1);
         $sequenceGroup->add($sequence2);
         $sequenceGroup->add($sequence3);
-//        $sequenceGroup->add(new Sequence());
-//        $sequenceGroup->add(new Sequence());
-//        $sequenceGroup->add(new Sequence());
         $this->assertEquals(3, $sequenceGroup->count());
     }
-//
-//    public function testShouldRemoveSequenceFromGroup()
-//    {
-//        $sequenceThree = new Sequence(3);
-//        $sequenceSeven = new Sequence(7);
-//        $sequenceGroup = new SequenceGroup();
-//
-//        $sequenceGroup->add($sequenceSeven);
-//        $sequenceGroup->add($sequenceThree);
-//
-//        $this->assertEquals($sequenceThree->get(), $sequenceGroup->get());
-//
-//        $this->assertTrue($sequenceGroup->remove($sequenceThree));
-//        $this->assertEquals($sequenceSeven->get(), $sequenceGroup->get());
-//        $this->assertEquals(1, $sequenceGroup->count());
-//    }
-//
-//    public function testShouldRemoveSequenceFromGroupWhereItBeenAddedMultipleTimes()
-//    {
-//        $sequenceThree = new Sequence(3);
-//        $sequenceSeven = new Sequence(7);
-//        $sequenceGroup = new SequenceGroup();
-//
-//        $sequenceGroup->add($sequenceThree);
-//        $sequenceGroup->add($sequenceSeven);
-//        $sequenceGroup->add($sequenceThree);
-//
-//        $this->assertEquals($sequenceThree->get(), $sequenceGroup->get());
-//
-//        $this->assertTrue($sequenceGroup->remove($sequenceThree));
-//        $this->assertEquals($sequenceSeven->get(), $sequenceGroup->get());
-//        $this->assertEquals(1, $sequenceGroup->count());
-//    }
-//
+
+    public function testShouldRemoveSequenceFromGroup()
+    {
+        $sequenceThree = new Sequence(3);
+        $sequenceSeven = new Sequence(7);
+        $sequenceGroup = new SequenceGroup();
+
+        $sequenceGroup->add($sequenceSeven);
+        $sequenceGroup->add($sequenceThree);
+
+        $this->assertEquals($sequenceThree->get(), $sequenceGroup->get());
+
+        $this->assertTrue($sequenceGroup->remove($sequenceThree));
+        $this->assertEquals($sequenceSeven->get(), $sequenceGroup->get());
+        $this->assertEquals(1, $sequenceGroup->count());
+    }
+
+    public function testShouldRemoveSequenceFromGroupWhereItBeenAddedMultipleTimes()
+    {
+        $sequenceThree = new Sequence(3);
+        $sequenceSeven = new Sequence(7);
+        $sequenceGroup = new SequenceGroup();
+
+        $sequenceGroup->add($sequenceThree);
+        $sequenceGroup->add($sequenceSeven);
+        $sequenceGroup->add($sequenceThree);
+
+        $this->assertEquals($sequenceThree->get(), $sequenceGroup->get());
+
+        $this->assertTrue($sequenceGroup->remove($sequenceThree));
+        $this->assertEquals($sequenceSeven->get(), $sequenceGroup->get());
+        $this->assertEquals(1, $sequenceGroup->count());
+    }
+
     public function testShouldSetGroupSequenceToSameValue()
     {
         $sequenceThree = new Sequence(3);
