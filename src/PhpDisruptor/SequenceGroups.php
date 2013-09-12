@@ -2,25 +2,25 @@
 
 namespace PhpDisruptor;
 
-use Zend\Cache\Storage\StorageInterface;
+use Stackable;
 
-abstract class SequenceGroups
+abstract class SequenceGroups extends Stackable
 {
     /**
-     * @param SequenceHolderInterface $sequenceHolder
+     * @param SequenceAggregateInterface $sequenceAggregate
      * @param CursoredInterface $cursor
      * @param Sequence[] $sequencesToAdd
      * @return void
      * @throws Exception\InvalidArgumentException
      */
     public static function addSequences(
-        SequenceHolderInterface $sequenceHolder,
+        SequenceAggregateInterface $sequenceAggregate,
         CursoredInterface $cursor,
         array $sequencesToAdd
     ) {
 
         do {
-            $currentSequences = $sequenceHolder->getSequences();
+            $currentSequences = $sequenceAggregate->getSequences();
             $updatedSequences = $currentSequences;
             $cursorSequence = $cursor->getCursor();
 
@@ -33,7 +33,7 @@ abstract class SequenceGroups
                 $sequence->set($cursorSequence);
                 $updatedSequences[] = $sequence;
             }
-        } while (!$sequenceHolder->casSequences($updatedSequences));
+        } while (!$sequenceAggregate->casSequences($currentSequences, $updatedSequences));
 
         $cursorSequence = $cursor->getCursor();
         foreach ($sequencesToAdd as $sequence) {
@@ -42,14 +42,14 @@ abstract class SequenceGroups
     }
 
     /**
-     * @param SequenceHolderInterface $sequenceHolder
+     * @param SequenceAggregateInterface $sequenceAggregate
      * @param Sequence $sequence
      * @return bool
      */
-    public static function removeSequence(SequenceHolderInterface $sequenceHolder, Sequence $sequence)
+    public static function removeSequence(SequenceAggregateInterface $sequenceAggregate, Sequence $sequence)
     {
         do {
-            $oldSequences = $sequenceHolder->getSequences();
+            $oldSequences = $sequenceAggregate->getSequences();
             $numToRemove = self::countMatching($oldSequences, $sequence);
             if (0 == $numToRemove) {
                 break;
@@ -60,11 +60,11 @@ abstract class SequenceGroups
             $newSequences = array();
             for ($i = 0, $pos = 0; $i < $oldSize; $i++) {
                 $testSequence = $oldSequences[$i];
-                if (!$testSequence->equals($sequence)) {
+                if ($testSequence->hash != $sequence->hash) {
                     $newSequences[$pos++] = $testSequence;
                 }
             }
-        } while (!$sequenceHolder->casSequences($newSequences));
+        } while (!$sequenceAggregate->casSequences($oldSequences, $newSequences));
         return $numToRemove != 0;
     }
 
@@ -77,7 +77,7 @@ abstract class SequenceGroups
     {
         $numToRemove = 0;
         foreach ($sequences as $sequenceToTest) {
-            if ($sequenceToTest->equals($sequence)) {
+            if ($sequenceToTest == $sequence) {
                 $numToRemove++;
             }
         }

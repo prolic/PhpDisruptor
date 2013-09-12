@@ -5,15 +5,19 @@ namespace PhpDisruptor;
 use Countable;
 use PhpDisruptor\Util\Util;
 
-final class SequenceGroup extends Sequence implements Countable
+final class SequenceGroup extends Sequence implements Countable, SequenceAggregateInterface
 {
     /**
-     * @var array Sequence[]
+     * @var Sequence[]
      */
-    protected $sequences;
+    public $sequences;
+
+    public $hash;
 
     public function __construct()
     {
+        $this->value = self::INITIAL_VALUE;
+        $this->hash = spl_object_hash($this);
         $this->sequences = array();
     }
 
@@ -34,7 +38,7 @@ final class SequenceGroup extends Sequence implements Countable
      */
     public function get()
     {
-        return Util::getMinimumSequence($this->getSequences());
+        return Util::getMinimumSequence($this->sequences);
     }
 
     /**
@@ -45,8 +49,8 @@ final class SequenceGroup extends Sequence implements Countable
      */
     public function set($value)
     {
-        foreach ($this->getSequences() as $sequence) {
-            $sequence->value = $value;
+        foreach ($this->sequences as $sequence) {
+            $sequence->set($value);
         }
     }
 
@@ -104,5 +108,22 @@ final class SequenceGroup extends Sequence implements Countable
     public function addWhileRunning(CursoredInterface $cursored, array $sequences)
     {
         SequenceGroups::addSequences($this, $cursored, $sequences);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function casSequences(array $oldSequences, array $newSequences)
+    {
+        return Util::casSequences($this, $oldSequences, $newSequences);
+    }
+
+    /**
+     * @param Sequence[] $sequences
+     * @return void
+     */
+    public function setSequences(array $sequences)
+    {
+        $this->sequences = $sequences;
     }
 }

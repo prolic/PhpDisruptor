@@ -11,7 +11,7 @@ class Sequence extends Stackable
     /**
      * @var int
      */
-    protected $value;
+    public $value;
 
     /**
      * Constructor
@@ -21,6 +21,7 @@ class Sequence extends Stackable
     public function __construct($initialValue = self::INITIAL_VALUE)
     {
         $this->set($initialValue);
+        $this->hash = spl_object_hash($this);
     }
 
     /**

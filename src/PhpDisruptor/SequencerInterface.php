@@ -2,7 +2,7 @@
 
 namespace PhpDisruptor;
 
-interface SequencerInterface extends CursoredInterface, SequenceHolderInterface
+interface SequencerInterface extends CursoredInterface, SequenceAggregateInterface
 {
     const INITIAL_CURSOR_VALUE = -1;
 

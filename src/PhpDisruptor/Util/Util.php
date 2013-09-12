@@ -5,6 +5,7 @@ namespace PhpDisruptor\Util;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
+use PhpDisruptor\SequenceAggregateInterface;
 use Zend\Cache\Storage\StorageInterface;
 
 final class Util
@@ -77,6 +78,27 @@ final class Util
             $sequences[] = $eventProcessor->getSequence();
         }
         return $sequences;
+    }
+
+    /**
+     * @param SequenceAggregateInterface $sequenceAggregate
+     * @param Sequence[] $oldSequences
+     * @param Sequence[] $newSequences
+     * @return bool
+     */
+    public static function casSequences(
+        SequenceAggregateInterface $sequenceAggregate,
+        array $oldSequences,
+        array $newSequences
+    ) {
+        $set = false;
+        $sequenceAggregate->lock();
+        if ($sequenceAggregate->getSequences() == $oldSequences) {
+            $sequenceAggregate->setSequences($newSequences);
+            $set = true;
+        }
+        $sequenceAggregate->unlock();
+        return $set;
     }
 
     /**
