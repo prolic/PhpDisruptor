@@ -5,7 +5,6 @@ namespace PhpDisruptor;
 use PhpDisruptor\Exception\InsufficientCapacityException;
 use PhpDisruptor\Util\Util;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
-use Zend\Cache\Storage\StorageInterface;
 
 final class MultiProducerSequencer extends AbstractSequencer
 {
@@ -17,7 +16,7 @@ final class MultiProducerSequencer extends AbstractSequencer
     /**
      * @var array
      */
-    private $availableBufferKeys;
+    private $availableBuffer;
 
     /**
      * @var int
@@ -32,11 +31,11 @@ final class MultiProducerSequencer extends AbstractSequencer
     /**
      * @inheritdoc
      */
-    public function __construct(StorageInterface $storage, $bufferSize, WaitStrategyInterface $waitStrategy)
+    public function __construct($bufferSize, WaitStrategyInterface $waitStrategy)
     {
-        parent::__construct($storage, $bufferSize, $waitStrategy);
+        parent::__construct($bufferSize, $waitStrategy);
 
-        $this->gatingSequenceCache = new Sequence($storage, SequencerInterface::INITIAL_CURSOR_VALUE);
+        $this->gatingSequenceCache = new Sequence();
 
         $this->indexMask = $bufferSize - 1;
         $this->indexShift = Util::log2($bufferSize);
@@ -45,28 +44,14 @@ final class MultiProducerSequencer extends AbstractSequencer
 
     /**
      * @return void
-     * @throws Exception\RuntimeException
      */
     private function initAvailableBuffer()
     {
         $buffer = array();
         for ($i = 0; $i < $this->bufferSize; $i++) {
-            $this->availableBufferKeys[$i] = 'availBufKey_'
-                . sha1(gethostname() . getmypid() . microtime(true) . spl_object_hash($this)) . '_' . $i;
-            $buffer[$this->availableBufferKeys[$i]] = -1;
+            $buffer[$i] = -1;
         }
-        $result = $this->storage->setItems($buffer);
-        if (!empty($result)) {
-            throw new Exception\RuntimeException('storage error');
-        }
-    }
-
-    /**
-     * @return array
-     */
-    private function availableBuffer()
-    {
-        return $this->storage->getItems($this->availableBufferKeys);
+        $this->availableBuffer = $buffer;
     }
 
     /**

@@ -26,9 +26,9 @@ final class SingleProducerSequencer extends AbstractSequencer
     /**
      * @inheritdoc
      */
-    public function __construct(StorageInterface $storage, $bufferSize, WaitStrategyInterface $waitStrategy)
+    public function __construct($bufferSize, WaitStrategyInterface $waitStrategy)
     {
-        parent::__construct($storage, $bufferSize, $waitStrategy);
+        parent::__construct($bufferSize, $waitStrategy);
         $this->nextValue = Sequence::INITIAL_VALUE;
         $this->cachedValue = Sequence::INITIAL_VALUE;
     }

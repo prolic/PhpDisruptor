@@ -4,8 +4,9 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\Util\Util;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
+use Stackable;
 
-abstract class AbstractSequencer implements SequencerInterface
+abstract class AbstractSequencer extends Stackable implements SequencerInterface
 {
     /**
      * @var int
@@ -136,4 +137,7 @@ abstract class AbstractSequencer implements SequencerInterface
     {
         $this->sequences = $sequences;
     }
+
+    public function run()
+    {}
 }
