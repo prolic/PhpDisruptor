@@ -26,7 +26,7 @@ class Sequence extends AbstractAtomicStackable
     public function __construct($initialValue = self::INITIAL_VALUE)
     {
         $this->set($initialValue);
-        $this->hash = sha1(gethostname() . microtime(true) . getmypid());
+        $this->hash = uuid_create();
     }
 
     /**
@@ -101,7 +101,7 @@ class Sequence extends AbstractAtomicStackable
      */
     public function equals(Sequence $other)
     {
-        return $this->hash == $other->hash;
+        return uuid_compare($this->hash, $other->hash);
     }
 
     /**
