@@ -20,10 +20,6 @@ final class Util
      */
     public static function ceilingNextPowerOfTwo($x)
     {
-        if (!is_numeric($x)) {
-            throw new Exception\InvalidArgumentException('$x must be an integer');
-        }
-
         $size = PHP_INT_SIZE * 8;
         $binary = str_pad(decbin($x -1), $size, 0, STR_PAD_LEFT);
         $numberOfLeadingZeros = strpos($binary, '1');
@@ -39,23 +35,12 @@ final class Util
      * @return int the minimum sequence found or PHP_INT_MAX if the array is empty
      * @throws Exception\InvalidArgumentException
      */
-    public static function getMinimumSequence(array $sequences, $minimum = null)
+    public static function getMinimumSequence(array $sequences, $minimum = PHP_INT_MAX)
     {
-        if (null === $minimum) {
-            $minimum = PHP_INT_MAX;
-        }
-        if (!is_numeric($minimum)) {
-            throw new Exception\InvalidArgumentException('$minimum must be an integer or null');
-        }
-
         foreach ($sequences as $sequence) {
-            if (!$sequence instanceof Sequence) {
-                throw new Exception\InvalidArgumentException('$sequence must be an instance of PhpDisruptor\Sequence');
-            }
             $value = $sequence->get();
             $minimum = min($minimum, $value);
         }
-
         return $minimum;
     }
 
