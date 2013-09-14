@@ -2,9 +2,7 @@
 
 namespace PhpDisruptor;
 
-use Stackable;
-
-abstract class SequenceGroups extends Stackable
+abstract class SequenceGroups
 {
     /**
      * @param SequenceAggregateInterface $sequenceAggregate
@@ -73,7 +71,7 @@ abstract class SequenceGroups extends Stackable
      * @param Sequence $sequence
      * @return int
      */
-    private static function countMatching(array $sequences, Sequence $sequence)
+    public static function countMatching(array $sequences, Sequence $sequence)
     {
         $numToRemove = 0;
         foreach ($sequences as $sequenceToTest) {

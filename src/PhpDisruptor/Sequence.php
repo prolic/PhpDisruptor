@@ -2,9 +2,9 @@
 
 namespace PhpDisruptor;
 
-use Stackable;
+use PhpDisruptor\Pthreads\AbstractAtomicStackable;
 
-class Sequence extends Stackable
+class Sequence extends AbstractAtomicStackable
 {
     const INITIAL_VALUE = -1;
 
@@ -48,22 +48,15 @@ class Sequence extends Stackable
     }
 
     /**
-     * Perform a compare and set operation on the sequence.
+     * Perform a compare and swap operation on the sequence.
      *
-     * @param int $expectedValue The expected current value.
+     * @param int $oldValue The expected current value.
      * @param int $newValue The value to update to.
      * @return bool true if the operation succeeds, false otherwise.
      */
-    public function compareAndSet($expectedValue, $newValue)
+    public function compareAndSwap($oldValue, $newValue)
     {
-        $set = false;
-        $this->lock();
-        if ($this->value == $expectedValue) {
-            $this->value = $newValue;
-            $set = true;
-        }
-        $this->unlock();
-        return $set;
+        return $this->casMember('value', $oldValue, $newValue);
     }
 
     /**
@@ -88,7 +81,7 @@ class Sequence extends Stackable
         do {
             $currentValue = $this->get();
             $newValue = $currentValue + $increment;
-        } while (!$this->compareAndSet($currentValue, $newValue));
+        } while (!$this->compareAndSwap($currentValue, $newValue));
 
         return $newValue;
     }
@@ -99,9 +92,5 @@ class Sequence extends Stackable
     public function __toString()
     {
         return (string) $this->get();
-    }
-
-    public function run()
-    {
     }
 }
