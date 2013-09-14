@@ -32,7 +32,7 @@ class SequenceGroupTest extends TestCase
         $sequence3 = new Sequence();
         $sequenceGroup->add($sequence1);
         $sequenceGroup->add($sequence2);
-        $this->assertTrue($sequenceGroup->remove($sequence3));
+        $sequenceGroup->remove($sequence3);
     }
 
     public function testShouldReportTheMinimumSequenceForGroupOfTwo()

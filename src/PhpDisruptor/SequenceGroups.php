@@ -58,7 +58,7 @@ abstract class SequenceGroups
             $newSequences = array();
             for ($i = 0, $pos = 0; $i < $oldSize; $i++) {
                 $testSequence = $oldSequences[$i];
-                if ($testSequence->hash != $sequence->hash) {
+                if ($testSequence->equals($sequence)) {
                     $newSequences[$pos++] = $testSequence;
                 }
             }
