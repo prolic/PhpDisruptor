@@ -13,6 +13,7 @@
     ],
     "require": {
         "php": ">=5.3.3",
+        "ext-uuid": ">=1.0.3",
         "zendframework/zend-cache": ">=2.2.1",
         "prolic/humus-lock": "0.*",
         "marc-mabe/php-enum": "dev-master"
