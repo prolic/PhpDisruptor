@@ -2,36 +2,31 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Pthreads\AbstractAtomicStackable;
 use PhpDisruptor\Util\Util;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
-use Stackable;
 
-abstract class AbstractSequencer extends Stackable implements SequencerInterface
+abstract class AbstractSequencer extends AbstractAtomicStackable implements SequencerInterface
 {
     /**
      * @var int
      */
-    protected $bufferSize;
-
-    /**
-     * @var string
-     */
-    private $key;
+    public $bufferSize;
 
     /**
      * @var WaitStrategyInterface
      */
-    protected $waitStrategy;
+    public $waitStrategy;
 
     /**
      * @var Sequence
      */
-    protected $cursor;
+    public $cursor;
 
     /**
      * @var Sequence[]
      */
-    protected $sequences;
+    public $sequences;
 
     /**
      * Construct a Sequencer with the selected wait strategy and buffer size.
@@ -52,7 +47,7 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
 
         $this->bufferSize = $bufferSize;
         $this->waitStrategy = $waitStrategy;
-
+        $this->sequences = array();
         $this->cursor = new Sequence();
     }
 
@@ -137,7 +132,4 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
     {
         $this->sequences = $sequences;
     }
-
-    public function run()
-    {}
 }
