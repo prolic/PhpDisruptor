@@ -81,7 +81,7 @@ final class FixedSequenceGroup extends Sequence
      *
      * @throws Exception\UnsupportedMethodCallException
      */
-    public function compareAndSet($expectedValue, $newValue)
+    public function compareAndSwap($oldValue, $newValue)
     {
         throw new Exception\UnsupportedMethodCallException('not supported');
     }
