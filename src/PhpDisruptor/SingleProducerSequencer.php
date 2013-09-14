@@ -16,12 +16,12 @@ final class SingleProducerSequencer extends AbstractSequencer
     /**
      * @var int
      */
-    private $nextValue;
+    public $nextValue;
 
     /**
      * @var int
      */
-    private $cachedValue;
+    public $cachedValue;
 
     /**
      * @inheritdoc
@@ -36,13 +36,9 @@ final class SingleProducerSequencer extends AbstractSequencer
     /**
      * @param int $requiredCapacity
      * @return bool
-     * @throws Exception\InvalidArgumentException
      */
     public function hasAvailableCapacity($requiredCapacity)
     {
-        if (!is_numeric($requiredCapacity)) {
-            throw new Exception\InvalidArgumentException('$requiredCapacity must be an integer');
-        }
         $nextValue = $this->nextValue;
 
         $wrapPoint = ($nextValue + $requiredCapacity) - $this->bufferSize;
@@ -126,13 +122,9 @@ final class SingleProducerSequencer extends AbstractSequencer
     /**
      * @param int
      * @return void
-     * @throws Exception\InvalidArgumentException
      */
     public function claim($sequence)
     {
-        if (!is_numeric($sequence)) {
-            throw new Exception\InvalidArgumentException('$sequence must be an integer');
-        }
         $this->nextValue = $sequence;
     }
 
