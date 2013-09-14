@@ -11,22 +11,22 @@ final class MultiProducerSequencer extends AbstractSequencer
     /**
      * @var Sequence
      */
-    private $gatingSequenceCache;
+    public $gatingSequenceCache;
 
     /**
-     * @var array
+     * @var int[]
      */
-    private $availableBuffer;
-
-    /**
-     * @var int
-     */
-    private $indexMask;
+    public $availableBuffer;
 
     /**
      * @var int
      */
-    private $indexShift;
+    public $indexMask;
+
+    /**
+     * @var int
+     */
+    public $indexShift;
 
     /**
      * @inheritdoc
@@ -39,14 +39,7 @@ final class MultiProducerSequencer extends AbstractSequencer
 
         $this->indexMask = $bufferSize - 1;
         $this->indexShift = Util::log2($bufferSize);
-        $this->initAvailableBuffer();
-    }
 
-    /**
-     * @return void
-     */
-    private function initAvailableBuffer()
-    {
         $buffer = array();
         for ($i = 0; $i < $this->bufferSize; $i++) {
             $buffer[$i] = -1;
@@ -64,7 +57,7 @@ final class MultiProducerSequencer extends AbstractSequencer
         if (!is_numeric($requiredCapacity)) {
             throw new Exception\InvalidArgumentException('$requiredCapacity must be an integer');
         }
-        return $this->internalHasAvailableCapacity($this->getSequences(), $requiredCapacity, $this->cursor->get());
+        return $this->_internalHasAvailableCapacity($this->getSequences(), $requiredCapacity, $this->cursor->get());
     }
 
     /**
@@ -73,7 +66,7 @@ final class MultiProducerSequencer extends AbstractSequencer
      * @param int $cursorValue
      * @return bool
      */
-    private function internalHasAvailableCapacity(array $gatingSequences, $requiredCapacity, $cursorValue)
+    public function _internalHasAvailableCapacity(array $gatingSequences, $requiredCapacity, $cursorValue) // private !! only public for pthreads reasons
     {
         $wrapPoint = ($cursorValue + $requiredCapacity) - $this->bufferSize;
         $cachedGatingSequence = $this->gatingSequenceCache->get();
@@ -122,7 +115,7 @@ final class MultiProducerSequencer extends AbstractSequencer
                 }
 
                 $this->gatingSequenceCache->set($gatingSequence);
-            } elseif ($this->cursor->compareAndSet($current, $next)) {
+            } elseif ($this->cursor->compareAndSwap($current, $next)) {
                 break;
             }
         } while (true);
@@ -146,7 +139,7 @@ final class MultiProducerSequencer extends AbstractSequencer
             if (!$this->hasAvailableCapacity($this->getSequences(), $n, $current)) {
                 throw new Exception\InsufficientCapacityException('insufficient capacity');
             }
-        } while (!$this->cursor->compareAndSet($current, $next));
+        } while (!$this->cursor->compareAndSwap($current, $next));
 
         return $next;
     }
@@ -167,10 +160,10 @@ final class MultiProducerSequencer extends AbstractSequencer
     public function publish($low, $high = null)
     {
         if (null === $high) {
-            $this->setAvailable($low);
+            $this->_setAvailable($low);
         } else {
             for ($l = $low; $l <= $high; $l++) {
-                $this->setAvailable($l);
+                $this->_setAvailable($l);
             }
         }
         $this->waitStrategy->signalAllWhenBlocking();
@@ -198,9 +191,9 @@ final class MultiProducerSequencer extends AbstractSequencer
      * @param int $sequence
      * @return void
      */
-    private function setAvailable($sequence)
+    public function _setAvailable($sequence) // private !! only public for pthreads reasons
     {
-        $this->setAvailableBufferValue($this->calculateIndex($sequence), $this->calculateAvailabilityFlag($sequence));
+        $this->_setAvailableBufferValue($this->_calculateIndex($sequence), $this->_calculateAvailabilityFlag($sequence));
     }
 
     /**
@@ -208,11 +201,13 @@ final class MultiProducerSequencer extends AbstractSequencer
      * @param int $flag
      * @return void
      */
-    private function setAvailableBufferValue($index, $flag)
+    public function _setAvailableBufferValue($index, $flag) // private !! only public for pthreads reasons
     {
         do {
-            $oldValue = $this->storage->getItem($this->availableBufferKeys[$index]);
-        } while (!$this->storage->checkAndSetItem($oldValue, $this->availableBufferKeys[$index], $flag));
+            $oldAvailableBuffer = $this->availableBuffer;
+            $newAvailableBuffer = $oldAvailableBuffer;
+            $newAvailableBuffer[$index] = $flag;
+        } while (!$this->casMember('availableBuffer', $oldAvailableBuffer, $newAvailableBuffer));
     }
 
     /**
@@ -223,8 +218,8 @@ final class MultiProducerSequencer extends AbstractSequencer
         if (!is_numeric($sequence)) {
             throw new Exception\InvalidArgumentException('$sequence must be an integer');
         }
-        $index = $this->calculateIndex($sequence);
-        $flag = $this->calculateAvailabilityFlag($sequence);
+        $index = $this->_calculateIndex($sequence);
+        $flag = $this->_calculateAvailabilityFlag($sequence);
 
         return $this->storage->getItem($this->availableBufferKeys[$index]) == $flag;
     }
@@ -248,7 +243,7 @@ final class MultiProducerSequencer extends AbstractSequencer
      * @param int $sequence
      * @return int
      */
-    private function calculateAvailabilityFlag($sequence)
+    public function _calculateAvailabilityFlag($sequence) // private !! only public for pthreads reasons
     {
         return (int) ($sequence >> $this->indexShift);
     }
@@ -257,7 +252,7 @@ final class MultiProducerSequencer extends AbstractSequencer
      * @param int $sequence
      * @return int
      */
-    private function calculateIndex($sequence)
+    public function _calculateIndex($sequence) // private !! only public for pthreads reasons
     {
         return (int) ($sequence & $this->indexMask);
     }
