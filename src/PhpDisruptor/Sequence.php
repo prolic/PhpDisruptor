@@ -14,6 +14,11 @@ class Sequence extends AbstractAtomicStackable
     public $value;
 
     /**
+     * @var string
+     */
+    public $hash;
+
+    /**
      * Constructor
      *
      * @param int $initialValue
@@ -21,7 +26,7 @@ class Sequence extends AbstractAtomicStackable
     public function __construct($initialValue = self::INITIAL_VALUE)
     {
         $this->set($initialValue);
-        $this->hash = spl_object_hash($this);
+        $this->hash = sha1(gethostname() . microtime(true) . getmypid());
     }
 
     /**
@@ -84,6 +89,19 @@ class Sequence extends AbstractAtomicStackable
         } while (!$this->compareAndSwap($currentValue, $newValue));
 
         return $newValue;
+    }
+
+    /**
+     * Compares two sequences by its internal hashes
+     *
+     * because of pthreads we cannot rely on object identity
+     *
+     * @param Sequence $other
+     * @return bool
+     */
+    public function equals(Sequence $other)
+    {
+        return $this->hash == $other->hash;
     }
 
     /**
