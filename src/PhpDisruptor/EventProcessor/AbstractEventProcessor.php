@@ -2,10 +2,10 @@
 
 namespace PhpDisruptor\EventProcessor;
 
+use PhpDisruptor\Pthreads\AbstractAtomicWorker;
 use PhpDisruptor\Sequence;
-use Worker;
 
-abstract class AbstractEventProcessor extends Worker
+abstract class AbstractEventProcessor extends AbstractAtomicWorker
 {
     /**
      * Get a reference to the Sequence being used by this EventProcessor.
