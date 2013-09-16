@@ -6,7 +6,6 @@ use PhpDisruptor\Dsl\ProducerType;
 use PhpDisruptor\WaitStrategy\BlockingWaitStrategy;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use SplFixedArray;
-use Zend\Cache\Storage\StorageInterface;
 
 /**
  * Ring based store of reusable entries containing the data representing
@@ -40,11 +39,6 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
     private $eventClass;
 
     /**
-     * @var StorageInterface
-     */
-    private $storage;
-
-    /**
      * Construct a RingBuffer with the full option set.
      *
      * @param EventFactoryInterface $eventFactory to newInstance entries for filling the RingBuffer
@@ -57,20 +51,10 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
         $this->indexMask = $this->bufferSize - 1;
 
         $this->eventClass = $eventFactory->getEventClass();
-        $this->entries = new SplFixedArray($sequencer->getBufferSize());
+        $this->entries = new SplFixedArray($sequencer->getBufferSize()); // todo: measure performance against array !!
         foreach ($this->entries as $key => $entry) {
             $entry[$key] = $eventFactory->newInstance();
         }
-    }
-
-    /**
-     * Get storage
-     *
-     * @return StorageInterface
-     */
-    public function getStorage()
-    {
-        return $this->storage;
     }
 
     /**
@@ -86,14 +70,12 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
     /**
      * Create a new multiple producer RingBuffer with the specified wait strategy.
      *
-     * @param StorageInterface $storage
      * @param EventFactoryInterface $factory used to create the events within the ring buffer.
      * @param int $bufferSize number of elements to create within the ring buffer.
      * @param WaitStrategyInterface|null $waitStrategy used, default: BlockingWaitStrategy
      * @return RingBuffer
      */
     public static function createMultiProducer(
-        StorageInterface $storage,
         EventFactoryInterface $factory,
         $bufferSize,
         WaitStrategyInterface $waitStrategy = null
@@ -101,21 +83,19 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
         if (null === $waitStrategy) {
             $waitStrategy = new BlockingWaitStrategy();
         }
-        $sequencer = new MultiProducerSequencer($storage, $bufferSize, $waitStrategy);
+        $sequencer = new MultiProducerSequencer($bufferSize, $waitStrategy);
         return new static($factory, $sequencer);
     }
 
     /**
      * Create a new single producer RingBuffer with the specified wait strategy.
      *
-     * @param StorageInterface $storage
      * @param EventFactoryInterface $factory used to create the events within the ring buffer.
      * @param int $bufferSize number of elements to create within the ring buffer.
      * @param WaitStrategyInterface|null $waitStrategy used, default: BlockingWaitStrategy
      * @return RingBuffer
      */
     public static function createSingleProducer(
-        StorageInterface $storage,
         EventFactoryInterface $factory,
         $bufferSize,
         WaitStrategyInterface $waitStrategy = null
@@ -123,14 +103,13 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
         if (null === $waitStrategy) {
             $waitStrategy = new BlockingWaitStrategy();
         }
-        $sequencer = new SingleProducerSequencer($storage, $bufferSize, $waitStrategy);
+        $sequencer = new SingleProducerSequencer($bufferSize, $waitStrategy);
         return new static($factory, $sequencer);
     }
 
     /**
      * Create a new Ring Buffer with the specified producer type (SINGLE or MULTI)
      *
-     * @param StorageInterface $storage
      * @param ProducerType $producerType
      * @param EventFactoryInterface $eventFactory
      * @param int $bufferSize
@@ -138,7 +117,6 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
      * @return RingBuffer
      */
     public static function create(
-        StorageInterface $storage,
         ProducerType $producerType,
         EventFactoryInterface $eventFactory,
         $bufferSize,
@@ -146,9 +124,9 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
     ) {
         switch ($producerType) {
             case ProducerType::SINGLE:
-                return static::createSingleProducer($storage, $eventFactory, $bufferSize, $waitStrategy);
+                return static::createSingleProducer($eventFactory, $bufferSize, $waitStrategy);
             case ProducerType::MULTI:
-                return static::createMultiProducer($storage, $eventFactory, $bufferSize, $waitStrategy);
+                return static::createMultiProducer($eventFactory, $bufferSize, $waitStrategy);
         }
     }
 
@@ -170,9 +148,6 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
      */
     public function get($sequence)
     {
-        if (!is_numeric($sequence)) {
-            throw new Exception\InvalidArgumentException('$sequence must be an integer');
-        }
         return $this->entries[(int) $sequence & $this->indexMask];
     }
 
@@ -449,6 +424,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
      * @param $batchSize
      * @param EventTranslatorInterface[] $translators The user specified translation for each event
      * @param array $args
+     * @return int
      */
     private function calcBatchSize($batchSize, array $translators, array $args)
     {
