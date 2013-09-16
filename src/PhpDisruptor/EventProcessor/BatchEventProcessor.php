@@ -27,7 +27,7 @@ final class BatchEventProcessor extends AbstractEventProcessor
     /**
      * @var bool
      */
-    public $running = false;
+    public $running;
 
     /**
      * @var DataProviderInterface
