@@ -15,39 +15,39 @@ use Thread;
 final class WorkProcessor extends AbstractEventProcessor
 {
     /**
-     * @var ZendCacheVolatile
+     * @var bool
      */
-    private $running;
+    public $running;
 
     /**
      * @var Sequence
      */
-    private $sequence;
+    public $sequence;
 
     /**
      * @var RingBuffer
      */
-    private $ringBuffer;
+    public $ringBuffer;
 
     /**
      * @var SequenceBarrierInterface
      */
-    private $sequenceBarrier;
+    public $sequenceBarrier;
 
     /**
      * @var WorkHandlerInterface
      */
-    private $workHandler;
+    public $workHandler;
 
     /**
      * @var ExceptionHandlerInterface
      */
-    private $exceptionHandler;
+    public $exceptionHandler;
 
     /**
      * @var Sequence
      */
-    private $workSequence;
+    public $workSequence;
 
     /**
      * Constructor
@@ -67,7 +67,7 @@ final class WorkProcessor extends AbstractEventProcessor
     ) {
         $storage = $ringBuffer->getStorage();
         $this->sequence = new Sequence($storage);
-        $this->running = new ZendCacheVolatile($storage, get_class($this) . '::running', false);
+        $this->running = false;
         $this->ringBuffer = $ringBuffer;
         $this->sequenceBarrier = $sequenceBarrier;
         $this->workHandler = $workHandler;
@@ -94,13 +94,13 @@ final class WorkProcessor extends AbstractEventProcessor
      */
     public function halt()
     {
-        if (!$this->running->compareAndSwap(false, true)) {
+        if (!$this->casMember('running', false, true)) {
             throw new Exception\RuntimeException(
                 'Thread is already running'
             );
         }
         $this->sequenceBarrier->clearAlert();
-        $this->notifyStart();
+        $this->_notifyStart();
 
         $processedSequence = true;
         $cachedAvailableSequence = - PHP_INT_MAX - 1;
@@ -126,7 +126,7 @@ final class WorkProcessor extends AbstractEventProcessor
                     $cachedAvailableSequence = $this->sequenceBarrier->waitFor($nextSequence);
                 }
             } catch (Exception\AlertException $e) {
-                if (!$this->running->get()) {
+                if (!$this->running) {
                     break;
                 }
             } catch (\Exception $e) {
@@ -135,8 +135,8 @@ final class WorkProcessor extends AbstractEventProcessor
             }
         }
 
-        $this->notifyShutdown();
-        $this->running->set(false);
+        $this->_notifyShutdown();
+        $this->running = false;
     }
 
     /**
@@ -144,7 +144,7 @@ final class WorkProcessor extends AbstractEventProcessor
      */
     public function isRunning()
     {
-        return $this->running->get();
+        return $this->running;
     }
 
     /**
@@ -153,14 +153,14 @@ final class WorkProcessor extends AbstractEventProcessor
      */
     public function run()
     {
-        if (!$this->running->compareAndSwap(false, true)) {
+        if (!$this->casMember('running', false, true)) {
             throw new Exception\RuntimeException(
                 'Thread is already running'
             );
         }
 
         $this->sequenceBarrier->clearAlert();
-        $this->notifyStart();
+        $this->_notifyStart();
 
         $processedSequence = true;
         $cachedAvailableSequence = - PHP_INT_MAX - 1;
@@ -188,7 +188,7 @@ final class WorkProcessor extends AbstractEventProcessor
                     $cachedAvailableSequence = $this->sequenceBarrier->waitFor($nextSequence);
                 }
             } catch (Exception\AlertException $e) {
-                if (!$this->running->get()) {
+                if (!$this->running) {
                     break;
                 }
             } catch (\Exception $e) {
@@ -197,14 +197,14 @@ final class WorkProcessor extends AbstractEventProcessor
             }
         }
 
-        $this->notifyShutdown();
-        $this->running->set(false);
+        $this->_notifyShutdown();
+        $this->running = false;
     }
 
     /**
      * @return void
      */
-    private function notifyStart()
+    public function _notifyStart() // private !! only public for pthreads reasons
     {
         if ($this->workHandler instanceof LifecycleAwareInterface) {
             try {
@@ -218,7 +218,7 @@ final class WorkProcessor extends AbstractEventProcessor
     /**
      * @return void
      */
-    private function notifyShutdown()
+    public function _notifyShutdown() // private !! only public for pthreads reasons
     {
         if ($this->workHandler instanceof LifecycleAwareInterface) {
             try {
