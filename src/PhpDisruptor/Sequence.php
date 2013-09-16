@@ -94,7 +94,7 @@ class Sequence extends AbstractAtomicStackable
     /**
      * Compares two sequences by its internal hashes
      *
-     * because of pthreads we cannot rely on object identity
+     * because of php/pthreads limitations we don't have object identity between threads
      *
      * @param Sequence $other
      * @return bool
