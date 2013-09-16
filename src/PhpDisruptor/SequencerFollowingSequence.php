@@ -16,7 +16,7 @@ final class SequencerFollowingSequence extends Sequence
      */
     public function __construct(RingBuffer $sequencer)
     {
-        parent::__construct($sequencer->getStorage(), SequencerInterface::INITIAL_CURSOR_VALUE);
+        parent::__construct(SequencerInterface::INITIAL_CURSOR_VALUE);
         $this->sequencer = $sequencer;
     }
 
