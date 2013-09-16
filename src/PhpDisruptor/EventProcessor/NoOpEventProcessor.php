@@ -4,7 +4,6 @@ namespace PhpDisruptor\EventProcessor;
 
 use PhpDisruptor\Exception;
 use PhpDisruptor\RingBuffer;
-use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\SequencerFollowingSequence;
 
 /**
@@ -17,12 +16,12 @@ final class NoOpEventProcessor extends AbstractEventProcessor
     /**
      * @var SequencerFollowingSequence
      */
-    private $sequence;
+    public $sequence;
 
     /**
-     * @var ZendCacheVolatile
+     * @var bool
      */
-    private $running;
+    public $running  = false;
 
     /**
      * Constructor
@@ -31,7 +30,7 @@ final class NoOpEventProcessor extends AbstractEventProcessor
      */
     public function __construct(RingBuffer $sequencer)
     {
-        $this->running = new ZendCacheVolatile($sequencer->getStorage(), get_class($this) . '::running', false);
+        $this->running = false;
         $this->sequence = new SequencerFollowingSequence($sequencer);
     }
 
@@ -49,9 +48,8 @@ final class NoOpEventProcessor extends AbstractEventProcessor
     public function halt()
     {
         do {
-            $oldValue = $this->running->get();
-            $return = $this->running->compareAndSwap($oldValue, false);
-        } while (false == $return);
+            $oldValue = $this->running;
+        } while (!$this->casMember('running', $oldValue, false));
     }
 
     /**
@@ -59,16 +57,16 @@ final class NoOpEventProcessor extends AbstractEventProcessor
      */
     public function isRunning()
     {
-        return $this->running->get();
+        return $this->running;
     }
 
     /**
      * @return void
-     * @throws \PhpDisruptor\Exception\RuntimeException
+     * @throws Exception\RuntimeException
      */
     public function run()
     {
-        if (!$this->running->compareAndSwap(false, true)) {
+        if (!$this->casMember('running', false, true)) {
             throw new Exception\RuntimeException(
                 'Thread is already running'
             );
