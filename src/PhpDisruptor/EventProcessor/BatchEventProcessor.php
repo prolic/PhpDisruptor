@@ -2,7 +2,6 @@
 
 namespace PhpDisruptor\EventProcessor;
 
-use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\DataProviderInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
@@ -14,7 +13,6 @@ use PhpDisruptor\Sequence;
 use PhpDisruptor\SequencerInterface;
 use PhpDisruptor\TimeoutHandlerInterface;
 use Thread;
-use Zend\Cache\Storage\StorageInterface;
 use Zend\Log\LoggerInterface;
 
 /**
@@ -27,44 +25,44 @@ use Zend\Log\LoggerInterface;
 final class BatchEventProcessor extends AbstractEventProcessor
 {
     /**
-     * @var ZendCacheVolatile
+     * @var bool
      */
-    private $running;
+    public $running = false;
 
     /**
      * @var DataProviderInterface
      */
-    private $dataProvider;
+    public $dataProvider;
 
     /**
      * @var string
      */
-    private $eventClass;
+    public $eventClass;
 
     /**
      * @var ExceptionHandlerInterface
      */
-    private $exceptionHandler;
+    public $exceptionHandler;
 
     /**
      * @var SequenceBarrierInterface
      */
-    private $sequencerBarrier;
+    public $sequencerBarrier;
 
     /**
      * @var EventHandlerInterface
      */
-    private $eventHandler;
+    public $eventHandler;
 
     /**
      * @var Sequence
      */
-    private $sequence;
+    public $sequence;
 
     /**
      * @var TimeoutHandlerInterface|null
      */
-    private $timeoutHandler;
+    public $timeoutHandler;
 
     /**
      * Constructor
@@ -73,7 +71,6 @@ final class BatchEventProcessor extends AbstractEventProcessor
      * @param DataProviderInterface $dataProvider
      * @param SequenceBarrierInterface $sequenceBarrier
      * @param EventHandlerInterface $eventHandler
-     * @param StorageInterface $storage
      * @param LoggerInterface $logger
      * @throws Exception\InvalidArgumentException
      */
@@ -82,7 +79,6 @@ final class BatchEventProcessor extends AbstractEventProcessor
         DataProviderInterface $dataProvider,
         SequenceBarrierInterface $sequenceBarrier,
         EventHandlerInterface $eventHandler,
-        StorageInterface $storage,
         LoggerInterface $logger
     ) {
         if (!class_exists($eventClass)) {
@@ -106,10 +102,8 @@ final class BatchEventProcessor extends AbstractEventProcessor
         $this->sequencerBarrier = $sequenceBarrier;
         $this->sequence = new Sequence(SequencerInterface::INITIAL_CURSOR_VALUE);
         $this->exceptionHandler = new FatalExceptionHandler($logger);
-
         $this->timeoutHandler = ($eventHandler instanceof TimeoutHandlerInterface) ? $eventHandler : null;
-
-        $this->running = new ZendCacheVolatile($storage, get_class($this) . '::running', false);
+        $this->running = false;
     }
 
     /**
@@ -122,13 +116,13 @@ final class BatchEventProcessor extends AbstractEventProcessor
 
     public function halt()
     {
-        $this->running->set(false);
+        $this->running = false;
         $this->sequencerBarrier->alert();
     }
 
     public function isRunning()
     {
-        return $this->running->get();
+        return $this->running;
     }
 
     /**
@@ -141,11 +135,11 @@ final class BatchEventProcessor extends AbstractEventProcessor
 
     public function run()
     {
-        if (true === $this->running->get()) {
-            throw new Exception\RuntimeException('already running');
+        if (!$this->casMember('running', false, true)) {
+            throw new Exception\RuntimeException('Thread is already running');
         }
         $this->sequencerBarrier->clearAlert();
-        $this->notifyStart();
+        $this->_notifyStart();
         $nextSequence = $this->getSequence()->get() + 1;
         while (true) {
             try {
@@ -157,9 +151,9 @@ final class BatchEventProcessor extends AbstractEventProcessor
                 }
                 $this->getSequence()->set($availableSequence);
             } catch (Exception\TimeoutException $e) {
-                $this->notifyTimeout($this->getSequence()->get());
+                $this->_notifyTimeout($this->getSequence()->get());
             } catch (Exception\AlertException $e) {
-                if (!$this->running->get()) {
+                if (!$this->running) {
                     break;
                 }
             } catch (\Exception $e) {
@@ -169,15 +163,15 @@ final class BatchEventProcessor extends AbstractEventProcessor
                 $nextSequence++;
             }
         }
-        $this->notifyShutdown();
-        $this->running->set(false);
+        $this->_notifyShutdown();
+        $this->running = false;
     }
 
     /**
      * @param $availableSequence
      * @return void
      */
-    private function notifyTimeout($availableSequence)
+    public function _notifyTimeout($availableSequence) // private !! only public for pthreads reasons
     {
         try {
             if (null !== $this->timeoutHandler) {
@@ -193,7 +187,7 @@ final class BatchEventProcessor extends AbstractEventProcessor
      *
      * @return void
      */
-    private function notifyStart()
+    public function _notifyStart() // private !! only public for pthreads reasons
     {
         if ($this->eventHandler instanceof LifecycleAwareInterface) {
             try {
@@ -209,7 +203,7 @@ final class BatchEventProcessor extends AbstractEventProcessor
      *
      * @return void
      */
-    private function notifyShutdown()
+    public function _notifyShutdown() // private !! only public for pthreads reasons
     {
         if ($this->eventHandler instanceof LifecycleAwareInterface) {
             try {
