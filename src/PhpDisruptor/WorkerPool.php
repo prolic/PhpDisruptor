@@ -2,6 +2,7 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\EventProcessor\WorkProcessor;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\Util\Util;
 use Zend\Cache\Storage\StorageInterface;
@@ -49,7 +50,7 @@ final class WorkerPool implements EventClassCapableInterface
         ExceptionHandlerInterface $exceptionHandler,
         array $workHandlers
     ) {
-        $this->workSequence = new Sequence($ringBuffer->getStorage(), SequencerInterface::INITIAL_CURSOR_VALUE);
+        $this->workSequence = new Sequence(SequencerInterface::INITIAL_CURSOR_VALUE);
         $this->ringBuffer = $ringBuffer;
         $this->eventClass = $ringBuffer->getEventClass();
         $this->workProcessors = array();
