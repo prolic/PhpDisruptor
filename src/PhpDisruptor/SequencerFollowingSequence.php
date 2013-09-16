@@ -7,7 +7,7 @@ final class SequencerFollowingSequence extends Sequence
     /**
      * @var RingBuffer
      */
-    private $sequencer;
+    public $sequencer;
 
     /**
      * Constructor
