@@ -12,6 +12,11 @@ final class FatalExceptionHandler implements ExceptionHandlerInterface
      */
     private $logger;
 
+    /**
+     * Constructor
+     *
+     * @param LoggerInterface $logger
+     */
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
