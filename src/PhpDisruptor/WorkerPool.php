@@ -5,7 +5,6 @@ namespace PhpDisruptor;
 use PhpDisruptor\EventProcessor\WorkProcessor;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\Util\Util;
-use Zend\Cache\Storage\StorageInterface;
 
 final class WorkerPool implements EventClassCapableInterface
 {
@@ -94,19 +93,17 @@ final class WorkerPool implements EventClassCapableInterface
     /**
      * Constructor
      *
-     * @param StorageInterface $storage
      * @param EventFactoryInterface $eventFactory
      * @param ExceptionHandlerInterface $exceptionHandler
      * @param WorkHandlerInterface[] $workHandlers
      * @return WorkerPool
      */
     public static function createFromEventFactory(
-        StorageInterface $storage,
         EventFactoryInterface $eventFactory,
         ExceptionHandlerInterface $exceptionHandler,
         array $workHandlers
     ) {
-        $ringBuffer = RingBuffer::createMultiProducer($storage, $eventFactory, 1024);
+        $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 1024);
         $sequenceBarrier = $ringBuffer->newBarrier();
 
         $workerPool = new self($ringBuffer, $sequenceBarrier, $exceptionHandler, $workHandlers);
