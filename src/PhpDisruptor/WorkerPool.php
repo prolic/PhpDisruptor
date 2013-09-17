@@ -4,35 +4,35 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\EventProcessor\WorkProcessor;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
+use PhpDisruptor\Pthreads\AbstractAtomicStackable;
 use PhpDisruptor\Util\Util;
 
-final class WorkerPool implements EventClassCapableInterface
+final class WorkerPool extends AbstractAtomicStackable implements EventClassCapableInterface
 {
     /**
-     * @todo perhabs make it atomic, too
      * @var bool
      */
-    private $started;
+    public $started;
 
     /**
      * @var Sequence
      */
-    private $workSequence;
+    public $workSequence;
 
     /**
      * @var RingBuffer
      */
-    private $ringBuffer;
+    public $ringBuffer;
 
     /**
      * @var WorkProcessor[]
      */
-    private $workProcessors;
+    public $workProcessors;
 
     /**
      * @var string
      */
-    private $eventClass;
+    public $eventClass;
 
     /**
      * Protected Constructor, use createFromRingBuffer or createFromEventFactory instead
@@ -48,12 +48,12 @@ final class WorkerPool implements EventClassCapableInterface
         ExceptionHandlerInterface $exceptionHandler,
         array $workHandlers
     ) {
+        $this->started = false;
         $this->workSequence = new Sequence(SequencerInterface::INITIAL_CURSOR_VALUE);
         $this->ringBuffer = $ringBuffer;
         $this->eventClass = $ringBuffer->getEventClass();
         $this->workProcessors = array();
         foreach ($workHandlers as $workHandler) {
-            $this->validateWorkHandler($workHandler);
             $this->workProcessors[] = new WorkProcessor(
                 $ringBuffer,
                 $sequenceBarrier,
@@ -134,7 +134,7 @@ final class WorkerPool implements EventClassCapableInterface
      */
     public function start(ExecutorInterface $executor)
     {
-        if ($this->started) {
+        if (!$this->casMember('started', false, true)) {
             throw new Exception\InvalidArgumentException(
                 'WorkerPool has already been started and cannot be restarted until halted'
             );
@@ -159,8 +159,9 @@ final class WorkerPool implements EventClassCapableInterface
     public function drainAndHalt()
     {
         $workerSequences = $this->getWorkerSequences();
+
         while ($this->ringBuffer->getCursor() > Util::getMinimumSequence($workerSequences)) {
-            // Thread.yield(); // @todo implement
+            time_nanosleep(0, 1); // todo: thread::yield()
         }
 
         $this->halt();
@@ -185,21 +186,5 @@ final class WorkerPool implements EventClassCapableInterface
     public function isRunning()
     {
         return $this->started;
-    }
-
-    /**
-     * @param WorkHandlerInterface $workHandler
-     * @return void
-     * @throws Exception\InvalidArgumentException
-     */
-    private function validateWorkHandler(WorkHandlerInterface $workHandler)
-    {
-        if ($workHandler->getEventClass() != $this->ringBuffer->getEventClass()) {
-            throw new Exception\InvalidArgumentException(
-                'All work handlers must use the event class as the ring buffer, buffer has "'
-                . $this->ringBuffer->getEventClass() . '" and current handler has "'
-                . $workHandler->getEventClass() . '"'
-            );
-        }
     }
 }
