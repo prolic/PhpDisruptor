@@ -55,6 +55,7 @@ final class WorkProcessor extends AbstractEventProcessor
      * @param WorkHandlerInterface $workHandler
      * @param ExceptionHandlerInterface $exceptionHandler
      * @param Sequence $workSequence
+     * @throws Exception\InvalidArgumentException if workhandler and ringbuffer eventclass doesn't match
      */
     public function __construct(
         RingBuffer $ringBuffer,
@@ -63,6 +64,13 @@ final class WorkProcessor extends AbstractEventProcessor
         ExceptionHandlerInterface $exceptionHandler,
         Sequence $workSequence
     ) {
+        if ($workHandler->getEventClass() != $this->ringBuffer->getEventClass()) {
+            throw new Exception\InvalidArgumentException(
+                'All work handlers must use the event class as the ring buffer, buffer has "'
+                . $this->ringBuffer->getEventClass() . '" and current handler has "'
+                . $workHandler->getEventClass() . '"'
+            );
+        }
         $this->sequence = new Sequence();
         $this->running = false;
         $this->ringBuffer = $ringBuffer;
