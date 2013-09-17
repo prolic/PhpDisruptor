@@ -84,7 +84,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
             $waitStrategy = new BlockingWaitStrategy();
         }
         $sequencer = new MultiProducerSequencer($bufferSize, $waitStrategy);
-        return new static($factory, $sequencer);
+        return new self($factory, $sequencer);
     }
 
     /**
@@ -104,7 +104,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
             $waitStrategy = new BlockingWaitStrategy();
         }
         $sequencer = new SingleProducerSequencer($bufferSize, $waitStrategy);
-        return new static($factory, $sequencer);
+        return new self($factory, $sequencer);
     }
 
     /**
@@ -124,9 +124,9 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
     ) {
         switch ($producerType) {
             case ProducerType::SINGLE:
-                return static::createSingleProducer($eventFactory, $bufferSize, $waitStrategy);
+                return self::createSingleProducer($eventFactory, $bufferSize, $waitStrategy);
             case ProducerType::MULTI:
-                return static::createMultiProducer($eventFactory, $bufferSize, $waitStrategy);
+                return self::createMultiProducer($eventFactory, $bufferSize, $waitStrategy);
         }
     }
 
