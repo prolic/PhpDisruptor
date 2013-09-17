@@ -2,7 +2,6 @@
 
 namespace PhpDisruptor\EventProcessor;
 
-use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\LifecycleAwareInterface;
@@ -10,7 +9,6 @@ use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkHandlerInterface;
-use Thread;
 
 final class WorkProcessor extends AbstractEventProcessor
 {
@@ -65,8 +63,7 @@ final class WorkProcessor extends AbstractEventProcessor
         ExceptionHandlerInterface $exceptionHandler,
         Sequence $workSequence
     ) {
-        $storage = $ringBuffer->getStorage();
-        $this->sequence = new Sequence($storage);
+        $this->sequence = new Sequence();
         $this->running = false;
         $this->ringBuffer = $ringBuffer;
         $this->sequenceBarrier = $sequenceBarrier;
