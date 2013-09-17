@@ -9,9 +9,8 @@ use Zend\Cache\Storage\StorageInterface;
 
 final class WorkerPool implements EventClassCapableInterface
 {
-    //private final AtomicBoolean started = new AtomicBoolean(false); todo: make atomic !!!
-
     /**
+     * @todo perhabs make it atomic, too
      * @var bool
      */
     private $started;
@@ -81,7 +80,7 @@ final class WorkerPool implements EventClassCapableInterface
      * @param SequenceBarrierInterface $sequenceBarrier
      * @param ExceptionHandlerInterface $exceptionHandler
      * @param WorkHandlerInterface[] $workHandlers
-     * @return static
+     * @return WorkerPool
      */
     public static function createFromRingBuffer(
         RingBuffer $ringBuffer,
@@ -89,7 +88,7 @@ final class WorkerPool implements EventClassCapableInterface
         ExceptionHandlerInterface $exceptionHandler,
         array $workHandlers
     ) {
-        return new static($ringBuffer, $sequenceBarrier, $exceptionHandler, $workHandlers);
+        return new self($ringBuffer, $sequenceBarrier, $exceptionHandler, $workHandlers);
     }
 
     /**
@@ -98,8 +97,8 @@ final class WorkerPool implements EventClassCapableInterface
      * @param StorageInterface $storage
      * @param EventFactoryInterface $eventFactory
      * @param ExceptionHandlerInterface $exceptionHandler
-     * @param array $workHandlers
-     * @return static
+     * @param WorkHandlerInterface[] $workHandlers
+     * @return WorkerPool
      */
     public static function createFromEventFactory(
         StorageInterface $storage,
@@ -110,7 +109,7 @@ final class WorkerPool implements EventClassCapableInterface
         $ringBuffer = RingBuffer::createMultiProducer($storage, $eventFactory, 1024);
         $sequenceBarrier = $ringBuffer->newBarrier();
 
-        $workerPool = new static($ringBuffer, $sequenceBarrier, $exceptionHandler, $workHandlers);
+        $workerPool = new self($ringBuffer, $sequenceBarrier, $exceptionHandler, $workHandlers);
 
         $ringBuffer->addGatingSequences($workerPool->getWorkerSequences());
 
@@ -138,7 +137,7 @@ final class WorkerPool implements EventClassCapableInterface
      */
     public function start(ExecutorInterface $executor)
     {
-        if ($this->started) { // Todo: make atomic: if (!started.compareAndSet(false, true))
+        if ($this->started) {
             throw new Exception\InvalidArgumentException(
                 'WorkerPool has already been started and cannot be restarted until halted'
             );
@@ -196,7 +195,7 @@ final class WorkerPool implements EventClassCapableInterface
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    protected function validateWorkHandler(WorkHandlerInterface $workHandler)
+    private function validateWorkHandler(WorkHandlerInterface $workHandler)
     {
         if ($workHandler->getEventClass() != $this->ringBuffer->getEventClass()) {
             throw new Exception\InvalidArgumentException(
