@@ -3,7 +3,6 @@
 namespace PhpDisruptor\Dsl;
 
 use PhpDisruptor\EventClassCapableInterface;
-use PhpDisruptor\ExecutorInterface;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkerPool;
@@ -76,12 +75,11 @@ class WorkerPoolInfo implements ConsumerInfoInterface, EventClassCapableInterfac
     }
 
     /**
-     * @param ExecutorInterface $executor
      * @return void
      */
-    public function start(ExecutorInterface $executor)
+    public function start()
     {
-        $this->workerPool->start($executor);
+        $this->workerPool->start();
     }
 
     /**
