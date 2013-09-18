@@ -96,9 +96,6 @@ final class Util
      */
     public static function log2($i)
     {
-        if (!is_numeric($i)) {
-            throw new Exception\InvalidArgumentException('$i must be an integer');
-        }
         $r = 0;
         while (($i >>= 1) != 0) {
             ++$r;
