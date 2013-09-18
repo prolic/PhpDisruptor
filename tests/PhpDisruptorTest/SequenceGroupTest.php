@@ -65,11 +65,9 @@ class SequenceGroupTest extends TestCase
         $sequenceSeven = new Sequence(7);
         $sequenceGroup = new SequenceGroup();
 
-        $sequenceGroup->add($sequenceSeven);
         $sequenceGroup->add($sequenceThree);
-
+        $sequenceGroup->add($sequenceSeven);
         $this->assertEquals($sequenceThree->get(), $sequenceGroup->get());
-
         $this->assertTrue($sequenceGroup->remove($sequenceThree));
         $this->assertEquals($sequenceSeven->get(), $sequenceGroup->get());
         $this->assertEquals(1, $sequenceGroup->count());
@@ -107,7 +105,22 @@ class SequenceGroupTest extends TestCase
         $this->assertEquals($expectedSequence, $sequenceThree->get());
         $this->assertEquals($expectedSequence, $sequenceSeven->get());
     }
-//
+
+    public function testObjectEqualityThroughThreads()
+    {
+        $sequence = new Sequence();
+        $sequenceGroup = new SequenceGroup();
+        $sequenceGroup->add($sequence);
+        $sequences = $sequenceGroup->getSequences();
+        $groupSequence = array_pop($sequences);
+
+        $this->assertNotEquals(spl_object_hash($sequence), spl_object_hash($groupSequence));
+        $this->assertNotSame($sequence, $groupSequence);
+        $this->assertFalse($sequence->equals($sequenceGroup));
+        $this->assertTrue($sequence->equals($groupSequence));
+        $this->assertTrue($groupSequence->equals($sequence));
+    }
+
 //    /*
 //    public function testShouldAddWhileRunning()
 //    {
