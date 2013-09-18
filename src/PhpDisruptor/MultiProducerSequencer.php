@@ -215,7 +215,7 @@ final class MultiProducerSequencer extends AbstractSequencer
         $index = $this->_calculateIndex($sequence);
         $flag = $this->_calculateAvailabilityFlag($sequence);
 
-        return $this->storage->getItem($this->availableBufferKeys[$index]) == $flag;
+        return $this->availableBuffer[$index] == $flag;
     }
 
     /**
