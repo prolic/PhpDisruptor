@@ -215,9 +215,6 @@ final class MultiProducerSequencer extends AbstractSequencer
      */
     public function isAvailable($sequence)
     {
-        if (!is_numeric($sequence)) {
-            throw new Exception\InvalidArgumentException('$sequence must be an integer');
-        }
         $index = $this->_calculateIndex($sequence);
         $flag = $this->_calculateAvailabilityFlag($sequence);
 
