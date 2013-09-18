@@ -2,7 +2,6 @@
 
 namespace PhpDisruptor\Dsl;
 
-use PhpDisruptor\ExecutorInterface;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\SequencerInterface;
 
@@ -26,10 +25,9 @@ interface ConsumerInfoInterface
     public function isEndOfChain();
 
     /**
-     * @param ExecutorInterface $executor
      * @return void
      */
-    public function start(ExecutorInterface $executor);
+    public function start();
 
     /**
      * @return void
