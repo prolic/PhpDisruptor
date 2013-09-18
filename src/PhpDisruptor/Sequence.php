@@ -101,7 +101,8 @@ class Sequence extends AbstractAtomicStackable
      */
     public function equals(Sequence $other)
     {
-        return uuid_compare($this->hash, $other->hash);
+        $result = (int) uuid_compare($this->hash, $other->hash);
+        return 0 == $result;
     }
 
     /**
