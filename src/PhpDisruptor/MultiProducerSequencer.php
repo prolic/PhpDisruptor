@@ -54,9 +54,6 @@ final class MultiProducerSequencer extends AbstractSequencer
      */
     public function hasAvailableCapacity($requiredCapacity)
     {
-        if (!is_numeric($requiredCapacity)) {
-            throw new Exception\InvalidArgumentException('$requiredCapacity must be an integer');
-        }
         return $this->_internalHasAvailableCapacity($this->getSequences(), $requiredCapacity, $this->cursor->get());
     }
 
