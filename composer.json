@@ -16,7 +16,6 @@
         "ext-uuid": ">=1.0.3",
         "ext-pthreads": "*",
         "zendframework/zend-cache": ">=2.2.1",
-        "prolic/humus-lock": "0.*",
         "marc-mabe/php-enum": "dev-master"
     },
     "require-dev": {
