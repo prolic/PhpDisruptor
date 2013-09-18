@@ -18,7 +18,7 @@ use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use PhpDisruptor\WorkerPool;
 use PhpDisruptor\WorkHandlerInterface;
 use PhpDisruptor\Util\Util;
-use Zend\Cache\Storage\StorageInterface;
+use Worker;
 
 /**
  * A DSL-style API for setting up the disruptor pattern around a ring buffer (aka the Builder pattern).
@@ -30,7 +30,10 @@ class Disruptor implements EventClassCapableInterface
      */
     private $ringBuffer;
 
-    private $executor;
+    /**
+     * @var Worker
+     */
+    private $worker;
 
     /**
      * @var ConsumerRepository
@@ -38,7 +41,7 @@ class Disruptor implements EventClassCapableInterface
     private $consumerRepository;
 
     /**
-     * @var ZendCacheVolatile
+     * @var bool
      */
     private $started;
 
@@ -56,44 +59,39 @@ class Disruptor implements EventClassCapableInterface
     protected function __construct(RingBuffer $ringBuffer, $executor)
     {
         $this->ringBuffer = $ringBuffer;
-        $this->executor = $executor;
-
-        $storage = $ringBuffer->getStorage();
-        $started = new ZendCacheVolatile($storage, get_class($this) . '::started', false);
-        $this->started = $started;
+        $this->worker = $executor;
+        $this->started = false;
     }
 
     /**
      * Create disruptor instance
      *
-     * @param StorageInterface $storage
      * @param EventFactoryInterface $eventFactory
      * @param $ringBufferSize
-     * @param $executor
+     * @param Worker $worker
      * @param ProducerType $producerType
      * @param WaitStrategyInterface|null $waitStrategy
      * @return Disruptor
      */
     public static function create(
-        StorageInterface $storage,
         EventFactoryInterface $eventFactory,
         $ringBufferSize,
-        $executor,
+        Worker $worker,
         ProducerType $producerType,
         WaitStrategyInterface $waitStrategy = null
     ) {
-        $ringBuffer = RingBuffer::create($storage, $producerType, $eventFactory, $ringBufferSize, $waitStrategy);
-        return static::createFromRingBuffer($ringBuffer, $executor);
+        $ringBuffer = RingBuffer::create($producerType, $eventFactory, $ringBufferSize, $waitStrategy);
+        return static::createFromRingBuffer($ringBuffer, $worker);
     }
 
     /**
      * @param RingBuffer $ringBuffer
-     * @param $executor
+     * @param Worker $worker
      * @return Disruptor
      */
-    public static function createFromRingBuffer(RingBuffer $ringBuffer, $executor)
+    public static function createFromRingBuffer(RingBuffer $ringBuffer, Worker $worker)
     {
-        return new static($ringBuffer, $executor);
+        return new static($ringBuffer, $worker);
     }
 
     /**
@@ -238,7 +236,7 @@ class Disruptor implements EventClassCapableInterface
 
         foreach ($this->consumerRepository as $consumerInfo) {
             /* @var ConsumerInfoInterface $consumerInfo*/
-            $consumerInfo->start($this->executor);
+            $consumerInfo->start($this->worker);
         }
 
         return $this->ringBuffer;
@@ -382,7 +380,6 @@ class Disruptor implements EventClassCapableInterface
                 $this->ringBuffer,
                 $barrier,
                 $eventHandler,
-                $this->ringBuffer->getStorage(),
                 new \Zend\Log\Writer\Syslog() // @todo bug !!!
             );
             if (null !== $this->exceptionHandler) {
@@ -427,7 +424,7 @@ class Disruptor implements EventClassCapableInterface
      */
     private function checkNotStarted()
     {
-        if ($this->started->get()) {
+        if ($this->started) {
             throw new Exception\InvalidArgumentException(
                 'All event handlers must be added before calling starts'
             );
@@ -436,7 +433,10 @@ class Disruptor implements EventClassCapableInterface
 
     private function checkOnlyStartedOnce()
     {
-        if (!$this->started->compareAndSwap(false, true)) {
+        // @todo: locking????
+        if (!$this->started) {
+            $this->started = true;
+        } else {
             throw new Exception\InvalidArgumentException(
                 'Disruptor.start() must only be called once'
             );
