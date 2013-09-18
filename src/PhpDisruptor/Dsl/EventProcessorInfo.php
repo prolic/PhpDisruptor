@@ -4,7 +4,7 @@ namespace PhpDisruptor\Dsl;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
-use PhpDisruptor\ExecutorInterface;
+use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 
 class EventProcessorInfo implements ConsumerInfoInterface
@@ -87,12 +87,11 @@ class EventProcessorInfo implements ConsumerInfoInterface
     }
 
     /**
-     * @param ExecutorInterface $executor
      * @return void
      */
-    public function start(ExecutorInterface $executor)
+    public function start()
     {
-        $executor->execute($this->eventProcessor);
+        $this->eventProcessor->start();
     }
 
     /**
