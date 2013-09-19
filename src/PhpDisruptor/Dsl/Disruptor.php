@@ -274,7 +274,7 @@ class Disruptor implements EventClassCapableInterface
             }
             // busy spin
         }
-        exit(0);
+        $this->halt();
     }
 
     /**
