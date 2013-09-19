@@ -2,7 +2,6 @@
 
 namespace PhpDisruptor\Dsl;
 
-use HumusVolatile\ZendCacheVolatile;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventHandlerInterface;
@@ -54,12 +53,12 @@ class Disruptor implements EventClassCapableInterface
      * Constructor
      *
      * @param RingBuffer $ringBuffer
-     * @param $executor
+     * @param $worker
      */
-    protected function __construct(RingBuffer $ringBuffer, $executor)
+    protected function __construct(RingBuffer $ringBuffer, Worker $worker)
     {
         $this->ringBuffer = $ringBuffer;
-        $this->worker = $executor;
+        $this->worker = $worker;
         $this->started = false;
     }
 
@@ -265,30 +264,20 @@ class Disruptor implements EventClassCapableInterface
      *
      * @param int $timeout
      * @return void
+     * @throws Exception\TimeoutException
      */
     public function shutdown($timeout)
     {
-        try {
-            //@todo: implement
-            //shutdown(-1, TimeUnit.MILLISECONDS);
-        } catch (Exception\TimeoutException $e) {
-            $this->exceptionHandler->handleOnShutdownException($e);
-        }
+        // @todo: format timeout, use time unit perhabs????
 
-        /*
-         * with timeout:
-         *
-         * long timeOutAt = System.currentTimeMillis() + timeUnit.toMillis(timeout);
-            while (hasBacklog())
-            {
-                if (timeout >= 0 && System.currentTimeMillis() > timeOutAt)
-                {
-                    throw TimeoutException.INSTANCE;
-                }
-                // Busy spin
+        while ($this->hasBacklog()) {
+
+            if ($timeout > 0 && microtime(true) > $timeout) {
+                throw new Exception\TimeoutException();
             }
-            halt();
-         */
+            // busy spin
+        }
+        exit(0);
     }
 
     /**
