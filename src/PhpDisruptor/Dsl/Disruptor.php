@@ -256,28 +256,44 @@ class Disruptor implements EventClassCapableInterface
 
     /**
      * Waits until all events currently in the disruptor have been processed by all event processors
+     * and then halts the processors
+     *
+     * This method will not shutdown the executor, nor will it await the final termination of the
+     * processor threads.
+     *
+     * @param int $timeout the amount of time in microseconds to wait for all events to be processed
+     * @return void
+     * @throws Exception\TimeoutException
+     */
+    public function shutdownWithTimeout($timeout)
+    {
+        $timeoutAt = microtime(true) + ($timeout / 1000000);
+        while ($this->hasBacklog()) {
+            if ($timeout > 0 && microtime(true) > $timeoutAt) {
+                throw new Exception\TimeoutException();
+            }
+            // busy spin
+        }
+        exit(0);
+    }
+
+    /**
+     * Waits until all events currently in the disruptor have been processed by all event processors
      * and then halts the processors.  It is critical that publishing to the ring buffer has stopped
      * before calling this method, otherwise it may never return.
      *
      * This method will not shutdown the executor, nor will it await the final termination of the
      * processor threads.
      *
-     * @param int $timeout
      * @return void
-     * @throws Exception\TimeoutException
      */
-    public function shutdown($timeout)
+    public function shutdown()
     {
-        // @todo: format timeout, use time unit perhabs????
-
-        while ($this->hasBacklog()) {
-
-            if ($timeout > 0 && microtime(true) > $timeout) {
-                throw new Exception\TimeoutException();
-            }
-            // busy spin
+        try {
+            $this->shutdownWithTimeout(-1);
+        } catch (Exception\TimeoutException $e) {
+            $this->exceptionHandler->handleOnShutdownException($e);
         }
-        exit(0);
     }
 
     /**
