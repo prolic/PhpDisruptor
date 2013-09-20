@@ -96,7 +96,7 @@ final class AggregateEventHandler implements EventHandlerInterface, LifecycleAwa
     }
 
     /**
-     * <p>Called once just before the thread is shutdown.</p>
+     * Called once just before the thread is shutdown.
      *
      * Sequence event processing will already have stopped before this method is called. No events will
      * be processed after this message.

@@ -131,16 +131,16 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
     }
 
     /**
-     * <p>Get the event for a given sequence in the RingBuffer.</p>
+     * Get the event for a given sequence in the RingBuffer.
      *
-     * <p>This call has 2 uses.  Firstly use this call when publishing to a ring buffer.
+     * This call has 2 uses.  Firstly use this call when publishing to a ring buffer.
      * After calling {@link RingBuffer::next()} use this call to get hold of the
-     * preallocated event to fill with data before calling {@link RingBuffer#publish(long)}.</p>
+     * preallocated event to fill with data before calling {@link RingBuffer#publish(long)}.
      *
-     * <p>Secondly use this call when consuming data from the ring buffer.  After calling
+     * Secondly use this call when consuming data from the ring buffer.  After calling
      * {@link SequenceBarrierInterface#waitFor(long)} call this method with any value greater than
      * that your current consumer sequence and less than or equal to the value returned from
-     * the {@link SequenceBarrierInterface#waitFor(long)} method.</p>
+     * the {@link SequenceBarrierInterface#waitFor(long)} method.
      *
      * @param int $sequence
      * @return object the event for the given sequence
@@ -172,7 +172,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
     }
 
     /**
-     * <p>Increment and return the next sequence for the ring buffer.  Calls of this
+     * Increment and return the next sequence for the ring buffer.  Calls of this
      * method should ensure that they always publish the sequence afterward.  E.g.
      * <pre>
      * long sequence = ringBuffer.next();
@@ -183,7 +183,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
      *     ringBuffer.publish(sequence);
      * }
      * </pre>
-     * <p>This method will not block if there is not space available in the ring
+     * This method will not block if there is not space available in the ring
      * buffer, instead it will throw an InsufficientCapacityException.
      *
      * @param int $n
