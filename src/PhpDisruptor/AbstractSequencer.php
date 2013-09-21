@@ -41,7 +41,7 @@ abstract class AbstractSequencer extends AbstractAtomicStackable implements Sequ
             throw new Exception\InvalidArgumentException('$bufferSize must not be less than 1');
         }
 
-        if (($bufferSize & ($bufferSize - 1)) == 0) {
+        if ($this->bitCount($bufferSize) != 1) {
             throw new Exception\InvalidArgumentException('$bufferSize must be a power of 2');
         }
 
@@ -49,6 +49,21 @@ abstract class AbstractSequencer extends AbstractAtomicStackable implements Sequ
         $this->waitStrategy = $waitStrategy;
         $this->sequences = array();
         $this->cursor = new Sequence();
+    }
+
+    /**
+     * @param int $n
+     * @return int
+     */
+    public function bitCount($n)
+    {
+        $count = 0;
+        while ($n != 0)
+        {
+            $count++;
+            $n &= ($n - 1);
+        }
+        return $count;
     }
 
     /**
