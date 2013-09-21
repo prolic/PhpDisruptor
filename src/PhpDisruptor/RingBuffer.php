@@ -182,7 +182,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
      * } finally {
      *     $ringBuffer->publish($sequence);
      * }
-     * 
+     *
      * This method will not block if there is not space available in the ring
      * buffer, instead it will throw an InsufficientCapacityException.
      *
