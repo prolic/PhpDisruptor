@@ -68,7 +68,7 @@ final class BlockingWaitStrategy implements WaitStrategyInterface
     {
         Mutex::lock($this->mutex);
         try {
-            Cond::singal($this->cond);
+            Cond::signal($this->cond);
         } catch (\Exception $e) {
             Mutex::unlock($this->mutex);
         }
