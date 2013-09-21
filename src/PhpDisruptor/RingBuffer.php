@@ -154,15 +154,15 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
     /**
      * Increment and return the next sequence for the ring buffer.  Calls of this
      * method should ensure that they always publish the sequence afterward.  E.g.
-     * <pre>
-     * long sequence = ringBuffer.next();
+     *
+     * $sequence = $ringBuffer->next();
      * try {
-     *     Event e = ringBuffer.get(sequence);
+     *     $event = $ringBuffer->get($sequence);
      *     // Do some work with the event.
      * } finally {
-     *     ringBuffer.publish(sequence);
+     *     $ringBuffer->publish($sequence);
      * }
-     * </pre>
+     *
      * @param int $n
      * @return int The next sequence to publish to.
      */
@@ -174,15 +174,15 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
     /**
      * Increment and return the next sequence for the ring buffer.  Calls of this
      * method should ensure that they always publish the sequence afterward.  E.g.
-     * <pre>
-     * long sequence = ringBuffer.next();
+     *
+     * $sequence = $ringBuffer->next();
      * try {
-     *     Event e = ringBuffer.get(sequence);
+     *     $event = $ringBuffer->get($sequence);
      *     // Do some work with the event.
      * } finally {
-     *     ringBuffer.publish(sequence);
+     *     $ringBuffer->publish($sequence);
      * }
-     * </pre>
+     * 
      * This method will not block if there is not space available in the ring
      * buffer, instead it will throw an InsufficientCapacityException.
      *
