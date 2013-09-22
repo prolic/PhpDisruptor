@@ -7,18 +7,19 @@ use Mutex;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
+use Worker;
 
-final class BlockingWaitStrategy implements WaitStrategyInterface
+final class BlockingWaitStrategy extends Worker implements WaitStrategyInterface
 {
     /**
      * @var int;
      */
-    private $mutex;
+    public $mutex;
 
     /**
      * @var int
      */
-    private $cond;
+    public $cond;
 
     /**
      * Constructor
@@ -29,6 +30,13 @@ final class BlockingWaitStrategy implements WaitStrategyInterface
     {
         $this->mutex = Mutex::create(false);
         $this->cond = Cond::create();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function run()
+    {
     }
 
     /**
