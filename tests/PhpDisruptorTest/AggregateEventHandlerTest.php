@@ -25,7 +25,7 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->eventHandlerOne   = $this->getMock(
-            'PhpDisruptor\LifecycleAwareEventHandler',
+            'PhpDisruptorTest\TestAsset\LifecycleAwareEventHandler',
             array(
                 'onEvent',
                 'onShutdown'
@@ -35,7 +35,7 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
             )
         );
         $this->eventHandlerTwo   = $this->getMock(
-            'PhpDisruptor\LifecycleAwareEventHandler',
+            'PhpDisruptorTest\TestAsset\LifecycleAwareEventHandler',
             array(
                 'onEvent',
                 'onShutdown'
@@ -45,7 +45,7 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
             )
         );
         $this->eventHandlerThree = $this->getMock(
-            'PhpDisruptor\LifecycleAwareEventHandler',
+            'PhpDisruptorTest\TestAsset\LifecycleAwareEventHandler',
             array(
                 'onEvent',
                 'onShutdown'
@@ -112,5 +112,13 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
         $aggregateEventHandler->onShutdown();
         $result = ob_get_clean();
         $this->assertEquals('123', $result);
+    }
+
+    public function testShouldHandleEmptyListOfEventHandlers()
+    {
+        $aggregateEventHandler = new AggregateEventHandler('stdClass', array());
+        $aggregateEventHandler->onEvent(new \stdClass(), 0, true);
+        $aggregateEventHandler->onStart();
+        $aggregateEventHandler->onShutdown();
     }
 }
