@@ -7,9 +7,9 @@ use Mutex;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
-use Worker;
+use Stackable;
 
-final class BlockingWaitStrategy extends Worker implements WaitStrategyInterface
+final class BlockingWaitStrategy extends Stackable implements WaitStrategyInterface
 {
     /**
      * @var int;
