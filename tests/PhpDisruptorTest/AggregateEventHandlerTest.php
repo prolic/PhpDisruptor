@@ -24,9 +24,36 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->eventHandlerOne   = $this->getMock('PhpDisruptor\LifecycleAwareEventHandler', array('onEvent'), array('stdClass'));
-        $this->eventHandlerTwo   = $this->getMock('PhpDisruptor\LifecycleAwareEventHandler', array('onEvent'), array('stdClass'));
-        $this->eventHandlerThree = $this->getMock('PhpDisruptor\LifecycleAwareEventHandler', array('onEvent'), array('stdClass'));
+        $this->eventHandlerOne   = $this->getMock(
+            'PhpDisruptor\LifecycleAwareEventHandler',
+            array(
+                'onEvent',
+                'onShutdown'
+            ),
+            array(
+                'stdClass'
+            )
+        );
+        $this->eventHandlerTwo   = $this->getMock(
+            'PhpDisruptor\LifecycleAwareEventHandler',
+            array(
+                'onEvent',
+                'onShutdown'
+            ),
+            array(
+                'stdClass'
+            )
+        );
+        $this->eventHandlerThree = $this->getMock(
+            'PhpDisruptor\LifecycleAwareEventHandler',
+            array(
+                'onEvent',
+                'onShutdown'
+            ),
+            array(
+                'stdClass'
+            )
+        );
     }
 
     public function testShouldCallOnEventInSequence()
@@ -35,9 +62,15 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
         $sequence = 3;
         $endOfBatch = true;
 
-        $this->eventHandlerOne->expects($this->once())->method('onEvent')->will($this->returnCallback(function() { echo '1'; }));
-        $this->eventHandlerTwo->expects($this->once())->method('onEvent')->will($this->returnCallback(function() { echo '2'; }));
-        $this->eventHandlerThree->expects($this->once())->method('onEvent')->will($this->returnCallback(function() { echo '3'; }));
+        $this->eventHandlerOne->expects($this->once())->method('onEvent')->will($this->returnCallback(
+            function() { echo '1'; }
+        ));
+        $this->eventHandlerTwo->expects($this->once())->method('onEvent')->will($this->returnCallback(
+            function() { echo '2'; }
+        ));
+        $this->eventHandlerThree->expects($this->once())->method('onEvent')->will($this->returnCallback(
+            function() { echo '3'; }
+        ));
 
         $aggregateEventHandler = new AggregateEventHandler(
             'stdClass',
@@ -54,4 +87,30 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('123', $result);
     }
 
+    public function testShouldCallOnStartInSequence()
+    {
+        $this->eventHandlerOne->expects($this->once())->method('onShutdown')->will($this->returnCallback(
+            function() { echo '1'; }
+        ));
+        $this->eventHandlerTwo->expects($this->once())->method('onShutdown')->will($this->returnCallback(
+            function() { echo '2'; }
+        ));
+        $this->eventHandlerThree->expects($this->once())->method('onShutdown')->will($this->returnCallback(
+            function() { echo '3'; }
+        ));
+
+        $aggregateEventHandler = new AggregateEventHandler(
+            'stdClass',
+            array(
+                $this->eventHandlerOne,
+                $this->eventHandlerTwo,
+                $this->eventHandlerThree
+            )
+        );
+
+        ob_start();
+        $aggregateEventHandler->onShutdown();
+        $result = ob_get_clean();
+        $this->assertEquals('123', $result);
+    }
 }
