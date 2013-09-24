@@ -19,18 +19,12 @@ final class NoOpEventProcessor extends AbstractEventProcessor
     public $sequence;
 
     /**
-     * @var bool
-     */
-    public $running  = false;
-
-    /**
      * Constructor
      *
      * @param RingBuffer $sequencer
      */
     public function __construct(RingBuffer $sequencer)
     {
-        $this->running = false;
         $this->sequence = new SequencerFollowingSequence($sequencer);
     }
 
@@ -43,33 +37,16 @@ final class NoOpEventProcessor extends AbstractEventProcessor
     }
 
     /**
+     * @inheritdoc
+     */
+    public function run()
+    {
+    }
+
+    /**
      * @return void
      */
     public function halt()
     {
-        do {
-            $oldValue = $this->running;
-        } while (!$this->casMember('running', $oldValue, false));
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRunning()
-    {
-        return $this->running;
-    }
-
-    /**
-     * @return void
-     * @throws Exception\RuntimeException
-     */
-    public function run()
-    {
-        if (!$this->casMember('running', false, true)) {
-            throw new Exception\RuntimeException(
-                'Thread is already running'
-            );
-        }
     }
 }

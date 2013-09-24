@@ -97,9 +97,9 @@ class EventProcessorInfo implements ConsumerInfoInterface
     /**
      * @return void
      */
-    public function halt()
+    public function shutdown()
     {
-        $this->eventProcessor->halt();
+        $this->eventProcessor->shutdown();
     }
 
     /**

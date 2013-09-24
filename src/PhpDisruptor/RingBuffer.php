@@ -5,7 +5,6 @@ namespace PhpDisruptor;
 use PhpDisruptor\Dsl\ProducerType;
 use PhpDisruptor\WaitStrategy\BlockingWaitStrategy;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
-use SplFixedArray;
 
 /**
  * Ring based store of reusable entries containing the data representing
@@ -49,11 +48,10 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
         $this->sequencer = $sequencer;
         $this->bufferSize = $sequencer->getBufferSize();
         $this->indexMask = $this->bufferSize - 1;
-
         $this->eventClass = $eventFactory->getEventClass();
-        $this->entries = new SplFixedArray($sequencer->getBufferSize()); // todo: measure performance against array !!
-        foreach ($this->entries as $key => $entry) {
-            $entry[$key] = $eventFactory->newInstance();
+        $bufferSize = $sequencer->getBufferSize();
+        for ($i = 0; $i < $bufferSize; $i++) {
+            $this->entries[$i] = $eventFactory->newInstance();
         }
     }
 
@@ -361,7 +359,7 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
      * @return void
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function publishEvent(EventTranslatorInterface $translator, array $args = array()) // @todo: more parameters
+    public function publishEvent(EventTranslatorInterface $translator, array $args = array())
     {
         $this->checkTranslator($translator);
         $this->translateAndPublish($translator, $this->sequencer->next(), $args);

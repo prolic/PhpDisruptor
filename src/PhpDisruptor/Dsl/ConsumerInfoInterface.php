@@ -27,20 +27,5 @@ interface ConsumerInfoInterface
     /**
      * @return void
      */
-    public function start();
-
-    /**
-     * @return void
-     */
-    public function halt();
-
-    /**
-     * @return void
-     */
     public function markAsUsedInBarrier();
-
-    /**
-     * @return bool
-     */
-    public function isRunning();
 }

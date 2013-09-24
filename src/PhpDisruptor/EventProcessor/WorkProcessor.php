@@ -13,11 +13,6 @@ use PhpDisruptor\WorkHandlerInterface;
 final class WorkProcessor extends AbstractEventProcessor
 {
     /**
-     * @var bool
-     */
-    public $running;
-
-    /**
      * @var Sequence
      */
     public $sequence;
@@ -72,7 +67,6 @@ final class WorkProcessor extends AbstractEventProcessor
             );
         }
         $this->sequence = new Sequence();
-        $this->running = false;
         $this->ringBuffer = $ringBuffer;
         $this->sequenceBarrier = $sequenceBarrier;
         $this->workHandler = $workHandler;
@@ -99,11 +93,6 @@ final class WorkProcessor extends AbstractEventProcessor
      */
     public function halt()
     {
-        if (!$this->casMember('running', false, true)) {
-            throw new Exception\RuntimeException(
-                'Thread is already running'
-            );
-        }
         $this->sequenceBarrier->clearAlert();
         $this->_notifyStart();
 
@@ -131,7 +120,7 @@ final class WorkProcessor extends AbstractEventProcessor
                     $cachedAvailableSequence = $this->sequenceBarrier->waitFor($nextSequence);
                 }
             } catch (Exception\AlertException $e) {
-                if (!$this->running) {
+                if (!$this->isRunning()) {
                     break;
                 }
             } catch (\Exception $e) {
@@ -141,15 +130,7 @@ final class WorkProcessor extends AbstractEventProcessor
         }
 
         $this->_notifyShutdown();
-        $this->running = false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRunning()
-    {
-        return $this->running;
+        $this->shutdown();
     }
 
     /**
@@ -158,12 +139,6 @@ final class WorkProcessor extends AbstractEventProcessor
      */
     public function run()
     {
-        if (!$this->casMember('running', false, true)) {
-            throw new Exception\RuntimeException(
-                'Thread is already running'
-            );
-        }
-
         $this->sequenceBarrier->clearAlert();
         $this->_notifyStart();
 
@@ -193,7 +168,7 @@ final class WorkProcessor extends AbstractEventProcessor
                     $cachedAvailableSequence = $this->sequenceBarrier->waitFor($nextSequence);
                 }
             } catch (Exception\AlertException $e) {
-                if (!$this->running) {
+                if (!$this->isRunning()) {
                     break;
                 }
             } catch (\Exception $e) {

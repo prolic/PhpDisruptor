@@ -25,11 +25,6 @@ use Zend\Log\LoggerInterface;
 final class BatchEventProcessor extends AbstractEventProcessor
 {
     /**
-     * @var bool
-     */
-    public $running;
-
-    /**
      * @var DataProviderInterface
      */
     public $dataProvider;
@@ -101,9 +96,9 @@ final class BatchEventProcessor extends AbstractEventProcessor
         $this->dataProvider = $dataProvider;
         $this->sequencerBarrier = $sequenceBarrier;
         $this->sequence = new Sequence(SequencerInterface::INITIAL_CURSOR_VALUE);
-        $this->exceptionHandler = new FatalExceptionHandler($logger);
+        $this->eventHandler = $eventHandler;
+        //$this->exceptionHandler = new FatalExceptionHandler($logger);
         $this->timeoutHandler = ($eventHandler instanceof TimeoutHandlerInterface) ? $eventHandler : null;
-        $this->running = false;
     }
 
     /**
@@ -116,13 +111,7 @@ final class BatchEventProcessor extends AbstractEventProcessor
 
     public function halt()
     {
-        $this->running = false;
         $this->sequencerBarrier->alert();
-    }
-
-    public function isRunning()
-    {
-        return $this->running;
     }
 
     /**
@@ -135,9 +124,6 @@ final class BatchEventProcessor extends AbstractEventProcessor
 
     public function run()
     {
-        if (!$this->casMember('running', false, true)) {
-            throw new Exception\RuntimeException('Thread is already running');
-        }
         $this->sequencerBarrier->clearAlert();
         $this->_notifyStart();
         $nextSequence = $this->getSequence()->get() + 1;
@@ -153,7 +139,7 @@ final class BatchEventProcessor extends AbstractEventProcessor
             } catch (Exception\TimeoutException $e) {
                 $this->_notifyTimeout($this->getSequence()->get());
             } catch (Exception\AlertException $e) {
-                if (!$this->running) {
+                if (!$this->isRunning()) {
                     break;
                 }
             } catch (\Exception $e) {
@@ -164,7 +150,6 @@ final class BatchEventProcessor extends AbstractEventProcessor
             }
         }
         $this->_notifyShutdown();
-        $this->running = false;
     }
 
     /**
