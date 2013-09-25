@@ -109,6 +109,9 @@ final class BatchEventProcessor extends AbstractEventProcessor
         return $this->sequence;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function halt()
     {
         $this->sequencerBarrier->alert();
