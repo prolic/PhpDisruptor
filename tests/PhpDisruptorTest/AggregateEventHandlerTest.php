@@ -29,9 +29,6 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
             array(
                 'onEvent',
                 'onShutdown'
-            ),
-            array(
-                'stdClass'
             )
         );
         $this->eventHandlerTwo   = $this->getMock(
@@ -39,9 +36,6 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
             array(
                 'onEvent',
                 'onShutdown'
-            ),
-            array(
-                'stdClass'
             )
         );
         $this->eventHandlerThree = $this->getMock(
@@ -49,9 +43,6 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
             array(
                 'onEvent',
                 'onShutdown'
-            ),
-            array(
-                'stdClass'
             )
         );
     }
