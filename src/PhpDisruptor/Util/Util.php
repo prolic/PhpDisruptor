@@ -4,9 +4,9 @@ namespace PhpDisruptor\Util;
 
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceAggregateInterface;
-use Zend\Cache\Storage\StorageInterface;
 
 final class Util
 {
@@ -30,12 +30,12 @@ final class Util
     /**
      * Get the minimum sequence from an array of {@link com.lmax.disruptor.Sequence}s.
      *
-     * @param Sequence[] $sequences to compare.
+     * @param Sequence[] $sequences to compare with StackableArray as container instead of a php array
      * @param int|null  $minimum
      * @return int the minimum sequence found or PHP_INT_MAX if the array is empty
      * @throws Exception\InvalidArgumentException
      */
-    public static function getMinimumSequence(array $sequences, $minimum = PHP_INT_MAX)
+    public static function getMinimumSequence(StackableArray $sequences, $minimum = PHP_INT_MAX)
     {
         foreach ($sequences as $sequence) {
             $value = $sequence->get();
@@ -47,13 +47,13 @@ final class Util
     /**
      * Get an array of Sequences for the passed EventProcessors
      *
-     * @param AbstractEventProcessor[] $processors for which to get the sequences
+     * @param AbstractEventProcessor[] $processors for which to get the sequences with StackableArray as container instead of a php array
      * @return Sequence[] the array of Sequences
      * @throws Exception\InvalidArgumentException
      */
-    public static function getSequencesFor(array $processors)
+    public static function getSequencesFor(StackableArray $processors)
     {
-        $sequences = array();
+        $sequences = new StackableArray();
         foreach ($processors as $eventProcessor) {
             if (!$eventProcessor instanceof AbstractEventProcessor) {
                 throw new Exception\InvalidArgumentException(
@@ -73,8 +73,8 @@ final class Util
      */
     public static function casSequences(
         SequenceAggregateInterface $sequenceAggregate,
-        array $oldSequences,
-        array $newSequences
+        StackableArray $oldSequences,
+        StackableArray $newSequences
     ) {
         $set = false;
         $sequenceAggregate->lock();

@@ -3,6 +3,7 @@
 namespace PhpDisruptor;
 
 use Countable;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Util\Util;
 
 final class SequenceGroup extends Sequence implements Countable, SequenceAggregateInterface
@@ -18,7 +19,7 @@ final class SequenceGroup extends Sequence implements Countable, SequenceAggrega
     {
         $this->value = self::INITIAL_VALUE;
         $this->hash = uuid_create();
-        $this->sequences = array();
+        $this->sequences = new StackableArray();
     }
 
     /**
@@ -63,15 +64,7 @@ final class SequenceGroup extends Sequence implements Countable, SequenceAggrega
      */
     public function add(Sequence $sequence)
     {
-        $this->lock();
-
-        $oldSequences = $this->sequences;
-        $newSequences = $oldSequences;
-        $newSequences[] = $sequence;
-
-        $this->sequences = $newSequences;
-
-        $this->unlock();
+        $this->sequences[] = $sequence;
     }
 
     /**
@@ -113,7 +106,7 @@ final class SequenceGroup extends Sequence implements Countable, SequenceAggrega
     /**
      * @inheritdoc
      */
-    public function casSequences(array $oldSequences, array $newSequences)
+    public function casSequences(StackableArray $oldSequences, StackableArray $newSequences)
     {
         return Util::casSequences($this, $oldSequences, $newSequences);
     }
@@ -122,7 +115,7 @@ final class SequenceGroup extends Sequence implements Countable, SequenceAggrega
      * @param Sequence[] $sequences
      * @return void
      */
-    public function setSequences(array $sequences)
+    public function setSequences(StackableArray $sequences)
     {
         $this->sequences = $sequences;
     }

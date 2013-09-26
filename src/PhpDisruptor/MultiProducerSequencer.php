@@ -59,12 +59,12 @@ final class MultiProducerSequencer extends AbstractSequencer
     }
 
     /**
-     * @param Sequence[] $gatingSequences
+     * @param Sequence[] $gatingSequences with StackableArray as container instead of php array
      * @param int $requiredCapacity
      * @param int $cursorValue
      * @return bool
      */
-    public function _internalHasAvailableCapacity(array $gatingSequences, $requiredCapacity, $cursorValue) // private !! only public for pthreads reasons
+    public function _internalHasAvailableCapacity(StackableArray $gatingSequences, $requiredCapacity, $cursorValue) // private !! only public for pthreads reasons
     {
         $wrapPoint = ($cursorValue + $requiredCapacity) - $this->bufferSize;
         $cachedGatingSequence = $this->gatingSequenceCache->get();

@@ -260,7 +260,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param Sequence[] $gatingSequences The sequences to add.
      * @return void
      */
-    public function addGatingSequences(array $gatingSequences)
+    public function addGatingSequences(StackableArray $gatingSequences)
     {
         $this->sequencer->addGatingSequences($gatingSequences);
     }
@@ -295,8 +295,11 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param Sequence[] $sequencesToTrack the additional sequences to track
      * @return SequenceBarrierInterface A sequence barrier that will track the specified sequences.
      */
-    public function newBarrier(array $sequencesToTrack = array())
+    public function newBarrier(StackableArray $sequencesToTrack = null)
     {
+        if (null === $sequencesToTrack) {
+            $sequencesToTrack = new StackableArray();
+        }
         return $this->sequencer->newBarrier($sequencesToTrack);
     }
 

@@ -4,6 +4,7 @@ namespace PhpDisruptor;
 
 use ArrayIterator;
 use CachingIterator;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Util\Util;
 
 /**
@@ -22,7 +23,7 @@ final class FixedSequenceGroup extends Sequence
      * @param Sequence[] $sequences the list of sequences to be tracked under this sequence group
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct(array $sequences)
+    public function __construct(StackableArray $sequences)
     {
         foreach ($sequences as $sequence) {
             if (!$sequence instanceof Sequence) {

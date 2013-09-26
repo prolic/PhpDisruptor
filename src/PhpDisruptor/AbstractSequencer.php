@@ -3,6 +3,7 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Pthreads\AbstractAtomicStackable;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Util\Util;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 
@@ -47,7 +48,7 @@ abstract class AbstractSequencer extends AbstractAtomicStackable implements Sequ
 
         $this->bufferSize = $bufferSize;
         $this->waitStrategy = $waitStrategy;
-        $this->sequences = array();
+        $this->sequences = new StackableArray();
         $this->cursor = new Sequence();
     }
 
@@ -100,7 +101,7 @@ abstract class AbstractSequencer extends AbstractAtomicStackable implements Sequ
      * @param Sequence[] $gatingSequences
      * @return void
      */
-    public function addGatingSequences(array $gatingSequences)
+    public function addGatingSequences(StackableArray $gatingSequences)
     {
         SequenceGroups::addSequences($this, $this, $gatingSequences);
     }
@@ -126,15 +127,18 @@ abstract class AbstractSequencer extends AbstractAtomicStackable implements Sequ
      * @param array $sequencesToTrack
      * @return ProcessingSequenceBarrier
      */
-    public function newBarrier(array $sequencesToTrack = array())
+    public function newBarrier(StackableArray $sequencesToTrack = null)
     {
+        if (null === $sequencesToTrack) {
+            $sequencesToTrack = new StackableArray();
+        }
         return new ProcessingSequenceBarrier($this, $this->waitStrategy, $this->cursor, $sequencesToTrack);
     }
 
     /**
      * @inheritdoc
      */
-    public function casSequences(array $oldSequences, array $newSequences)
+    public function casSequences(StackableArray $oldSequences, StackableArray $newSequences)
     {
         return Util::casSequences($this, $oldSequences, $newSequences);
     }
@@ -143,7 +147,7 @@ abstract class AbstractSequencer extends AbstractAtomicStackable implements Sequ
      * @param Sequence[] $sequences
      * @return void
      */
-    public function setSequences(array $sequences)
+    public function setSequences(StackableArray $sequences)
     {
         $this->sequences = $sequences;
     }

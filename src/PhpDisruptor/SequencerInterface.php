@@ -2,6 +2,8 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Pthreads\StackableArray;
+
 interface SequencerInterface extends CursoredInterface, SequenceAggregateInterface
 {
     const INITIAL_CURSOR_VALUE = -1;
@@ -82,7 +84,7 @@ interface SequencerInterface extends CursoredInterface, SequenceAggregateInterfa
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    public function addGatingSequences(array $gatingSequences);
+    public function addGatingSequences(StackableArray $gatingSequences);
 
     /**
      * Remove the specified sequence from this sequencer.
@@ -100,7 +102,7 @@ interface SequencerInterface extends CursoredInterface, SequenceAggregateInterfa
      * @param Sequence[] $sequencesToTrack
      * @return SequenceBarrierInterface A sequence barrier that will track the specified sequences.
      */
-    public function newBarrier(array $sequencesToTrack = array());
+    public function newBarrier(StackableArray $sequencesToTrack = null);
 
     /**
      * Get the minimum sequence value from all of the gating sequences

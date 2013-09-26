@@ -2,6 +2,7 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use Stackable;
 
@@ -44,7 +45,7 @@ final class ProcessingSequenceBarrier extends Stackable implements SequenceBarri
         SequencerInterface $sequencer,
         WaitStrategyInterface $waitStrategy,
         Sequence $cursorSequence,
-        array $dependentSequences
+        StackableArray $dependentSequences
     ) {
         $this->sequencer = $sequencer;
         $this->waitStrategy = $waitStrategy;

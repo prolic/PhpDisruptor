@@ -2,6 +2,8 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Pthreads\StackableArray;
+
 abstract class SequenceGroups
 {
     /**
@@ -14,12 +16,13 @@ abstract class SequenceGroups
     public static function addSequences(
         SequenceAggregateInterface $sequenceAggregate,
         CursoredInterface $cursor,
-        array $sequencesToAdd
+        StackableArray $sequencesToAdd
     ) {
 
         do {
             $currentSequences = $sequenceAggregate->getSequences();
-            $updatedSequences = $currentSequences;
+            $updatedSequences = new StackableArray();
+            $updatedSequences->merge($currentSequences);
             $cursorSequence = $cursor->getCursor();
 
             foreach ($sequencesToAdd as $sequence) {
@@ -31,6 +34,7 @@ abstract class SequenceGroups
                 $sequence->set($cursorSequence);
                 $updatedSequences[] = $sequence;
             }
+
         } while (!$sequenceAggregate->casSequences($currentSequences, $updatedSequences));
 
         $cursorSequence = $cursor->getCursor();
@@ -55,7 +59,7 @@ abstract class SequenceGroups
 
             $oldSize = count($oldSequences);
 
-            $newSequences = array();
+            $newSequences = new StackableArray();
             for ($i = 0, $pos = 0; $i < $oldSize; $i++) {
                 $testSequence = $oldSequences[$i];
                 if (!$testSequence->equals($sequence)) {
@@ -71,7 +75,7 @@ abstract class SequenceGroups
      * @param Sequence $sequence
      * @return int
      */
-    public static function countMatching(array $sequences, Sequence $sequence)
+    public static function countMatching(StackableArray $sequences, Sequence $sequence)
     {
         $numToRemove = 0;
         foreach ($sequences as $sequenceToTest) {
