@@ -3,39 +3,46 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Dsl\ProducerType;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\WaitStrategy\BlockingWaitStrategy;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
+use Stackable;
 
 /**
  * Ring based store of reusable entries containing the data representing
  * an event being exchanged between event producer and EventProcessors.
  */
-final class RingBuffer implements CursoredInterface, DataProviderInterface
+final class RingBuffer extends Stackable implements CursoredInterface, DataProviderInterface
 {
     /**
      * @var int
      */
-    private $indexMask;
+    public $indexMask;
 
     /**
      * @var object[]
      */
-    private $entries;
+    public $entries;
 
     /**
      * @var int
      */
-    private $bufferSize;
+    public $bufferSize;
 
     /**
      * @var SequencerInterface
      */
-    private $sequencer;
+    public $sequencer;
 
     /**
      * @var string
      */
-    private $eventClass;
+    public $eventClass;
+
+    /**
+     * @var EventFactoryInterface
+     */
+    public $eventFactory;
 
     /**
      * Construct a RingBuffer with the full option set.
@@ -45,13 +52,19 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
      */
     protected function __construct(EventFactoryInterface $eventFactory, SequencerInterface $sequencer)
     {
+        $this->eventFactory = $eventFactory;
         $this->sequencer = $sequencer;
-        $this->bufferSize = $sequencer->getBufferSize();
+    }
+
+    public function run()
+    {
+        $this->bufferSize = $this->sequencer->getBufferSize();
         $this->indexMask = $this->bufferSize - 1;
-        $this->eventClass = $eventFactory->getEventClass();
-        $bufferSize = $sequencer->getBufferSize();
+        $this->eventClass = $this->eventFactory->getEventClass();
+        $bufferSize = $this->sequencer->getBufferSize();
+        $this->entries = new StackableArray();
         for ($i = 0; $i < $bufferSize; $i++) {
-            $this->entries[$i] = $eventFactory->newInstance();
+            $this->entries[$i] = $this->eventFactory->newInstance();
         }
     }
 
@@ -82,7 +95,9 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
             $waitStrategy = new BlockingWaitStrategy();
         }
         $sequencer = new MultiProducerSequencer($bufferSize, $waitStrategy);
-        return new self($factory, $sequencer);
+        $ringBuffer = new self($factory, $sequencer);
+        $ringBuffer->run();
+        return $ringBuffer;
     }
 
     /**
@@ -102,7 +117,9 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
             $waitStrategy = new BlockingWaitStrategy();
         }
         $sequencer = new SingleProducerSequencer($bufferSize, $waitStrategy);
-        return new self($factory, $sequencer);
+        $ringBuffer = new self($factory, $sequencer);
+        $ringBuffer->run();
+        return $ringBuffer;
     }
 
     /**
@@ -122,10 +139,14 @@ final class RingBuffer implements CursoredInterface, DataProviderInterface
     ) {
         switch ($producerType) {
             case ProducerType::SINGLE:
-                return self::createSingleProducer($eventFactory, $bufferSize, $waitStrategy);
+                $ringBuffer = self::createSingleProducer($eventFactory, $bufferSize, $waitStrategy);
+                break;
             case ProducerType::MULTI:
-                return self::createMultiProducer($eventFactory, $bufferSize, $waitStrategy);
+                $ringBuffer = self::createMultiProducer($eventFactory, $bufferSize, $waitStrategy);
+                break;
         }
+        $ringBuffer->run();
+        return $ringBuffer;
     }
 
     /**

@@ -3,33 +3,34 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
+use Stackable;
 
-final class ProcessingSequenceBarrier implements SequenceBarrierInterface
+final class ProcessingSequenceBarrier extends Stackable implements SequenceBarrierInterface
 {
     /**
      * @var WaitStrategyInterface
      */
-    private $waitStrategy;
+    public $waitStrategy;
 
     /**
      * @var Sequence
      */
-    private $dependentSequence;
+    public $dependentSequence;
 
     /**
      * @var bool
      */
-    private $alerted = false;
+    public $alerted = false;
 
     /**
      * @var Sequence
      */
-    private $cursorSequence;
+    public $cursorSequence;
 
     /**
      * @var SequencerInterface
      */
-    private $sequencer;
+    public $sequencer;
 
     /**
      * Constructor
@@ -55,6 +56,10 @@ final class ProcessingSequenceBarrier implements SequenceBarrierInterface
         }
     }
 
+    public function run()
+    {
+    }
+
     /**
      * Wait for the given sequence to be available for consumption.
      *
@@ -78,7 +83,6 @@ final class ProcessingSequenceBarrier implements SequenceBarrierInterface
         if ($availableSequence < $sequence) {
             return $availableSequence;
         }
-
         return $this->sequencer->getHighestPublishedSequence($sequence, $availableSequence);
     }
 

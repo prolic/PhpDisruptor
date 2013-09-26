@@ -5,7 +5,7 @@ namespace PhpDisruptorTest\TestAsset;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Sequence;
 
-class EventProcessor extends AbstractEventProcessor
+class StubEventProcessor extends AbstractEventProcessor
 {
     protected $sequence;
 

@@ -5,7 +5,9 @@ namespace PhpDisruptorTest;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
-use PhpDisruptorTest\TestAsset\EventProcessor;
+use PhpDisruptor\Util\Util;
+use PhpDisruptorTest\TestAsset\RingBufferThread;
+use PhpDisruptorTest\TestAsset\StubEventProcessor;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 
 class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
@@ -21,9 +23,9 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->eventProcessor1 = new EventProcessor();
-        $this->eventProcessor2 = new EventProcessor();
-        $this->eventProcessor3 = new EventProcessor();
+        $this->eventProcessor1 = new StubEventProcessor();
+        $this->eventProcessor2 = new StubEventProcessor();
+        $this->eventProcessor3 = new StubEventProcessor();
         $eventFactory = new StubEventFactory();
         $this->ringBuffer = RingBuffer::createMultiProducer($eventFactory, 64);
         $eventProcessor = new NoOpEventProcessor($this->ringBuffer);
@@ -52,7 +54,26 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
 
         $completedWorkSequence = $sequenceBarrier->waitFor($expectedWorkSequence);
         $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
+    }
 
+    public function testShouldWaitForWorkCompleteWhereAllWorkersAreBlockedOnRingBuffer()
+    {
+        $expectedNumberMessages = 10;
+        $this->fillRingBuffer($expectedNumberMessages);
+
+        $workers = array();
+        for ($i = 0; $i < 3; $i++) {
+            $worker = $workers[$i] = new StubEventProcessor();
+            $worker->setSequence($expectedNumberMessages - 1);
+        }
+
+        $sequenceBarrier = $this->ringBuffer->newBarrier(Util::getSequencesFor($workers));
+        $thread = new RingBufferThread($this->ringBuffer, $workers);
+        $thread->start();
+
+        $expectedWorkSequence = $expectedNumberMessages;
+        $completedWorkSequence = $sequenceBarrier->waitFor($expectedNumberMessages);
+        $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
     }
 
     protected function fillRingBuffer($expectedNumberMessages)

@@ -7,9 +7,9 @@ use Mutex;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
-use Worker;
+use Stackable;
 
-final class BlockingWaitStrategy extends Worker implements WaitStrategyInterface
+final class BlockingWaitStrategy extends Stackable implements WaitStrategyInterface
 {
     /**
      * @var int;
@@ -22,21 +22,14 @@ final class BlockingWaitStrategy extends Worker implements WaitStrategyInterface
     public $cond;
 
     /**
-     * Constructor
-     *
      * Creates the mutex and condition
-     */
-    public function __construct()
-    {
-        $this->mutex = Mutex::create(false);
-        $this->cond = Cond::create();
-    }
-
-    /**
+     *
      * @inheritdoc
      */
     public function run()
     {
+        $this->mutex = Mutex::create(false);
+        $this->cond = Cond::create();
     }
 
     /**
