@@ -112,7 +112,7 @@ class SequenceGroupTest extends TestCase
         $sequenceGroup = new SequenceGroup();
         $sequenceGroup->add($sequence);
         $sequences = $sequenceGroup->getSequences();
-        $groupSequence = array_pop($sequences);
+        $groupSequence = $sequences[0];
 
         $this->assertNotEquals(spl_object_hash($sequence), spl_object_hash($groupSequence));
         $this->assertNotSame($sequence, $groupSequence);

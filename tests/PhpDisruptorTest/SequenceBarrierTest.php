@@ -42,7 +42,9 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $eventFactory = new StubEventFactory();
         $this->ringBuffer = RingBuffer::createMultiProducer($eventFactory, 64);
         $eventProcessor = new NoOpEventProcessor($this->ringBuffer);
-        $this->ringBuffer->addGatingSequences(array($eventProcessor->getSequence()));
+        $sequences = new StackableArray();
+        $sequences[] = $eventProcessor->getSequence();
+        $this->ringBuffer->addGatingSequences($sequences);
     }
 
     public function testShouldWaitForWorkCompleteWhereCompleteWorkThresholdIsAhead()
@@ -51,19 +53,16 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $expectedWorkSequence = 9;
         $this->fillRingBuffer($expectedNumberMessages);
 
-        $sequence1 = new Sequence($expectedNumberMessages);
-        $sequence2 = new Sequence($expectedWorkSequence);
-        $sequence3 = new Sequence($expectedNumberMessages);
+        $this->eventProcessor1->setSequence($expectedNumberMessages);
+        $this->eventProcessor2->setSequence($expectedWorkSequence);
+        $this->eventProcessor3->setSequence($expectedNumberMessages);
 
-        $this->eventProcessor1->setSequence($sequence1->get());
-        $this->eventProcessor2->setSequence($sequence2->get());
-        $this->eventProcessor3->setSequence($sequence3->get());
+        $sequences = new StackableArray();
+        $sequences[] = $this->eventProcessor1->getSequence();
+        $sequences[] = $this->eventProcessor2->getSequence();
+        $sequences[] = $this->eventProcessor3->getSequence();
 
-        $sequenceBarrier = $this->ringBuffer->newBarrier(array(
-            $this->eventProcessor1->getSequence(),
-            $this->eventProcessor2->getSequence(),
-            $this->eventProcessor3->getSequence()
-        ));
+        $sequenceBarrier = $this->ringBuffer->newBarrier($sequences);
 
         $completedWorkSequence = $sequenceBarrier->waitFor($expectedWorkSequence);
         $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
@@ -77,7 +76,7 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $expectedNumberMessages = 10;
         $this->fillRingBuffer($expectedNumberMessages);
 
-        $workers = array();
+        $workers = new StackableArray();
         for ($i = 0; $i < 3; $i++) {
             $worker = $workers[$i] = new StubEventProcessor();
             $worker->setSequence($expectedNumberMessages - 1);
