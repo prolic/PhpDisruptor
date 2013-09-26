@@ -2,29 +2,32 @@
 
 namespace PhpDisruptorTest\TestAsset;
 
-use PhpDisruptor\RingBuffer;
+use PhpDisruptor\Exception\AlertException;
+use PhpDisruptor\SequenceBarrierInterface;
 
-class RingBufferThread extends \Thread
+class SequenceBarrierThread extends \Thread
 {
-    public $ringBuffer;
+    public $barrier;
 
-    public $workers;
+    public $expectedNumberOfMessages;
 
-    public function __construct(RingBuffer $ringBuffer, array $workers)
+    public $alerted;
+
+    public function __construct(SequenceBarrierInterface $barrier, $expectedNumberOfMessages, $alerted)
     {
-        $this->ringBuffer = $ringBuffer;
-        $this->workers = $workers;
+        $this->barrier = $barrier;
+        $this->expectedNumberOfMessages = $expectedNumberOfMessages;
+        $this->alerted = $alerted;
     }
 
     public function run()
     {
-        $sequence = $this->ringBuffer->next();
-        $event = $this->ringBuffer->get($sequence);
-        $event->setValue($sequence);
-        $this->ringBuffer->publish($sequence);
-        foreach ($this->workers as $worker) {
-            $worker->setSequence($sequence);
+        try {
+            $this->barrier->waitFor($this->expectedNumberOfMessages - 1);
+        } catch (AlertException $e) {
+            $this->alerted[0] = true;
+        } catch (\Exception $e) {
+            // ignore
         }
-        $this->notify();
     }
 }

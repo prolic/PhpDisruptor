@@ -4,8 +4,13 @@ namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\EventTranslatorInterface;
 
-class EventTranslator implements EventTranslatorInterface
+class EventTranslator extends \Stackable implements EventTranslatorInterface
 {
+
+    public function run()
+    {
+    }
+
     /**
      * Return the used event class name
      *

@@ -7,11 +7,19 @@ use PhpDisruptor\Sequence;
 
 class StubEventProcessor extends AbstractEventProcessor
 {
+    /**
+     * @var Sequence
+     */
     protected $sequence;
 
-    public function setSequence(Sequence $sequence)
+    public function __construct()
     {
-        $this->sequence = $sequence;
+        $this->sequence = new Sequence();
+    }
+
+    public function setSequence($sequence)
+    {
+        $this->sequence->set($sequence);
     }
 
     /**

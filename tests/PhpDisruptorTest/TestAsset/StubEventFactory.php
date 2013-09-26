@@ -3,8 +3,9 @@
 namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\EventFactoryInterface;
+use Stackable;
 
-final class StubEventFactory implements EventFactoryInterface
+final class StubEventFactory extends Stackable implements EventFactoryInterface
 {
     /**
      * Return the used event class name
@@ -19,5 +20,9 @@ final class StubEventFactory implements EventFactoryInterface
     public function newInstance()
     {
         return new StubEvent(-1);
+    }
+
+    public function run()
+    {
     }
 }

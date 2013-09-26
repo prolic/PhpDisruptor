@@ -2,7 +2,9 @@
 
 namespace PhpDisruptorTest\TestAsset;
 
-final class StubEvent
+use Stackable;
+
+final class StubEvent extends Stackable
 {
     /**
      * @var int
@@ -47,5 +49,9 @@ final class StubEvent
     public function setTestString($testString)
     {
         $this->testString = $testString;
+    }
+
+    public function run()
+    {
     }
 }

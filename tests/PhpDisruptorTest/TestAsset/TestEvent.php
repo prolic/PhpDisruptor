@@ -2,7 +2,9 @@
 
 namespace PhpDisruptorTest\TestAsset;
 
-final class TestEvent
+use Stackable;
+
+final class TestEvent extends Stackable
 {
     public function __toString()
     {
