@@ -3,6 +3,7 @@
 namespace PhpDisruptor\Collections;
 
 use PhpDisruptor\Exception;
+use Stackable;
 
 /**
  * Histogram for tracking the frequency of observations of values below interval upper bounds
@@ -15,27 +16,27 @@ use PhpDisruptor\Exception;
  * 0-10 will fall into the first interval bar, values 11-20 will fall into the
  * second bar, and so on.
  */
-final class Histogram
+final class Histogram extends Stackable
 {
     /**
      * @var array
      */
-    private $upperBounds;
+    public $upperBounds;
 
     /**
      * @var array
      */
-    private $counts;
+    public $counts;
 
     /**
      * @var int
      */
-    private $minValue;
+    public $minValue;
 
     /**
      * @var int
      */
-    private $maxValue;
+    public $maxValue;
 
     /**
      * Constructor
@@ -47,8 +48,12 @@ final class Histogram
         $this->counts = array();
         $this->minValue = PHP_INT_MAX;
         $this->maxValue = 0;
-        $this->validateUpperBounds($upperBounds);
+        $this->_validateUpperBounds($upperBounds);
         $this->upperBounds = $upperBounds;
+    }
+
+    public function run()
+    {
     }
 
     /**
@@ -57,7 +62,7 @@ final class Histogram
      * @param array $upperBounds
      * @throws Exception\InvalidArgumentException
      */
-    private function validateUpperBounds(array $upperBounds)
+    public function _validateUpperBounds(array $upperBounds) // public for pthreads reasons
     {
         $lastBound = -1;
         if (count($upperBounds) <= 0) {
@@ -135,7 +140,7 @@ final class Histogram
         // if the binary search found an eligible bucket, increment
         if ($value <= $this->upperBounds[$high]) {
             $this->counts[$high]++;
-            $this->trackRange($value);
+            $this->_trackRange($value);
 
             return true;
         }
@@ -151,7 +156,7 @@ final class Histogram
      * @param int $value
      * @return void
      */
-    private function trackRange($value)
+    public function _trackRange($value) // public for pthreads reasons
     {
         if ($value < $this->minValue) {
             $this->minValue = $value;
@@ -195,8 +200,8 @@ final class Histogram
         }
 
         // refresh the minimum and maximum observation ranges
-        $this->trackRange($histogram->minValue);
-        $this->trackRange($histogram->maxValue);
+        $this->_trackRange($histogram->minValue);
+        $this->_trackRange($histogram->maxValue);
     }
 
     /**
