@@ -13,31 +13,32 @@ use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkerPool;
 use SplObjectStorage;
+use Stackable;
 
 /**
 * Provides a repository mechanism to associate EventHandlers with EventProcessors
 */
-class ConsumerRepository implements EventClassCapableInterface, IteratorAggregate
+class ConsumerRepository extends Stackable implements EventClassCapableInterface, IteratorAggregate
 {
     /**
      * @var SplObjectStorage
      */
-    private $eventProcessorInfoByEventHandler;
+    public $eventProcessorInfoByEventHandler;
 
     /**
      * @var SplObjectStorage
      */
-    private $eventProcessorInfoBySequence;
+    public $eventProcessorInfoBySequence;
 
     /**
      * @var ConsumerInfoInterface[]
      */
-    private $consumerInfos;
+    public $consumerInfos;
 
     /**
      * @var string
      */
-    private $eventClass;
+    public $eventClass;
 
     /**
      * Constructor
@@ -50,6 +51,10 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
         $this->eventProcessorInfoByEventHandler = new SplObjectStorage();
         $this->eventProcessorInfoBySequence = new SplObjectStorage();
         $this->consumerInfos = array();
+    }
+
+    public function run()
+    {
     }
 
     /**
@@ -149,7 +154,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
      */
     public function getEventProcessorFor(EventHandlerInterface $handler)
     {
-        $eventProcessorInfo = $this->getEventProcessorInfo($handler);
+        $eventProcessorInfo = $this->_getEventProcessorInfo($handler);
         if (null === $eventProcessorInfo) {
             throw new Exception\InvalidArgumentException(
                 'The given event handler is not processing events'
@@ -183,7 +188,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
                     '$barrierEventProcessors must be an array of Sequence'
                 );
             }
-            $this->getEventProcessorInfo($barrierEventProcessor)->markAsUsedInBarrier();
+            $this->_getEventProcessorInfo($barrierEventProcessor)->markAsUsedInBarrier();
         }
     }
 
@@ -195,7 +200,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
      */
     public function getBarrierFor(EventHandlerInterface $handler)
     {
-        $consumerInfo = $this->getEventProcessorInfo($handler);
+        $consumerInfo = $this->_getEventProcessorInfo($handler);
         if (null === $consumerInfo) {
             return null;
         }
@@ -208,7 +213,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
      * @param EventHandlerInterface $handler
      * @return EventProcessorInfo
      */
-    private function getEventProcessorInfo(EventHandlerInterface $handler)
+    public function _getEventProcessorInfo(EventHandlerInterface $handler) // public for pthreads reasons
     {
         return $this->eventProcessorInfoByEventHandler->offsetGet($handler);
     }
@@ -219,7 +224,7 @@ class ConsumerRepository implements EventClassCapableInterface, IteratorAggregat
      * @param Sequence $barrierEventProcessor
      * @return EventProcessorInfo
      */
-    private function getEventProcessorInfoBySequence(Sequence $barrierEventProcessor)
+    public function _getEventProcessorInfoBySequence(Sequence $barrierEventProcessor) // public for pthreads reasons
     {
         return $this->eventProcessorInfoBySequence->offsetGet($barrierEventProcessor);
     }
