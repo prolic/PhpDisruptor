@@ -3,35 +3,9 @@
 namespace PhpDisruptor\ExceptionHandler;
 
 use PhpDisruptor\Exception;
-use Stackable;
 
-final class FatalExceptionHandler extends Stackable implements ExceptionHandlerInterface
+final class FatalExceptionHandler extends AbstractExceptionHandler
 {
-    /**
-     * @var resource
-     */
-    public $fh;
-
-    /**
-     * Constructor
-     *
-     * @param string $path
-     * @throws Exception\InvalidArgumentException
-     */
-    public function __construct($path)
-    {
-        if (!is_file($path) || !is_writable($path)) {
-            throw new Exception\InvalidArgumentException(
-                'Invalid path given or not writeable'
-            );
-        }
-        $this->fh = fopen($path, 'ba+');
-    }
-
-    public function run()
-    {
-    }
-
     /**
      * @inheritdoc
      */
