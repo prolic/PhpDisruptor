@@ -17,37 +17,38 @@ use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use PhpDisruptor\WorkerPool;
 use PhpDisruptor\WorkHandlerInterface;
 use PhpDisruptor\Util\Util;
+use Stackable;
 use Worker;
 
 /**
  * A DSL-style API for setting up the disruptor pattern around a ring buffer (aka the Builder pattern).
  */
-class Disruptor implements EventClassCapableInterface
+class Disruptor extends Worker implements EventClassCapableInterface
 {
     /**
      * @var RingBuffer
      */
-    private $ringBuffer;
+    public $ringBuffer;
 
     /**
      * @var Worker
      */
-    private $worker;
+    public $worker;
 
     /**
      * @var ConsumerRepository
      */
-    private $consumerRepository;
+    public $consumerRepository;
 
     /**
      * @var bool
      */
-    private $started;
+    public $started;
 
     /**
      * @var ExceptionHandlerInterface
      */
-    private $exceptionHandler;
+    public $exceptionHandler;
 
     /**
      * Constructor
@@ -60,6 +61,19 @@ class Disruptor implements EventClassCapableInterface
         $this->ringBuffer = $ringBuffer;
         $this->worker = $worker;
         $this->started = false;
+    }
+
+    public function run()
+    {
+        $gaitingSequences = $this->consumerRepository->getLastSequenceInChain(true);
+        $this->ringBuffer->addGatingSequences($gaitingSequences);
+
+        $this->_checkOnlyStartedOnce();
+
+        foreach ($this->consumerRepository as $consumerInfo) {
+            /* @var ConsumerInfoInterface $consumerInfo*/
+            $consumerInfo->start($this->worker);
+        }
     }
 
     /**
@@ -217,31 +231,6 @@ class Disruptor implements EventClassCapableInterface
     }
 
     /**
-     * Starts the event processors and returns the fully configured ring buffer.
-     *
-     * The ring buffer is set up to prevent overwriting any entry that is yet to
-     * be processed by the slowest event processor.
-     *
-     * This method must only be called once after all event processors have been added.
-     *
-     * @return RingBuffer the configured ring buffer.
-     */
-    public function start()
-    {
-        $gaitingSequences = $this->consumerRepository->getLastSequenceInChain(true);
-        $this->ringBuffer->addGatingSequences($gaitingSequences);
-
-        $this->checkOnlyStartedOnce();
-
-        foreach ($this->consumerRepository as $consumerInfo) {
-            /* @var ConsumerInfoInterface $consumerInfo*/
-            $consumerInfo->start($this->worker);
-        }
-
-        return $this->ringBuffer;
-    }
-
-    /**
      * Calls EventProcessor#halt() on all of the event processors created via this disruptor
      *
      * @return void
@@ -268,7 +257,7 @@ class Disruptor implements EventClassCapableInterface
     public function shutdownWithTimeout($timeout)
     {
         $timeoutAt = microtime(true) + ($timeout / 1000000);
-        while ($this->hasBacklog()) {
+        while ($this->_hasBacklog()) {
             if ($timeout > 0 && microtime(true) > $timeoutAt) {
                 throw new Exception\TimeoutException();
             }
@@ -287,7 +276,7 @@ class Disruptor implements EventClassCapableInterface
      *
      * @return void
      */
-    public function shutdown()
+    public function shutdownWithoutTimeout()
     {
         try {
             $this->shutdownWithTimeout(-1);
@@ -299,6 +288,8 @@ class Disruptor implements EventClassCapableInterface
     /**
      * The RingBuffer used by this Disruptor.  This is useful for creating custom
      * event processors if the behaviour of BatchEventProcessor is not suitable.
+     *
+     * Usually called after start() to retrieve the ringbuffer
      *
      * @return RingBuffer
      */
@@ -355,7 +346,7 @@ class Disruptor implements EventClassCapableInterface
      *
      * @return bool
      */
-    private function hasBacklog()
+    public function _hasBacklog() // public for pthreads reasons
     {
         $cursor = $this->ringBuffer->getCursor();
         foreach ($this->consumerRepository->getLastSequenceInChain(false) as $consumer) {
@@ -375,7 +366,7 @@ class Disruptor implements EventClassCapableInterface
      */
     public function createEventProcessors(array $barrierSequences, array $eventHandlers)
     {
-        $this->checkNotStarted();
+        $this->_checkNotStarted();
         $processorSequences = array();
         $barrier = $this->ringBuffer->newBarrier($barrierSequences);
 
@@ -427,7 +418,7 @@ class Disruptor implements EventClassCapableInterface
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    private function checkNotStarted()
+    public function _checkNotStarted() // public for pthreads reasons
     {
         if ($this->started) {
             throw new Exception\InvalidArgumentException(
@@ -436,7 +427,7 @@ class Disruptor implements EventClassCapableInterface
         }
     }
 
-    private function checkOnlyStartedOnce()
+    public function _checkOnlyStartedOnce() // public for pthreads reasons
     {
         // @todo: locking????
         if (!$this->started) {
