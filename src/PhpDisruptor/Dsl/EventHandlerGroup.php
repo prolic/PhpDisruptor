@@ -6,31 +6,33 @@ use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkHandlerInterface;
+use Stackable;
 
-class EventHandlerGroup implements EventClassCapableInterface
+class EventHandlerGroup extends Stackable implements EventClassCapableInterface
 {
     /**
      * @var string
      */
-    private $eventClass;
+    public $eventClass;
 
     /**
      * @var Disruptor
      */
-    private $disruptor;
+    public $disruptor;
 
     /**
      * @var ConsumerRepository
      */
-    private $consumerRepository;
+    public $consumerRepository;
 
     /**
      * @var Sequence[]
      */
-    private $sequences;
+    public $sequences;
 
     /**
      * Constructor
@@ -43,7 +45,7 @@ class EventHandlerGroup implements EventClassCapableInterface
     public function __construct(
         Disruptor $disruptor,
         ConsumerRepository $consumerRepository,
-        array $sequences
+        StackableArray $sequences
     ) {
         if ($disruptor->getEventClass() != $consumerRepository->getEventClass()) {
             throw new Exception\InvalidArgumentException(
@@ -54,7 +56,7 @@ class EventHandlerGroup implements EventClassCapableInterface
         $this->disruptor = $disruptor;
         $this->eventClass = $consumerRepository->getEventClass();
         $this->consumerRepository = $consumerRepository;
-        $this->sequences = array();
+        $this->sequences = new StackableArray();
         foreach ($sequences as $sequence) {
             if (!$sequence instanceof Sequence) {
                 throw new Exception\InvalidArgumentException(
@@ -92,7 +94,7 @@ class EventHandlerGroup implements EventClassCapableInterface
      * @param AbstractEventProcessor[] $processors the processors to combine.
      * @return EventHandlerGroup a new EventHandlerGroup combining the existing and new processors
      */
-    public function andProcessors(array $processors)
+    public function andProcessors(StackableArray $processors)
     {
         $combinedSequences = array();
         foreach ($processors as $processor) {
@@ -115,7 +117,7 @@ class EventHandlerGroup implements EventClassCapableInterface
      * @param EventHandlerInterface[] $handlers the batch handlers that will process events.
      * @return EventHandlerGroup that can be used to set up a event processor barrier over the created event processors.
      */
-    public function then(array $handlers)
+    public function then(StackableArray $handlers)
     {
         return $this->handleEventsWith($handlers);
     }
@@ -134,7 +136,7 @@ class EventHandlerGroup implements EventClassCapableInterface
      * Each work handler instance will provide an extra thread in the worker pool.
      * @return EventHandlerGroup that can be used to set up a event processor barrier over the created event processors
      */
-    public function thenHandleEventsWithWorkerPool(array $handlers)
+    public function thenHandleEventsWithWorkerPool(StackableArray $handlers)
     {
         return $this->handleEventsWithWorkerPool($handlers);
     }
@@ -151,7 +153,7 @@ class EventHandlerGroup implements EventClassCapableInterface
      * @param EventHandlerInterface[] $handlers the batch handlers that will process events.
      * @return EventHandlerGroup that can be used to set up a event processor barrier over the created event processors.
      */
-    public function handleEventsWith(array $handlers)
+    public function handleEventsWith(StackableArray $handlers)
     {
         return $this->disruptor->createEventProcessors($this->sequences, $handlers);
     }
@@ -170,7 +172,7 @@ class EventHandlerGroup implements EventClassCapableInterface
      * Each work handler instance will provide an extra thread in the worker pool.
      * @return EventHandlerGroup that can be used to set up a event processor barrier over the created event processors.
      */
-    public function handleEventsWithWorkerPool(array $handlers)
+    public function handleEventsWithWorkerPool(StackableArray $handlers)
     {
         return $this->disruptor->createWorkerPool($this->sequences, $handlers);
     }
