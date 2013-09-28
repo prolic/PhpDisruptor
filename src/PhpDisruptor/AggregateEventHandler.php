@@ -2,17 +2,20 @@
 
 namespace PhpDisruptor;
 
-final class AggregateEventHandler implements EventHandlerInterface, LifecycleAwareInterface
+use PhpDisruptor\Pthreads\StackableArray;
+use Stackable;
+
+final class AggregateEventHandler extends Stackable implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**
      * @var string
      */
-    private $eventClass;
+    public $eventClass;
 
     /**
      * @var EventHandlerInterface[]
      */
-    private $eventHandlers;
+    public $eventHandlers;
 
     /**
      * Constructor
@@ -21,7 +24,7 @@ final class AggregateEventHandler implements EventHandlerInterface, LifecycleAwa
      * @param EventHandlerInterface[] $eventHandlers
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct($eventClass, array $eventHandlers)
+    public function __construct($eventClass, StackableArray $eventHandlers)
     {
         if (!class_exists($eventClass)) {
             throw new Exception\InvalidArgumentException(
@@ -41,6 +44,10 @@ final class AggregateEventHandler implements EventHandlerInterface, LifecycleAwa
             }
         }
         $this->eventHandlers = $eventHandlers;
+    }
+
+    public function run()
+    {
     }
 
     /**
