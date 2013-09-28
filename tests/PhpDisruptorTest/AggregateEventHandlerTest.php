@@ -3,6 +3,8 @@
 namespace PhpDisruptorTest;
 
 use PhpDisruptor\AggregateEventHandler;
+use PhpDisruptor\Pthreads\StackableArray;
+use PhpDisruptorTest\TestAsset\EventHandler;
 use PHPUnit_Framework_MockObject_MockObject;
 
 class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
@@ -24,27 +26,9 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->eventHandlerOne   = $this->getMock(
-            'PhpDisruptorTest\TestAsset\LifecycleAwareEventHandler',
-            array(
-                'onEvent',
-                'onShutdown'
-            )
-        );
-        $this->eventHandlerTwo   = $this->getMock(
-            'PhpDisruptorTest\TestAsset\LifecycleAwareEventHandler',
-            array(
-                'onEvent',
-                'onShutdown'
-            )
-        );
-        $this->eventHandlerThree = $this->getMock(
-            'PhpDisruptorTest\TestAsset\LifecycleAwareEventHandler',
-            array(
-                'onEvent',
-                'onShutdown'
-            )
-        );
+        $this->eventHandlerOne = new EventHandler('stdClass', 1);
+        $this->eventHandlerTwo = new EventHandler('stdClass', 2);
+        $this->eventHandlerThree = new EventHandler('stdClass', 3);
     }
 
     public function testShouldCallOnEventInSequence()
@@ -53,25 +37,7 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
         $sequence = 3;
         $endOfBatch = true;
 
-        $this->eventHandlerOne->expects($this->once())->method('onEvent')->will($this->returnCallback(
-            function() { echo '1'; }
-        ));
-        $this->eventHandlerTwo->expects($this->once())->method('onEvent')->will($this->returnCallback(
-            function() { echo '2'; }
-        ));
-        $this->eventHandlerThree->expects($this->once())->method('onEvent')->will($this->returnCallback(
-            function() { echo '3'; }
-        ));
-
-        $aggregateEventHandler = new AggregateEventHandler(
-            'stdClass',
-            array(
-                $this->eventHandlerOne,
-                $this->eventHandlerTwo,
-                $this->eventHandlerThree
-            )
-        );
-
+        $aggregateEventHandler = $this->prepareAggregateEventHandler();
         ob_start();
         $aggregateEventHandler->onEvent($event, $sequence, $endOfBatch);
         $result = ob_get_clean();
@@ -80,25 +46,7 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldCallOnStartInSequence()
     {
-        $this->eventHandlerOne->expects($this->once())->method('onShutdown')->will($this->returnCallback(
-            function() { echo '1'; }
-        ));
-        $this->eventHandlerTwo->expects($this->once())->method('onShutdown')->will($this->returnCallback(
-            function() { echo '2'; }
-        ));
-        $this->eventHandlerThree->expects($this->once())->method('onShutdown')->will($this->returnCallback(
-            function() { echo '3'; }
-        ));
-
-        $aggregateEventHandler = new AggregateEventHandler(
-            'stdClass',
-            array(
-                $this->eventHandlerOne,
-                $this->eventHandlerTwo,
-                $this->eventHandlerThree
-            )
-        );
-
+        $aggregateEventHandler = $this->prepareAggregateEventHandler();
         ob_start();
         $aggregateEventHandler->onShutdown();
         $result = ob_get_clean();
@@ -107,9 +55,24 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldHandleEmptyListOfEventHandlers()
     {
-        $aggregateEventHandler = new AggregateEventHandler('stdClass', array());
+        $aggregateEventHandler = new AggregateEventHandler('stdClass', new StackableArray());
         $aggregateEventHandler->onEvent(new \stdClass(), 0, true);
         $aggregateEventHandler->onStart();
         $aggregateEventHandler->onShutdown();
+    }
+
+    public function prepareAggregateEventHandler()
+    {
+        $handlers = new StackableArray();
+        $handlers[] = $this->eventHandlerOne;
+        $handlers[] = $this->eventHandlerTwo;
+        $handlers[] = $this->eventHandlerThree;
+
+        $aggregateEventHandler = new AggregateEventHandler(
+            'stdClass',
+            $handlers
+        );
+
+        return $aggregateEventHandler;
     }
 }

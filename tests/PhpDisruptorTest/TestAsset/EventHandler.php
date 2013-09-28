@@ -4,15 +4,21 @@ namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
+use PhpDisruptor\LifecycleAwareInterface;
 use Stackable;
 
-class EventHandler extends Stackable implements EventHandlerInterface
+class EventHandler extends Stackable implements EventHandlerInterface, LifecycleAwareInterface
 {
-    protected $eventClass;
+    public $eventClass;
 
-    public function __construct($eventClass)
+    public $output;
+
+    public function __construct($eventClass, $output = null)
     {
         $this->eventClass = $eventClass;
+        if (null !== $output) {
+            $this->output = $output;
+        }
     }
 
     public function run()
@@ -40,6 +46,33 @@ class EventHandler extends Stackable implements EventHandlerInterface
      */
     public function onEvent($event, $sequence, $endOfBatch)
     {
-        echo get_class($event) . '-' . $sequence . '-' . (string) (int) $endOfBatch;
+        if (null !== $this->output) {
+            echo $this->output;
+        } else {
+            echo get_class($event) . '-' . $sequence . '-' . (string) (int) $endOfBatch;
+        }
+    }
+
+    /**
+     * Called once on thread start before first event is available.
+     *
+     * @return void
+     */
+    public function onStart()
+    {
+        echo $this->output;
+    }
+
+    /**
+     * Called once just before the thread is shutdown.
+     *
+     * Sequence event processing will already have stopped before this method is called. No events will
+     * be processed after this message.
+     *
+     * @return void
+     */
+    public function onShutdown()
+    {
+        echo $this->output;
     }
 }
