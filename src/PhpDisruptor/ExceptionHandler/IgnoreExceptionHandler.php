@@ -2,47 +2,57 @@
 
 namespace PhpDisruptor\ExceptionHandler;
 
-use Exception;
-use Zend\Log\LoggerInterface;
+use PhpDisruptor\Exception;
+use Stackable;
 
-final class IgnoreExceptionHandler implements ExceptionHandlerInterface
+final class IgnoreExceptionHandler extends Stackable implements ExceptionHandlerInterface
 {
     /**
-     * @var LoggerInterface
+     * @var resource
      */
-    private $logger;
+    public $fh;
 
     /**
      * Constructor
      *
-     * @param LoggerInterface $logger
+     * @param string $path
+     * @throws Exception\InvalidArgumentException
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct($path)
     {
-        $this->logger = $logger;
+        if (!is_file($path) || !is_writable($path)) {
+            throw new Exception\InvalidArgumentException(
+                'Invalid path given or not writeable'
+            );
+        }
+        $this->fh = fopen($path, 'ba+');
+    }
+
+    public function run()
+    {
     }
 
     /**
      * @inheritdoc
      */
-    public function handleEventException(Exception $ex, $sequence, $event)
+    public function handleEventException(\Exception $ex, $sequence, $event)
     {
-        $this->logger->info('Exception processing: "' . $sequence);
+        fwrite($this->fh, 'INFO: Exception processing: "' . $sequence);
     }
 
     /**
      * @inheritdoc
      */
-    public function handleOnStartException(Exception $ex)
+    public function handleOnStartException(\Exception $ex)
     {
-        $this->logger->info('Exception during onStart()');
+        fwrite($this->fh, 'INFO: Exception during onStart()');
     }
 
     /**
      * @inheritdoc
      */
-    public function handleOnShutdownException(Exception $ex)
+    public function handleOnShutdownException(\Exception $ex)
     {
-        $this->logger->info('Exception during onShutdown()');
+        fwrite($this->fh, 'INFO: Exception during onShutdown()');
     }
 }

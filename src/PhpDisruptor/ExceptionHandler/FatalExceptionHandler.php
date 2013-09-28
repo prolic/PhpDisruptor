@@ -3,23 +3,33 @@
 namespace PhpDisruptor\ExceptionHandler;
 
 use PhpDisruptor\Exception;
-use Zend\Log\LoggerInterface;
+use Stackable;
 
-final class FatalExceptionHandler implements ExceptionHandlerInterface
+final class FatalExceptionHandler extends Stackable implements ExceptionHandlerInterface
 {
     /**
-     * @var LoggerInterface
+     * @var resource
      */
-    private $logger;
+    public $fh;
 
     /**
      * Constructor
      *
-     * @param LoggerInterface $logger
+     * @param string $path
+     * @throws Exception\InvalidArgumentException
      */
-    public function __construct(LoggerInterface $logger)
+    public function __construct($path)
     {
-        $this->logger = $logger;
+        if (!is_file($path) || !is_writable($path)) {
+            throw new Exception\InvalidArgumentException(
+                'Invalid path given or not writeable'
+            );
+        }
+        $this->fh = fopen($path, 'ba+');
+    }
+
+    public function run()
+    {
     }
 
     /**
@@ -27,7 +37,7 @@ final class FatalExceptionHandler implements ExceptionHandlerInterface
      */
     public function handleEventException(\Exception $ex, $sequence, $event)
     {
-        $this->logger->err('Exception processing: ' . $sequence . ' ' . $event);
+        fwrite($this->fh, 'ERR: Exception processing: ' . $sequence . ' ' . $event);
         throw new Exception\RuntimeException($ex);
     }
 
@@ -36,7 +46,7 @@ final class FatalExceptionHandler implements ExceptionHandlerInterface
      */
     public function handleOnStartException(\Exception $ex)
     {
-        $this->logger->err('Exception during onStart()');
+        fwrite($this->fh, 'ERR: Exception during onStart()');
     }
 
     /**
@@ -44,6 +54,6 @@ final class FatalExceptionHandler implements ExceptionHandlerInterface
      */
     public function handleOnShutdownException(\Exception $ex)
     {
-        $this->logger->err('Exception during onShutdown()');
+        fwrite($this->fh, 'ERR: Exception during onShutdown()');
     }
 }
