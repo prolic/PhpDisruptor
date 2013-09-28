@@ -6,23 +6,24 @@ use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
+use Stackable;
 
-class ExceptionHandlerSetting implements EventClassCapableInterface
+class ExceptionHandlerSetting extends Stackable implements EventClassCapableInterface
 {
     /**
      * @var string
      */
-    private $eventClass;
+    public $eventClass;
 
     /**
      * @var EventHandlerInterface
      */
-    private $eventHandler;
+    public $eventHandler;
 
     /**
      * @var ConsumerRepository
      */
-    private $consumerRepository;
+    public $consumerRepository;
 
     /**
      * Constructor
@@ -42,6 +43,10 @@ class ExceptionHandlerSetting implements EventClassCapableInterface
         $this->eventClass = $eventHandler->getEventClass();
         $this->eventHandler = $eventHandler;
         $this->consumerRepository = $consumerRepository;
+    }
+
+    public function run()
+    {
     }
 
     /**
