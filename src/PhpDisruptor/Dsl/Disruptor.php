@@ -276,7 +276,7 @@ class Disruptor extends Worker implements EventClassCapableInterface
      *
      * @return void
      */
-    public function shutdownWithoutTimeout()
+    public function shutdown()
     {
         try {
             $this->shutdownWithTimeout(-1);

@@ -4,30 +4,32 @@ namespace PhpDisruptor\Dsl;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
+use Stackable;
 
-class EventProcessorInfo implements ConsumerInfoInterface
+class EventProcessorInfo extends Stackable implements ConsumerInfoInterface
 {
     /**
      * @var AbstractEventProcessor
      */
-    private $eventProcessor;
+    public $eventProcessor;
 
     /**
      * @var EventHandlerInterface
      */
-    private $handler;
+    public $handler;
 
     /**
      * @var SequenceBarrierInterface
      */
-    private $barrier;
+    public $barrier;
 
     /**
      * @var bool
      */
-    private $endOfChain = true;
+    public $endOfChain;
 
     /**
      * Constructor
@@ -44,6 +46,7 @@ class EventProcessorInfo implements ConsumerInfoInterface
         $this->eventProcessor = $eventProcessor;
         $this->handler = $handler;
         $this->barrier = $barrier;
+        $this->endOfChain = true;
     }
 
     /**
@@ -59,7 +62,9 @@ class EventProcessorInfo implements ConsumerInfoInterface
      */
     public function getSequences()
     {
-        return array($this->eventProcessor->getSequence());
+        $sequences = new StackableArray();
+        $sequences[] = $this->eventProcessor->getSequence();
+        return $sequences;
     }
 
     /**
@@ -86,10 +91,7 @@ class EventProcessorInfo implements ConsumerInfoInterface
         return $this->endOfChain;
     }
 
-    /**
-     * @return void
-     */
-    public function start()
+    public function run()
     {
         $this->eventProcessor->start();
     }
@@ -108,13 +110,5 @@ class EventProcessorInfo implements ConsumerInfoInterface
     public function markAsUsedInBarrier()
     {
         $this->endOfChain = false;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRunning()
-    {
-        return $this->eventProcessor->isRunning();
     }
 }
