@@ -6,28 +6,29 @@ use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkerPool;
+use Stackable;
 
-class WorkerPoolInfo implements ConsumerInfoInterface, EventClassCapableInterface
+class WorkerPoolInfo extends Stackable implements ConsumerInfoInterface, EventClassCapableInterface
 {
     /**
      * @var WorkerPool
      */
-    private $workerPool;
+    public $workerPool;
 
     /**
      * @var SequenceBarrierInterface
      */
-    private $sequenceBarrier;
+    public $sequenceBarrier;
 
     /**
      * @var bool
      */
-    private $endOfChain = true;
+    public $endOfChain;
 
     /**
      * @var string
      */
-    private $eventClass;
+    public $eventClass;
 
     /**
      * Constructor
@@ -40,6 +41,7 @@ class WorkerPoolInfo implements ConsumerInfoInterface, EventClassCapableInterfac
         $this->workerPool = $workerPool;
         $this->eventClass = $workerPool->getEventClass();
         $this->sequenceBarrier = $sequenceBarrier;
+        $this->endOfChain = true;
     }
 
     /**
@@ -74,10 +76,7 @@ class WorkerPoolInfo implements ConsumerInfoInterface, EventClassCapableInterfac
         return $this->endOfChain;
     }
 
-    /**
-     * @return void
-     */
-    public function start()
+    public function run()
     {
         $this->workerPool->start();
     }
