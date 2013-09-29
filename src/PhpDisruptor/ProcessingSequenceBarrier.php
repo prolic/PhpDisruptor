@@ -21,7 +21,7 @@ final class ProcessingSequenceBarrier extends Stackable implements SequenceBarri
     /**
      * @var bool
      */
-    public $alerted = false;
+    public $alerted;
 
     /**
      * @var Sequence
@@ -55,6 +55,7 @@ final class ProcessingSequenceBarrier extends Stackable implements SequenceBarri
         } else {
             $this->dependentSequence = new FixedSequenceGroup($dependentSequences);
         }
+        $this->alerted = false;
     }
 
     public function run()

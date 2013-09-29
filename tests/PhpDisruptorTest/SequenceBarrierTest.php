@@ -135,6 +135,19 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
 //        $this->assertTrue($alerted[0], 'Thread was not interrupted');
 //    }
 
+    public function testShouldSetAndClearAlertStatus()
+    {
+        $sequenceBarrier = $this->ringBuffer->newBarrier();
+        $this->assertFalse($sequenceBarrier->isAlerted());
+
+        $sequenceBarrier->alert();
+        $this->assertTrue($sequenceBarrier->isAlerted());
+
+        $sequenceBarrier->clearAlert();
+        $this->assertFalse($sequenceBarrier->isAlerted());
+    }
+
+
     protected function fillRingBuffer($expectedNumberMessages)
     {
         for ($i = 0; $i < $expectedNumberMessages; $i++) {
