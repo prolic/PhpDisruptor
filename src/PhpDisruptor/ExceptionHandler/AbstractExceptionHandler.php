@@ -26,7 +26,7 @@ abstract class AbstractExceptionHandler extends Stackable implements ExceptionHa
                 'Invalid path given or not writeable'
             );
         }
-        $this->fh = fopen($file, 'ba+');
+        $this->fh = fopen($file, 'a+b');
     }
 
     public function run()
