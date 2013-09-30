@@ -59,8 +59,7 @@ abstract class AbstractSequencer extends AbstractAtomicStackable implements Sequ
     public function bitCount($n)
     {
         $count = 0;
-        while ($n != 0)
-        {
+        while ($n != 0) {
             $count++;
             $n &= ($n - 1);
         }
