@@ -13,7 +13,6 @@ use PhpDisruptor\Sequence;
 use PhpDisruptor\SequencerInterface;
 use PhpDisruptor\TimeoutHandlerInterface;
 use Thread;
-use Zend\Log\LoggerInterface;
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a RingBuffer
@@ -66,15 +65,13 @@ final class BatchEventProcessor extends AbstractEventProcessor
      * @param DataProviderInterface $dataProvider
      * @param SequenceBarrierInterface $sequenceBarrier
      * @param EventHandlerInterface $eventHandler
-     * @param LoggerInterface $logger
      * @throws Exception\InvalidArgumentException
      */
     public function __construct(
         $eventClass,
         DataProviderInterface $dataProvider,
         SequenceBarrierInterface $sequenceBarrier,
-        EventHandlerInterface $eventHandler,
-        LoggerInterface $logger
+        EventHandlerInterface $eventHandler
     ) {
         if (!class_exists($eventClass)) {
             throw new Exception\InvalidArgumentException(
@@ -97,7 +94,7 @@ final class BatchEventProcessor extends AbstractEventProcessor
         $this->sequencerBarrier = $sequenceBarrier;
         $this->sequence = new Sequence(SequencerInterface::INITIAL_CURSOR_VALUE);
         $this->eventHandler = $eventHandler;
-        //$this->exceptionHandler = new FatalExceptionHandler($logger);
+        $this->exceptionHandler = new FatalExceptionHandler('/tmp/disruptor-batchevents');
         $this->timeoutHandler = ($eventHandler instanceof TimeoutHandlerInterface) ? $eventHandler : null;
     }
 

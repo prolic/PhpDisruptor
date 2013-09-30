@@ -36,14 +36,7 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         $this->ringBuffer = RingBuffer::createMultiProducer(new StubEventFactory(), 16);
         $this->sequenceBarrier = $this->ringBuffer->newBarrier();
         $this->eventHandler = new EventHandler('PhpDisruptorTest\TestAsset\StubEvent');
-        $logger = new \Zend\Log\Logger(array(
-            'writers' => array(
-                'null' => array(
-                    'name' => 'Mock'
-                )
-            )
-        ));
-        $this->batchEventProcessor = new BatchEventProcessor('PhpDisruptorTest\TestAsset\StubEvent', $this->ringBuffer, $this->sequenceBarrier, $this->eventHandler, $logger);
+        $this->batchEventProcessor = new BatchEventProcessor('PhpDisruptorTest\TestAsset\StubEvent', $this->ringBuffer, $this->sequenceBarrier, $this->eventHandler);
     }
 
     public function testFoo()
