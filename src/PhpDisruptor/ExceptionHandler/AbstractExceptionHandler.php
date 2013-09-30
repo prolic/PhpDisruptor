@@ -15,17 +15,18 @@ abstract class AbstractExceptionHandler extends Stackable implements ExceptionHa
     /**
      * Constructor
      *
-     * @param string $path
+     * @param string $file
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct($path)
+    public function __construct($file)
     {
+        $path = dirname($file);
         if (!is_writable($path)) {
             throw new Exception\InvalidArgumentException(
                 'Invalid path given or not writeable'
             );
         }
-        $this->fh = fopen($path, 'ba+');
+        $this->fh = fopen($file, 'ba+');
     }
 
     public function run()
