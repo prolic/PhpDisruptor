@@ -40,8 +40,7 @@ final class BlockingWaitStrategy extends Stackable implements WaitStrategyInterf
         Sequence $cursor,
         Sequence $dependentSequence,
         SequenceBarrierInterface $barrier
-    )
-    {
+    ) {
         if (($availableSequence = $cursor->get()) < $sequence) {
             Mutex::lock($this->mutex);
             try {

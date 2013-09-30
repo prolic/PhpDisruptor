@@ -132,7 +132,7 @@ final class WorkerPool extends AbstractAtomicStackable implements EventClassCapa
      * @return RingBuffer
      * @throws Exception\InvalidArgumentException
      */
-    public function start(ExecutorInterface $executor)
+    public function start(ExecutorInterface $executor) // @todo: refactor !!! we have no executor interface !!
     {
         if (!$this->casMember('started', false, true)) {
             throw new Exception\InvalidArgumentException(
