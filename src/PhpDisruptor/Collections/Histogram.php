@@ -309,7 +309,7 @@ final class Histogram extends Stackable
      *
      * @return int the upper bound for 99.99% of observations
      */
-    public function  getFourNinesUpperBound()
+    public function getFourNinesUpperBound()
     {
         return $this->getUpperBoundForFactor(0.9999);
     }
