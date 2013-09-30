@@ -10,4 +10,8 @@ final class TestEvent extends Stackable
     {
         return 'Test Event';
     }
+
+    public function run()
+    {
+    }
 }

@@ -21,4 +21,8 @@ final class TestEventFactory extends Stackable implements EventFactoryInterface
     {
         return new TestEvent();
     }
+
+    public function run()
+    {
+    }
 }
