@@ -6,7 +6,6 @@ use PhpDisruptor\EventTranslatorInterface;
 
 class EventTranslator extends \Stackable implements EventTranslatorInterface
 {
-
     public function run()
     {
     }
@@ -33,5 +32,4 @@ class EventTranslator extends \Stackable implements EventTranslatorInterface
     {
         $event->result  = join('', $args) . '-' . $sequence;
     }
-
 }

@@ -6,7 +6,6 @@ use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\LifecycleAwareInterface;
 
-
 class LifecycleAwareEventHandler implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**

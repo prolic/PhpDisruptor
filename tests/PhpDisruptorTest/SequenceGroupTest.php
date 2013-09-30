@@ -121,22 +121,22 @@ class SequenceGroupTest extends TestCase
         $this->assertTrue($groupSequence->equals($sequence));
     }
 
-//    /*
-//    public function testShouldAddWhileRunning()
-//    {
-//        RingBuffer<TestEvent> ringBuffer = RingBuffer.createSingleProducer(TestEvent.EVENT_FACTORY, 32);
-//        final Sequence sequenceThree = new Sequence(3L);
-//        final Sequence sequenceSeven = new Sequence(7L);
-//        final SequenceGroup sequenceGroup = new SequenceGroup();
-//        sequenceGroup.add(sequenceSeven);
-//
-//        for (int i = 0; i < 11; i++)
-//        {
-//            ringBuffer.publish(ringBuffer.next());
-//        }
-//
-//        sequenceGroup.addWhileRunning(ringBuffer, sequenceThree);
-//        assertThat(sequenceThree.get(), is(10L));
-//    }
-//    */
+    //    /*
+    //    public function testShouldAddWhileRunning()
+    //    {
+    //        RingBuffer<TestEvent> ringBuffer = RingBuffer.createSingleProducer(TestEvent.EVENT_FACTORY, 32);
+    //        final Sequence sequenceThree = new Sequence(3L);
+    //        final Sequence sequenceSeven = new Sequence(7L);
+    //        final SequenceGroup sequenceGroup = new SequenceGroup();
+    //        sequenceGroup.add(sequenceSeven);
+    //
+    //        for (int i = 0; i < 11; i++)
+    //        {
+    //            ringBuffer.publish(ringBuffer.next());
+    //        }
+    //
+    //        sequenceGroup.addWhileRunning(ringBuffer, sequenceThree);
+    //        assertThat(sequenceThree.get(), is(10L));
+    //    }
+    //    */
 }
