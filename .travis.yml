@@ -1,0 +1,22 @@
+language: php
+
+php:
+  - 5.3.3
+  - 5.3
+  - 5.4
+  - 5.5
+
+before_script:
+  - pecl install uuid
+  - pecl install pthreads-0.0.45
+  - echo "extension = uuid.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - echo "extension = pthreads.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - composer self-update
+  - composer update --prefer-source --dev
+
+script:
+  - ./vendor/bin/phpunit --coverage-clover ./build/logs/clover.xml
+  - ./vendor/bin/phpcs --standard=PSR2 ./src/ ./tests/
+
+after_script:
+  - php vendor/bin/coveralls -v
