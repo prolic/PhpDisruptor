@@ -49,26 +49,26 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
      * @todo: failing !!!
      */
 
-//    public function testShouldCallMethodsInLifecycleOrder()
-//    {
-//        $this->assertEquals(-1, $this->batchEventProcessor->getSequence()->get());
-//
-//        $this->ringBuffer->publish($this->ringBuffer->next());
-//        //$this->ringBuffer->publish($this->ringBuffer->next());
-//        //$this->ringBuffer->publish($this->ringBuffer->next());
-//
-//
-//        if ($this->batchEventProcessor->start()) {
-//            $this->batchEventProcessor->shutdown();
-//        }
-//
-//
-//        //$thread = new TestThread($this->batchEventProcessor);
-//        //$thread->start();
-//        //time_nanosleep(0, 15000);
-//        //sleep(1);
-//
-//        $this->batchEventProcessor->halt();
-//        //$thread->join();
-//    }
+    //    public function testShouldCallMethodsInLifecycleOrder()
+    //    {
+    //        $this->assertEquals(-1, $this->batchEventProcessor->getSequence()->get());
+    //
+    //        $this->ringBuffer->publish($this->ringBuffer->next());
+    //        //$this->ringBuffer->publish($this->ringBuffer->next());
+    //        //$this->ringBuffer->publish($this->ringBuffer->next());
+    //
+    //
+    //        if ($this->batchEventProcessor->start()) {
+    //            $this->batchEventProcessor->shutdown();
+    //        }
+    //
+    //
+    //        //$thread = new TestThread($this->batchEventProcessor);
+    //        //$thread->start();
+    //        //time_nanosleep(0, 15000);
+    //        //sleep(1);
+    //
+    //        $this->batchEventProcessor->halt();
+    //        //$thread->join();
+    //    }
 }
