@@ -95,46 +95,46 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
     /**
      * @todo: failing !!!
      */
-//    public function testShouldInterruptDuringBusySpin()
-//    {
-//        $expectedNumberMessages = 10;
-//        $this->fillRingBuffer($expectedNumberMessages);
-//
-//        $sequence1 = new Sequence(8);
-//        $sequence2 = new Sequence(8);
-//        $sequence3 = new Sequence(8);
-//
-//        $this->eventProcessor1->setSequence($sequence1->get());
-//        $this->eventProcessor2->setSequence($sequence2->get());
-//        $this->eventProcessor3->setSequence($sequence3->get());
-//
-//        $processors = new StackableArray();
-//        $processors[] = $this->eventProcessor1;
-//        $processors[] = $this->eventProcessor2;
-//        $processors[] = $this->eventProcessor3;
-//
-//        $sequenceBarrier = $this->ringBuffer->newBarrier(
-//            Util::getSequencesFor($processors)
-//        );
-//
-//        $alerted = new StackableArray();
-//        $alerted[0] = false;
-//
-//        var_dump(get_class($this));
-//        var_dump(gettype($this));
-//
-//        $thread = new SequenceBarrierThread($sequenceBarrier, $expectedNumberMessages, $alerted);
-//        $thread->start();
-//
-//        var_dump(get_class($this));
-//        var_dump(gettype($this));
-//        die;
-//        sleep(3);
-//
-//        $thread->join();
-//
-//        $this->assertTrue($alerted[0], 'Thread was not interrupted');
-//    }
+    //    public function testShouldInterruptDuringBusySpin()
+    //    {
+    //        $expectedNumberMessages = 10;
+    //        $this->fillRingBuffer($expectedNumberMessages);
+    //
+    //        $sequence1 = new Sequence(8);
+    //        $sequence2 = new Sequence(8);
+    //        $sequence3 = new Sequence(8);
+    //
+    //        $this->eventProcessor1->setSequence($sequence1->get());
+    //        $this->eventProcessor2->setSequence($sequence2->get());
+    //        $this->eventProcessor3->setSequence($sequence3->get());
+    //
+    //        $processors = new StackableArray();
+    //        $processors[] = $this->eventProcessor1;
+    //        $processors[] = $this->eventProcessor2;
+    //        $processors[] = $this->eventProcessor3;
+    //
+    //        $sequenceBarrier = $this->ringBuffer->newBarrier(
+    //            Util::getSequencesFor($processors)
+    //        );
+    //
+    //        $alerted = new StackableArray();
+    //        $alerted[0] = false;
+    //
+    //        var_dump(get_class($this));
+    //        var_dump(gettype($this));
+    //
+    //        $thread = new SequenceBarrierThread($sequenceBarrier, $expectedNumberMessages, $alerted);
+    //        $thread->start();
+    //
+    //        var_dump(get_class($this));
+    //        var_dump(gettype($this));
+    //        die;
+    //        sleep(3);
+    //
+    //        $thread->join();
+    //
+    //        $this->assertTrue($alerted[0], 'Thread was not interrupted');
+    //    }
 
     public function testShouldWaitForWorkCompleteWhereCompleteWorkThresholdIsBehind()
     {
