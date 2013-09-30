@@ -12,8 +12,6 @@ install:
 before_script:
   - printf "\n" | pecl install uuid
   - pecl install pthreads-0.0.45
-  - echo "extension = uuid.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - echo "extension = pthreads.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer self-update
   - composer update --prefer-source --dev
 

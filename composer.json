@@ -18,7 +18,6 @@
         "marc-mabe/php-enum": "dev-master"
     },
     "require-dev": {
-        "zendframework/zendframework": ">=2.2.1",
         "phpunit/phpunit": ">=3.7",
         "phpmd/phpmd": "1.5.*",
         "squizlabs/php_codesniffer": "1.4.*",
