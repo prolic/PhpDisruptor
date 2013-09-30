@@ -17,6 +17,8 @@ Requirements
 ------------
 
 - PHP 5.3 ZTS
-- pthreads (latest)
+- ext-pthreads 0.0.45
+- ext-uuid 1.0.3
+- MabeEnum
 
 Under construction...
