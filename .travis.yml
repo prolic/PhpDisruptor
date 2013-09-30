@@ -7,7 +7,7 @@ php:
   - 5.5
 
 install:
-  - apt-get install uuid-dev -y
+  - sudo apt-get install uuid-dev -y
 
 before_script:
   - printf "\n" | pecl install uuid
