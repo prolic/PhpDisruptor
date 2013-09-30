@@ -20,7 +20,7 @@ abstract class AbstractExceptionHandler extends Stackable implements ExceptionHa
      */
     public function __construct($path)
     {
-        if (!is_file($path) || !is_writable($path)) {
+        if (!is_writable($path)) {
             throw new Exception\InvalidArgumentException(
                 'Invalid path given or not writeable'
             );
