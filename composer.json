@@ -1,7 +1,7 @@
 {
     "name": "prolic/php-disruptor",
     "type": "library",
-    "description": "The PHP Disruptor - Port of LMAX Disruptor",
+    "description": "A High Performance Inter-Thread Messaging Library",
     "keywords": ["disruptor" , "php"],
     "homepage": "https://github.com/prolic/PhpDisruptor",
     "license": "MIT",
@@ -15,7 +15,6 @@
         "php": ">=5.3.3",
         "ext-uuid": ">=1.0.3",
         "ext-pthreads": "*",
-        "zendframework/zend-cache": ">=2.2.1",
         "marc-mabe/php-enum": "dev-master"
     },
     "require-dev": {
