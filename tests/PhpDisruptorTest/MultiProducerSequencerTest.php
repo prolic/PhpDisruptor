@@ -20,5 +20,5 @@ class MultiProducerSequencerTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($publisher->isAvailable(4));
         $this->assertTrue($publisher->isAvailable(5));
         $this->assertFalse($publisher->isAvailable(6));
-    }    
+    }
 }
