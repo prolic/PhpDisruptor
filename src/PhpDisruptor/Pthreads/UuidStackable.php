@@ -2,6 +2,8 @@
 
 namespace PhpDisruptor\Pthreads;
 
+use Stackable;
+
 class UuidStackable extends Stackable
 {
     /**
