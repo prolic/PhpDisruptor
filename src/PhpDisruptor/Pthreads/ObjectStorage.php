@@ -2,20 +2,40 @@
 
 namespace PhpDisruptor\Pthreads;
 
-use Countable;
 use Iterator;
-use Serializable;
-use Traversable;
+use Stackable;
 
-class ObjectStorage implements  Countable, Iterator, Traversable
+class ObjectStorage extends Stackable
 {
+    public $data;
+
+    public $info;
+
+    public $position;
+
+    public function __construct()
+    {
+        $this->data = new StackableArray();
+        $this->info = new StackableArray();
+        $this->position = 0;
+    }
+
+    public function run()
+    {
+    }
+
     /**
      * Adds an object in the storage
      *
      * @param object $object
+     * @param mixed $data [optional]
      * @return void
      */
-    public function attach ($object) {}
+    public function attach($object, $data = null)
+    {
+        $this->data[] = $object;
+        $this->info[] = $data;
+    }
 
     /**
      * Removes an object from the storage
@@ -23,7 +43,15 @@ class ObjectStorage implements  Countable, Iterator, Traversable
      * @param object $object
      * @return void
      */
-    public function detach ($object) {}
+    public function detach($object)
+    {
+        foreach ($this->data as $key => $value) {
+            if ($value === $object) {
+                unset($this->data[$key]);
+                unset($this->info[$key]);
+            }
+        }
+    }
 
     /**
      * Checks if the storage contains a specific object
@@ -31,7 +59,15 @@ class ObjectStorage implements  Countable, Iterator, Traversable
      * @param object $object
      * @return bool true if the object is in the storage, false otherwise.
      */
-    public function contains ($object) {}
+    public function contains($object)
+    {
+        foreach ($this->data as $value) {
+            if ($value === $object) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * Adds all objects from another storage
@@ -39,7 +75,12 @@ class ObjectStorage implements  Countable, Iterator, Traversable
      * @param ObjectStorage $storage
      * @return void
      */
-    public function addAll (self $storage) {}
+    public function addAll(self $storage)
+    {
+        foreach ($storage->data as $object) {
+            $this->attach($object);
+        }
+    }
 
     /**
      * Removes objects contained in another storage from the current storage
@@ -47,7 +88,17 @@ class ObjectStorage implements  Countable, Iterator, Traversable
      * @param ObjectStorage $storage
      * @return void
      */
-    public function removeAll (self $storage) {}
+    public function removeAll(self $storage)
+    {
+        foreach ($this->data as $key => $value) {
+            foreach ($storage->data as $object) {
+                if ($object === $value) {
+                    unset($this->data[$key]);
+                    unset($this->info[$key]);
+                }
+            }
+        }
+    }
 
     /**
      * Removes all objects except for those contained in another storage from the current storage
@@ -55,47 +106,38 @@ class ObjectStorage implements  Countable, Iterator, Traversable
      * @param ObjectStorage $storage
      * @return void
      */
-    public function removeAllExcept (ObjectStorage $storage) {}
+    public function removeAllExcept(ObjectStorage $storage)
+    {
+        foreach ($this->data as $key => $value) {
+            foreach ($storage->data as $object) {
+                if ($object !== $value) {
+                    unset($this->data[$key]);
+                    unset($this->info[$key]);
+                }
+            }
+        }
+    }
 
     /**
-     * Returns the number of objects in the storage
+     * Returns the data associated with the current iterator entry
      *
-     * @return int The number of objects in the storage.
+     * @return mixed The data associated with the current iterator position.
      */
-    public function count () {}
+    public function getInfo()
+    {
+        $current = $this->current();
+        return $this->info[$current];
+    }
 
     /**
-     * Rewind the iterator to the first storage element
+     * Sets the data associated with the current iterator entry
      *
+     * @param mixed $data
      * @return void
      */
-    public function rewind () {}
-
-    /**
-     * Returns if the current iterator entry is valid
-     *
-     * @return bool true if the iterator entry is valid, false otherwise.
-     */
-    public function valid () {}
-
-    /**
-     * Returns the index at which the iterator currently is
-     *
-     * @return int The index corresponding to the position of the iterator.
-     */
-    public function key () {}
-
-    /**
-     * Returns the current storage entry
-     *
-     * @return object The object at the current iterator position.
-     */
-    public function current () {}
-
-    /**
-     * Move to the next entry
-     *
-     * @return void
-     */
-    public function next () {}
+    public function setInfo ($data)
+    {
+        $current = $this->current();
+        $this->info[$current] = $data;
+    }
 }
