@@ -10,9 +10,12 @@ class SleepingEventHandler extends Stackable implements EventHandlerInterface
 {
     public $eventClass;
 
+    public $hash;
+
     public function __construct($eventClass)
     {
         $this->eventClass = $eventClass;
+        $this->hash = uuid_create();
     }
 
     /**
@@ -41,5 +44,11 @@ class SleepingEventHandler extends Stackable implements EventHandlerInterface
 
     public function run()
     {
+    }
+
+    public function equals(self $other)
+    {
+        $result = (int) uuid_compare($this->hash, $other->hash);
+        return 0 == $result;
     }
 }
