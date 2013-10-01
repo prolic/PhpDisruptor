@@ -3,8 +3,8 @@
 namespace PhpDisruptor\Pthreads;
 
 use Stackable;
-// @todo: make a trait of it !!!
-abstract class AbstractAtomicStackable extends Stackable
+
+trait AtomicStackableTrait
 {
     public function run()
     {
