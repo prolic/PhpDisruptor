@@ -9,6 +9,8 @@ use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
+use PhpDisruptor\Pthreads\ObjectStorage;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkerPool;
@@ -21,12 +23,12 @@ use Stackable;
 class ConsumerRepository extends Stackable implements EventClassCapableInterface, IteratorAggregate
 {
     /**
-     * @var SplObjectStorage
+     * @var ObjectStorage
      */
     public $eventProcessorInfoByEventHandler;
 
     /**
-     * @var SplObjectStorage
+     * @var ObjectStorage
      */
     public $eventProcessorInfoBySequence;
 
@@ -48,9 +50,9 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
     public function __construct(EventFactoryInterface $eventFactory)
     {
         $this->eventClass = $eventFactory->getEventClass();
-        $this->eventProcessorInfoByEventHandler = new SplObjectStorage();
-        $this->eventProcessorInfoBySequence = new SplObjectStorage();
-        $this->consumerInfos = array();
+        $this->eventProcessorInfoByEventHandler = new ObjectStorage();
+        $this->eventProcessorInfoBySequence = new ObjectStorage();
+        $this->consumerInfos = new StackableArray();
     }
 
     public function run()
@@ -66,11 +68,11 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
     }
 
     /**
-     * @return ArrayIterator
+     * @return ObjectStorage
      */
     public function getIterator()
     {
-        return new ArrayIterator($this->consumerInfos);
+        return $this->consumerInfos;
     }
 
     /**
@@ -95,7 +97,7 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
         }
 
         $consumerInfo = new EventProcessorInfo($eventProcessor, $handler, $barrier);
-        $this->eventProcessorInfoBySequence->offsetSet($eventProcessor->getSequence(), $consumerInfo);
+        $this->eventProcessorInfoBySequence->attach($eventProcessor->getSequence(), $consumerInfo);
         $this->consumerInfos[] = $consumerInfo;
 
         if (null !== $handler) {
@@ -105,7 +107,7 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
                     . $this->getEventClass() . '", given "' . $handler->getEventClass() . '"'
                 );
             }
-            $this->eventProcessorInfoByEventHandler->offsetSet($handler, $consumerInfo);
+            $this->eventProcessorInfoByEventHandler->attach($handler, $consumerInfo);
         }
     }
 
@@ -120,7 +122,7 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
         $workerPoolInfo = new WorkerPoolInfo($workerPool, $sequenceBarrier);
         $this->consumerInfos[] = $workerPoolInfo;
         foreach ($workerPool->getWorkerSequences() as $sequence) {
-            $this->eventProcessorInfoBySequence->offsetSet($sequence, $workerPoolInfo);
+            $this->eventProcessorInfoBySequence->attach($sequence, $workerPoolInfo);
         }
     }
 
@@ -133,7 +135,7 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
     public function getLastSequenceInChain($includeStopped)
     {
         $includeStopped = (bool) $includeStopped;
-        $lastSequences = array();
+        $lastSequences = new StackableArray();
         foreach ($this->consumerInfos as $consumerInfo) {
             if (($includeStopped || $consumerInfo->isRunning()) && $consumerInfo->isEndOfChain()) {
                 $sequences = $consumerInfo->getSequences();
@@ -215,7 +217,11 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
      */
     public function _getEventProcessorInfo(EventHandlerInterface $handler) // public for pthreads reasons
     {
-        return $this->eventProcessorInfoByEventHandler->offsetGet($handler);
+        foreach ($this->eventProcessorInfoByEventHandler->data as $key => $value) {
+            if ($handler->equals($value)) {
+                return $this->eventProcessorInfoByEventHandler->info[$key];
+            }
+        }
     }
 
     /**
@@ -226,6 +232,10 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
      */
     public function _getEventProcessorInfoBySequence(Sequence $barrierEventProcessor) // public for pthreads reasons
     {
-        return $this->eventProcessorInfoBySequence->offsetGet($barrierEventProcessor);
+        foreach ($this->eventProcessorInfoBySequence->data as $key => $value) {
+            if ($barrierEventProcessor->equals($value)) {
+                return $this->eventProcessorInfoBySequence->info[$key];
+            }
+        }
     }
 }
