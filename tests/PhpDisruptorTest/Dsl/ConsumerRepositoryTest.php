@@ -72,6 +72,6 @@ class ConsumerRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testShouldGetBarrierByHandler()
     {
         $this->consumerRepository->addEventProcessor($this->eventProcessor1, $this->handler1, $this->barrier1);
-        $this->assertSame($this->barrier1, $this->consumerRepository->getBarrierFor($this->handler1));
+        $this->assertTrue($this->barrier1->equals($this->consumerRepository->getBarrierFor($this->handler1)));
     }
 }
