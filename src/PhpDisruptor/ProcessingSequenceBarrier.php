@@ -34,6 +34,11 @@ final class ProcessingSequenceBarrier extends Stackable implements SequenceBarri
     public $sequencer;
 
     /**
+     * @var string
+     */
+    public $hash;
+
+    /**
      * Constructor
      *
      * @param SequencerInterface $sequencer
@@ -56,6 +61,13 @@ final class ProcessingSequenceBarrier extends Stackable implements SequenceBarri
             $this->dependentSequence = new FixedSequenceGroup($dependentSequences);
         }
         $this->alerted = false;
+        $this->hash = uuid_create();
+    }
+
+    public function equals(self $other)
+    {
+        $result = (int) uuid_compare($this->hash, $other->hash);
+        return 0 == $result;
     }
 
     public function run()
