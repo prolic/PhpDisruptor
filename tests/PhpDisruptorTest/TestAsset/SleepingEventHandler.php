@@ -4,9 +4,9 @@ namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
-use Stackable;
+use PhpDisruptor\Pthreads\UuidStackable;
 
-class SleepingEventHandler extends Stackable implements EventHandlerInterface
+class SleepingEventHandler extends UuidStackable implements EventHandlerInterface
 {
     public $eventClass;
 
@@ -14,8 +14,8 @@ class SleepingEventHandler extends Stackable implements EventHandlerInterface
 
     public function __construct($eventClass)
     {
+        parent::__construct();
         $this->eventClass = $eventClass;
-        $this->hash = uuid_create();
     }
 
     /**
@@ -40,15 +40,5 @@ class SleepingEventHandler extends Stackable implements EventHandlerInterface
     public function onEvent($event, $sequence, $endOfBatch)
     {
         time_nanosleep(0, 100000000);
-    }
-
-    public function run()
-    {
-    }
-
-    public function equals(self $other)
-    {
-        $result = (int) uuid_compare($this->hash, $other->hash);
-        return 0 == $result;
     }
 }
