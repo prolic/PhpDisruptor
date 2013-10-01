@@ -3,10 +3,10 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Pthreads\StackableArray;
+use PhpDisruptor\Pthreads\UuidStackable;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
-use Stackable;
 
-final class ProcessingSequenceBarrier extends Stackable implements SequenceBarrierInterface
+final class ProcessingSequenceBarrier extends UuidStackable implements SequenceBarrierInterface
 {
     /**
      * @var WaitStrategyInterface
@@ -52,6 +52,7 @@ final class ProcessingSequenceBarrier extends Stackable implements SequenceBarri
         Sequence $cursorSequence,
         StackableArray $dependentSequences
     ) {
+        parent::__construct();
         $this->sequencer = $sequencer;
         $this->waitStrategy = $waitStrategy;
         $this->cursorSequence = $cursorSequence;
@@ -61,17 +62,6 @@ final class ProcessingSequenceBarrier extends Stackable implements SequenceBarri
             $this->dependentSequence = new FixedSequenceGroup($dependentSequences);
         }
         $this->alerted = false;
-        $this->hash = uuid_create();
-    }
-
-    public function equals(self $other)
-    {
-        $result = (int) uuid_compare($this->hash, $other->hash);
-        return 0 == $result;
-    }
-
-    public function run()
-    {
     }
 
     /**
