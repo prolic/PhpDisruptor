@@ -2,13 +2,16 @@
 
 namespace PhpDisruptor;
 
-use PhpDisruptor\Pthreads\AbstractAtomicStackable;
+use PhpDisruptor\Pthreads\AtomicStackableTrait;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Util\Util;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
+use Stackable;
 
-abstract class AbstractSequencer extends AbstractAtomicStackable implements SequencerInterface
+abstract class AbstractSequencer extends Stackable implements SequencerInterface
 {
+    use AtomicStackableTrait;
+
     /**
      * @var int
      */

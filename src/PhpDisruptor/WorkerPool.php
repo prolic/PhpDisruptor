@@ -4,11 +4,14 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\EventProcessor\WorkProcessor;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
-use PhpDisruptor\Pthreads\AbstractAtomicStackable;
+use PhpDisruptor\Pthreads\AtomicStackableTrait;
 use PhpDisruptor\Util\Util;
+use Stackable;
 
-final class WorkerPool extends AbstractAtomicStackable implements EventClassCapableInterface
+final class WorkerPool extends Stackable implements EventClassCapableInterface
 {
+    use AtomicStackableTrait;
+
     /**
      * @var bool
      */

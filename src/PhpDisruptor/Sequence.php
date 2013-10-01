@@ -2,10 +2,14 @@
 
 namespace PhpDisruptor;
 
-use PhpDisruptor\Pthreads\AbstractAtomicStackable;
+use PhpDisruptor\Pthreads\AtomicStackableTrait;
+use PhpDisruptor\Pthreads\UuidStackable;
 
-class Sequence extends AbstractAtomicStackable
+class Sequence extends UuidStackable
 {
+
+    use AtomicStackableTrait;
+
     const INITIAL_VALUE = -1;
 
     /**
@@ -25,8 +29,8 @@ class Sequence extends AbstractAtomicStackable
      */
     public function __construct($initialValue = self::INITIAL_VALUE)
     {
+        parent::__construct();
         $this->set($initialValue);
-        $this->hash = uuid_create();
     }
 
     /**
@@ -89,20 +93,6 @@ class Sequence extends AbstractAtomicStackable
         } while (!$this->compareAndSwap($currentValue, $newValue));
 
         return $newValue;
-    }
-
-    /**
-     * Compares two sequences by its internal hashes
-     *
-     * because of php/pthreads limitations we don't have object identity between threads
-     *
-     * @param Sequence $other
-     * @return bool
-     */
-    public function equals(Sequence $other)
-    {
-        $result = (int) uuid_compare($this->hash, $other->hash);
-        return 0 == $result;
     }
 
     /**
