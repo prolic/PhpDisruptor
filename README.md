@@ -16,7 +16,7 @@ Port of the [LMAX Disruptor](https://github.com/LMAX-Exchange/disruptor)
 Requirements
 ------------
 
-- PHP 5.3 ZTS
+- PHP 5.4 ZTS
 - ext-pthreads 0.0.45
 - ext-uuid 1.0.3
 - MabeEnum
