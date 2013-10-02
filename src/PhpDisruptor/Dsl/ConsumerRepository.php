@@ -20,7 +20,7 @@ use Stackable;
 /**
 * Provides a repository mechanism to associate EventHandlers with EventProcessors
 */
-class ConsumerRepository extends Stackable implements EventClassCapableInterface, IteratorAggregate
+class ConsumerRepository extends Stackable implements EventClassCapableInterface
 {
     /**
      * @var ObjectStorage
@@ -68,9 +68,9 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
     }
 
     /**
-     * @return ObjectStorage
+     * @return ConsumerInfoInterface[]
      */
-    public function getIterator()
+    public function getConsumerInfos()
     {
         return $this->consumerInfos;
     }

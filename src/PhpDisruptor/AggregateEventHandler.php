@@ -3,9 +3,9 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Pthreads\StackableArray;
-use Stackable;
+use PhpDisruptor\Pthreads\UuidStackable;
 
-final class AggregateEventHandler extends Stackable implements EventHandlerInterface, LifecycleAwareInterface
+final class AggregateEventHandler extends UuidStackable implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**
      * @var string
@@ -26,6 +26,8 @@ final class AggregateEventHandler extends Stackable implements EventHandlerInter
      */
     public function __construct($eventClass, StackableArray $eventHandlers)
     {
+        parent::__construct();
+
         if (!class_exists($eventClass)) {
             throw new Exception\InvalidArgumentException(
                 'event class "' . $eventClass . '" does not exist'
@@ -44,10 +46,6 @@ final class AggregateEventHandler extends Stackable implements EventHandlerInter
             }
         }
         $this->eventHandlers = $eventHandlers;
-    }
-
-    public function run()
-    {
     }
 
     /**
