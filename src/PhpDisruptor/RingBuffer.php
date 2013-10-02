@@ -345,7 +345,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    private function checkTranslator(EventTranslatorInterface $translator)
+    public function _checkTranslator(EventTranslatorInterface $translator) // private !! only public for pthreads reasons
     {
         if ($translator->getEventClass() != $this->getEventClass()) {
             throw new Exception\InvalidArgumentException(
@@ -360,7 +360,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    private function checkTranslators(array $translators)
+    public function _checkTranslators(array $translators) // private !! only public for pthreads reasons
     {
         foreach ($translators as $translator) {
             if ($translator->getEventClass() != $this->getEventClass()) {
@@ -385,8 +385,8 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      */
     public function publishEvent(EventTranslatorInterface $translator, array $args = array())
     {
-        $this->checkTranslator($translator);
-        $this->translateAndPublish($translator, $this->sequencer->next(), $args);
+        $this->_checkTranslator($translator);
+        $this->_translateAndPublish($translator, $this->sequencer->next(), $args);
     }
 
     /**
@@ -404,10 +404,10 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      */
     public function tryPublishEvent(EventTranslatorInterface $translator, array $args = array())
     {
-        $this->checkTranslator($translator);
+        $this->_checkTranslator($translator);
         try {
             $sequence = $this->sequencer->tryNext();
-            $this->translateAndPublish($translator, $sequence, $args);
+            $this->_translateAndPublish($translator, $sequence, $args);
             return true;
         } catch (Exception\InsufficientCapacityException $e) {
             return false;
@@ -429,17 +429,17 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      */
     public function publishEvents(array $translators, array $args = array(), $batchStartsAt = 0, $batchSize = 0)
     {
-        $this->checkTranslators($translators);
-        $batchSize = $this->calcBatchSize($batchSize, $translators, $args);
+        $this->_checkTranslators($translators);
+        $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
         if (empty($args)) {
-            $this->checkTranslatorsBounds($translators, $batchStartsAt, $batchSize);
+            $this->_checkTranslatorsBounds($translators, $batchStartsAt, $batchSize);
         } else {
-            $this->checkArgumentsBounds($args, $batchStartsAt, $batchSize);
+            $this->_checkArgumentsBounds($args, $batchStartsAt, $batchSize);
         }
 
         $finalSequence = $this->sequencer->next($batchSize);
-        $this->translateAndPublishBatch($translators, $finalSequence, $args, $batchStartsAt, $batchSize);
+        $this->_translateAndPublishBatch($translators, $finalSequence, $args, $batchStartsAt, $batchSize);
     }
 
     /**
@@ -448,7 +448,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param array $args
      * @return int
      */
-    private function calcBatchSize($batchSize, array $translators, array $args)
+    public function _calcBatchSize($batchSize, array $translators, array $args) // private !! only public for pthreads reasons
     {
         if (0 != $batchSize) {
             return $batchSize;
@@ -477,18 +477,18 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      */
     public function tryPublishEvents(array $translators, array $args = array(), $batchStartsAt = 0, $batchSize = null)
     {
-        $this->checkTranslators($translators);
-        $batchSize = $this->calcBatchSize($batchSize, $translators, $args);
+        $this->_checkTranslators($translators);
+        $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
         if (empty($args)) {
-            $this->checkTranslatorsBounds($translators, $batchStartsAt, $batchSize);
+            $this->_checkTranslatorsBounds($translators, $batchStartsAt, $batchSize);
         } else {
-            $this->checkArgumentsBounds($args, $batchStartsAt, $batchSize);
+            $this->_checkArgumentsBounds($args, $batchStartsAt, $batchSize);
         }
 
         try {
             $finalSequence = $this->sequencer->tryNext($batchSize);
-            $this->translateAndPublishBatch($translators, $finalSequence, $args, $batchStartsAt, $batchSize);
+            $this->_translateAndPublishBatch($translators, $finalSequence, $args, $batchStartsAt, $batchSize);
             return true;
         } catch (Exception\InsufficientCapacityException $e) {
             return false;
@@ -524,10 +524,10 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param int $batchSize
      * @return void
      */
-    private function checkTranslatorsBounds(array $translators, $batchStartsAt, $batchSize)
+    public function _checkTranslatorsBounds(array $translators, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
-        $this->checkBatchSizing($batchStartsAt, $batchSize);
-        $this->batchOverRuns($translators, $batchStartsAt, $batchSize);
+        $this->_checkBatchSizing($batchStartsAt, $batchSize);
+        $this->_batchOverRuns($translators, $batchStartsAt, $batchSize);
     }
 
     /**
@@ -536,11 +536,11 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param int $batchSize
      * @return void
      */
-    private function checkArgumentsBounds(array $args, $batchStartsAt, $batchSize)
+    public function _checkArgumentsBounds(array $args, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
-        $this->checkBatchSizing($batchStartsAt, $batchSize);
+        $this->_checkBatchSizing($batchStartsAt, $batchSize);
         foreach ($args as $arg) {
-            $this->batchOverRuns($arg, $batchStartsAt, $batchSize);
+            $this->_batchOverRuns($arg, $batchStartsAt, $batchSize);
         }
     }
 
@@ -550,7 +550,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    private function checkBatchSizing($batchStartsAt, $batchSize)
+    public function _checkBatchSizing($batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
         if ($batchStartsAt < 0 || $batchSize < 0) {
             throw new Exception\InvalidArgumentException(
@@ -571,7 +571,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    private function batchOverRuns(array $args, $batchStartsAt, $batchSize)
+    public function _batchOverRuns(array $args, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
         if ($batchStartsAt + $batchSize > count($args)) {
             throw new Exception\InvalidArgumentException(
@@ -590,7 +590,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @return void
      * @throws \Exception
      */
-    private function translateAndPublish(EventTranslatorInterface $translator, $sequence, array $args = array())
+    public function _translateAndPublish(EventTranslatorInterface $translator, $sequence, array $args = array()) // private !! only public for pthreads reasons
     {
         try {
             $translator->translateTo($this->get($sequence), $sequence, $args);
@@ -612,7 +612,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @return void
      * @throws \Exception
      */
-    private function translateAndPublishBatch(
+    public function _translateAndPublishBatch( // private !! only public for pthreads reasons
         EventTranslatorInterface $translator,
         $batchStartsAt,
         $batchSize,

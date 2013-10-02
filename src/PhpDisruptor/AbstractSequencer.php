@@ -86,7 +86,7 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
      */
     public function getCursor()
     {
-        $this->cursor->get();
+        return $this->cursor->get();
     }
 
     /**

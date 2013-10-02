@@ -72,7 +72,6 @@ final class MultiProducerSequencer extends AbstractSequencer
         if ($wrapPoint > $cachedGatingSequence || $cachedGatingSequence > $cursorValue) {
             $minSequence = Util::getMinimumSequence($gatingSequences, $cursorValue);
             $this->gatingSequenceCache->set($minSequence);
-
             if ($wrapPoint > $minSequence) {
                 return false;
             }
@@ -134,7 +133,7 @@ final class MultiProducerSequencer extends AbstractSequencer
             $current = $this->cursor->get();
             $next = $current + $n;
 
-            if (!$this->hasAvailableCapacity($this->getSequences(), $n, $current)) {
+            if (!$this->_internalHasAvailableCapacity($this->getSequences(), $n, $current)) {
                 throw new Exception\InsufficientCapacityException('insufficient capacity');
             }
         } while (!$this->cursor->compareAndSwap($current, $next));
