@@ -110,4 +110,32 @@ class ConsumerRepositoryTest extends \PHPUnit_Framework_TestCase
         $eventFactory = new TestEventFactory();
         $this->consumerRepository->getEventProcessorFor(new SleepingEventHandler($eventFactory->getEventClass()));
     }
+
+    public function testShouldIterateAllEventProcessors()
+    {
+        $this->consumerRepository->addEventProcessor($this->eventProcessor1, $this->handler1, $this->barrier1);
+        $this->consumerRepository->addEventProcessor($this->eventProcessor2, $this->handler2, $this->barrier2);
+
+        $seen1 = false;
+        $seen2 = false;
+
+        foreach($this->consumerRepository->getConsumerInfos() as $info) {
+            if (!$seen1
+                && $info->getEventProcessor()->equals($this->eventProcessor1)
+                && $info->getHandler()->equals($this->handler1)
+            ) {
+                $seen1 = true;
+            } else if (!$seen2
+                && $info->getEventProcessor()->equals($this->eventProcessor2)
+                && $info->getHandler()->equals($this->handler2)
+            ) {
+                $seen2  = true;
+            } else {
+                $this->fail('Unexpected event processor info');
+            }
+        }
+
+        $this->assertTrue($seen1);
+        $this->assertTrue($seen2);
+    }
 }

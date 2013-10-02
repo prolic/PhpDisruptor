@@ -5,9 +5,9 @@ namespace PhpDisruptorTest\TestAsset;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\LifecycleAwareInterface;
-use Stackable;
+use PhpDisruptor\Pthreads\UuidStackable;
 
-class EventHandler extends Stackable implements EventHandlerInterface, LifecycleAwareInterface
+class EventHandler extends UuidStackable implements EventHandlerInterface, LifecycleAwareInterface
 {
     public $eventClass;
 
@@ -15,14 +15,11 @@ class EventHandler extends Stackable implements EventHandlerInterface, Lifecycle
 
     public function __construct($eventClass, $output = null)
     {
+        parent::__construct();
         $this->eventClass = $eventClass;
         if (null !== $output) {
             $this->output = $output;
         }
-    }
-
-    public function run()
-    {
     }
 
     /**

@@ -5,8 +5,9 @@ namespace PhpDisruptorTest\TestAsset;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\LifecycleAwareInterface;
+use PhpDisruptor\Pthreads\UuidStackable;
 
-class LifecycleAwareEventHandler implements EventHandlerInterface, LifecycleAwareInterface
+class LifecycleAwareEventHandler extends UuidStackable implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**
      * @inheritdoc
