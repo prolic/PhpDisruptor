@@ -26,6 +26,5 @@ class RingBufferThread extends \Thread
         foreach ($this->workers as $worker) {
             $worker->setSequence($sequence);
         }
-        $this->notify();
     }
 }

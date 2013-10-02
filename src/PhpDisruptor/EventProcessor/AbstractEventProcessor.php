@@ -3,9 +3,9 @@
 namespace PhpDisruptor\EventProcessor;
 
 use PhpDisruptor\Sequence;
-use Worker;
+use Stackable;
 
-abstract class AbstractEventProcessor extends Worker
+abstract class AbstractEventProcessor extends Stackable
 {
     /**
      * Get a reference to the Sequence being used by this EventProcessor.

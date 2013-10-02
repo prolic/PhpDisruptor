@@ -8,6 +8,7 @@ use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptorTest\TestAsset\EventHandler;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 use PhpDisruptorTest\TestAsset\TestThread;
+use PhpDisruptorTest\TestAsset\TestWorker;
 
 class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
 {
@@ -45,30 +46,28 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    /**
-     * @todo: failing !!!
-     */
+    public function testShouldCallMethodsInLifecycleOrder()
+    {
+        if (file_exists(sys_get_temp_dir() . '/testresult')) {
+            unlink(sys_get_temp_dir() . '/testresult');
+        }
 
-    //    public function testShouldCallMethodsInLifecycleOrder()
-    //    {
-    //        $this->assertEquals(-1, $this->batchEventProcessor->getSequence()->get());
-    //
-    //        $this->ringBuffer->publish($this->ringBuffer->next());
-    //        //$this->ringBuffer->publish($this->ringBuffer->next());
-    //        //$this->ringBuffer->publish($this->ringBuffer->next());
-    //
-    //
-    //        if ($this->batchEventProcessor->start()) {
-    //            $this->batchEventProcessor->shutdown();
-    //        }
-    //
-    //
-    //        //$thread = new TestThread($this->batchEventProcessor);
-    //        //$thread->start();
-    //        //time_nanosleep(0, 15000);
-    //        //sleep(1);
-    //
-    //        $this->batchEventProcessor->halt();
-    //        //$thread->join();
-    //    }
+        $thread = new TestWorker();
+        $thread->start();
+        $thread->stack($this->batchEventProcessor);
+
+        $this->assertEquals(-1, $this->batchEventProcessor->getSequence()->get());
+        $this->ringBuffer->publish($this->ringBuffer->next());
+
+        time_nanosleep(0, 45000);
+        $this->batchEventProcessor->halt();
+        $thread->shutdown();
+
+        $result = file_get_contents(sys_get_temp_dir() . '/testresult');
+        $this->assertEquals('PhpDisruptorTest\TestAsset\StubEvent-0-1', $result);
+
+        if (file_exists(sys_get_temp_dir() . '/testresult')) {
+            unlink(sys_get_temp_dir() . '/testresult');
+        }
+    }
 }

@@ -6,6 +6,8 @@ use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Pthreads\UuidStackable;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 
+require_once __DIR__ . '/Exception/AlertException.php'; // @todo: why is this required ???
+
 final class ProcessingSequenceBarrier extends UuidStackable implements SequenceBarrierInterface
 {
     /**

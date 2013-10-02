@@ -46,7 +46,9 @@ class EventHandler extends UuidStackable implements EventHandlerInterface, Lifec
         if (null !== $this->output) {
             echo $this->output;
         } else {
-            echo get_class($event) . '-' . $sequence . '-' . (string) (int) $endOfBatch;
+            $f = fopen(sys_get_temp_dir() . '/testresult', 'a+b');
+            fwrite($f, get_class($event) . '-' . $sequence . '-' . (string) (int) $endOfBatch);
+            fclose($f);
         }
     }
 
