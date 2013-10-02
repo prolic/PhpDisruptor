@@ -2,22 +2,28 @@
 
 namespace PhpDisruptor\Pthreads;
 
-use Iterator;
+use PhpDisruptor\Pthreads\UuidStackable;
 use Stackable;
 
 class ObjectStorage extends Stackable
 {
+    /**
+     * @var StackableArray
+     */
     public $data;
 
+    /**
+     * @var StackableArray
+     */
     public $info;
 
-    public $position;
-
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->data = new StackableArray();
         $this->info = new StackableArray();
-        $this->position = 0;
     }
 
     public function run()
@@ -27,11 +33,11 @@ class ObjectStorage extends Stackable
     /**
      * Adds an object in the storage
      *
-     * @param object $object
+     * @param UuidStackable $object
      * @param mixed $data [optional]
      * @return void
      */
-    public function attach($object, $data = null)
+    public function attach(UuidStackable $object, $data = null)
     {
         $this->data[] = $object;
         $this->info[] = $data;
@@ -40,10 +46,10 @@ class ObjectStorage extends Stackable
     /**
      * Removes an object from the storage
      *
-     * @param object $object
+     * @param UuidStackable $object
      * @return void
      */
-    public function detach($object)
+    public function detach(UuidStackable $object)
     {
         foreach ($this->data as $key => $value) {
             if ($value === $object) {
@@ -56,10 +62,10 @@ class ObjectStorage extends Stackable
     /**
      * Checks if the storage contains a specific object
      *
-     * @param object $object
+     * @param UuidStackable $object
      * @return bool true if the object is in the storage, false otherwise.
      */
-    public function contains($object)
+    public function contains(UuidStackable $object)
     {
         foreach ($this->data as $value) {
             if ($value === $object) {
@@ -106,7 +112,7 @@ class ObjectStorage extends Stackable
      * @param ObjectStorage $storage
      * @return void
      */
-    public function removeAllExcept(ObjectStorage $storage)
+    public function removeAllExcept(self $storage)
     {
         foreach ($this->data as $key => $value) {
             foreach ($storage->data as $object) {
@@ -121,23 +127,32 @@ class ObjectStorage extends Stackable
     /**
      * Returns the data associated with the current iterator entry
      *
+     * @param UuidStackable $object
      * @return mixed The data associated with the current iterator position.
      */
-    public function getInfo()
+    public function getInfo(UuidStackable $object)
     {
-        $current = $this->current();
-        return $this->info[$current];
+        foreach ($this->data as $key => $value) {
+            if ($object->equals($value)) {
+                return $this->info[$key];
+            }
+        }
     }
 
     /**
      * Sets the data associated with the current iterator entry
      *
+     * @param UuidStackable $object
      * @param mixed $data
      * @return void
      */
-    public function setInfo ($data)
+    public function setInfo(UuidStackable $object, $data)
     {
-        $current = $this->current();
-        $this->info[$current] = $data;
+        foreach ($this->data as $key => $value) {
+            if ($object->equals($value)) {
+                $this->info[$key] = $data;
+                break;
+            }
+        }
     }
 }

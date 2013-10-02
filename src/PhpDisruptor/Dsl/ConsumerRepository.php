@@ -182,7 +182,7 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
      * @param Sequence[] $barrierEventProcessors
      * @throws Exception\InvalidArgumentException
      */
-    public function unMarkEventProcessorsAsEndOfChain(array $barrierEventProcessors)
+    public function unMarkEventProcessorsAsEndOfChain(StackableArray $barrierEventProcessors)
     {
         foreach ($barrierEventProcessors as $barrierEventProcessor) {
             if (!$barrierEventProcessor instanceof Sequence) {
@@ -190,7 +190,7 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
                     '$barrierEventProcessors must be an array of Sequence'
                 );
             }
-            $this->_getEventProcessorInfo($barrierEventProcessor)->markAsUsedInBarrier();
+            $this->_getEventProcessorInfoBySequence($barrierEventProcessor)->markAsUsedInBarrier();
         }
     }
 
