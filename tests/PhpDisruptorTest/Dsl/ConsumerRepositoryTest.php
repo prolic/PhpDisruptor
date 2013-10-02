@@ -5,6 +5,7 @@ namespace PhpDisruptorTest\Dsl;
 use PhpDisruptor\Dsl\ConsumerRepository;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\ProcessingSequenceBarrier;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
@@ -73,5 +74,40 @@ class ConsumerRepositoryTest extends \PHPUnit_Framework_TestCase
     {
         $this->consumerRepository->addEventProcessor($this->eventProcessor1, $this->handler1, $this->barrier1);
         $this->assertTrue($this->barrier1->equals($this->consumerRepository->getBarrierFor($this->handler1)));
+    }
+
+    public function testShouldReturnNullForBarrierWhenHandlerIsNotRegistered()
+    {
+        $this->assertNull($this->consumerRepository->getBarrierFor($this->handler1));
+    }
+
+    public function testShouldGetLastEventProcessorsInChain()
+    {
+        $this->consumerRepository->addEventProcessor($this->eventProcessor1, $this->handler1, $this->barrier1);
+        $this->consumerRepository->addEventProcessor($this->eventProcessor2, $this->handler2, $this->barrier2);
+
+        $data = new StackableArray();
+        $data[] = $this->eventProcessor2->getSequence();
+        $this->consumerRepository->unMarkEventProcessorsAsEndOfChain($data);
+
+        $lastEventProcessorsInChain = $this->consumerRepository->getLastSequenceInChain(true);
+        $this->assertEquals(1, count($lastEventProcessorsInChain));
+        $this->assertTrue($this->eventProcessor1->getSequence()->equals($lastEventProcessorsInChain[0]));
+    }
+
+    public function testShouldRetrieveEventProcessorForHandler()
+    {
+        $this->consumerRepository->addEventProcessor($this->eventProcessor1, $this->handler1, $this->barrier1);
+        $this->assertTrue($this->consumerRepository->getEventProcessorFor($this->handler1)->equals($this->eventProcessor1));
+    }
+
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The given event handler is not processing events
+     */
+    public function testShouldThrowExceptionWhenHandlerIsNotRegistered()
+    {
+        $eventFactory = new TestEventFactory();
+        $this->consumerRepository->getEventProcessorFor(new SleepingEventHandler($eventFactory->getEventClass()));
     }
 }
