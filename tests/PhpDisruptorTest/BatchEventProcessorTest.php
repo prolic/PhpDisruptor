@@ -70,4 +70,35 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
             unlink(sys_get_temp_dir() . '/testresult');
         }
     }
+
+    public function testShouldCallMethodsInLifecycleOrderForBatch()
+    {
+        if (file_exists(sys_get_temp_dir() . '/testresult')) {
+            unlink(sys_get_temp_dir() . '/testresult');
+        }
+
+        $this->ringBuffer->publish($this->ringBuffer->next());
+        $this->ringBuffer->publish($this->ringBuffer->next());
+        $this->ringBuffer->publish($this->ringBuffer->next());
+
+        $thread = new TestWorker();
+        $thread->start();
+        $thread->stack($this->batchEventProcessor);
+
+        time_nanosleep(0, 45000);
+        $this->batchEventProcessor->halt();
+        $thread->shutdown();
+
+        $result = file_get_contents(sys_get_temp_dir() . '/testresult');
+
+        $this->assertEquals(
+            'PhpDisruptorTest\TestAsset\StubEvent-0-0PhpDisruptorTest\TestAsset\StubEvent-1-0'
+            . 'PhpDisruptorTest\TestAsset\StubEvent-2-1',
+            $result
+        );
+
+        if (file_exists(sys_get_temp_dir() . '/testresult')) {
+            unlink(sys_get_temp_dir() . '/testresult');
+        }
+    }
 }
