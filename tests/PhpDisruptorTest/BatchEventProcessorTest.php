@@ -9,7 +9,7 @@ use PhpDisruptorTest\TestAsset\EventHandler;
 use PhpDisruptorTest\TestAsset\ExEventHandler;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 use PhpDisruptorTest\TestAsset\TestExceptionHandler;
-use PhpDisruptorTest\TestAsset\TestWorker;
+use PhpDisruptorTest\TestAsset\TestThread;
 
 class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
 {
@@ -53,16 +53,15 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
             $eventHandler
         );
 
-        $thread = new TestWorker();
+        $thread = new TestThread($batchEventProcessor);
         $thread->start();
-        $thread->stack($batchEventProcessor);
 
         $this->assertEquals(-1, $batchEventProcessor->getSequence()->get());
         $this->ringBuffer->publish($this->ringBuffer->next());
 
         time_nanosleep(0, 45000);
         $batchEventProcessor->halt();
-        $thread->shutdown();
+        $thread->join();
 
         $result = file_get_contents(sys_get_temp_dir() . '/testresult');
         $this->assertEquals('PhpDisruptorTest\TestAsset\StubEvent-0-1', $result);
@@ -82,13 +81,12 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         $this->ringBuffer->publish($this->ringBuffer->next());
         $this->ringBuffer->publish($this->ringBuffer->next());
 
-        $thread = new TestWorker();
+        $thread = new TestThread($batchEventProcessor);
         $thread->start();
-        $thread->stack($batchEventProcessor);
 
         time_nanosleep(0, 45000);
         $batchEventProcessor->halt();
-        $thread->shutdown();
+        $thread->join();
 
         $result = file_get_contents(sys_get_temp_dir() . '/testresult');
 
@@ -111,15 +109,14 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         );
         $batchEventProcessor->setExceptionHandler($exceptionHandler);
 
-        $thread = new TestWorker();
+        $thread = new TestThread($batchEventProcessor);
         $thread->start();
-        $thread->stack($batchEventProcessor);
 
         $this->ringBuffer->publish($this->ringBuffer->next());
 
         time_nanosleep(0, 45000);
         $batchEventProcessor->halt();
-        $thread->shutdown();
+        $thread->join();
 
         $result = file_get_contents(sys_get_temp_dir() . '/testresult');
 
