@@ -6,6 +6,7 @@ use PhpDisruptor\DataProviderInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\ExceptionHandler\FatalExceptionHandler;
+use PhpDisruptor\Pthreads\AtomicStackableTrait;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\LifecycleAwareInterface;
@@ -23,6 +24,8 @@ use Thread;
  */
 final class BatchEventProcessor extends AbstractEventProcessor
 {
+    use AtomicStackableTrait;
+
     /**
      * @var DataProviderInterface
      */
@@ -57,6 +60,11 @@ final class BatchEventProcessor extends AbstractEventProcessor
      * @var TimeoutHandlerInterface|null
      */
     public $timeoutHandler;
+
+    /**
+     * @var bool
+     */
+    public $running;
 
     /**
      * Constructor
@@ -96,6 +104,7 @@ final class BatchEventProcessor extends AbstractEventProcessor
         $this->eventHandler = $eventHandler;
         $this->exceptionHandler = new FatalExceptionHandler('/tmp/disruptor-batchevents');
         $this->timeoutHandler = ($eventHandler instanceof TimeoutHandlerInterface) ? $eventHandler : null;
+        $this->running = false;
     }
 
     /**
@@ -111,7 +120,13 @@ final class BatchEventProcessor extends AbstractEventProcessor
      */
     public function halt()
     {
+        $this->running = false;
         $this->sequencerBarrier->alert();
+    }
+
+    public function running() // isRunning method is from pthreads !!!
+    {
+        return $this->running;
     }
 
     /**
@@ -124,8 +139,15 @@ final class BatchEventProcessor extends AbstractEventProcessor
 
     public function run()
     {
+        if (!$this->casMember('running', false, true)) {
+            throw new Exception\RuntimeException(
+                'Thread is already running'
+            );
+        }
+
         $this->sequencerBarrier->clearAlert();
         $this->_notifyStart();
+
         $nextSequence = $this->getSequence()->get() + 1;
         while (true) {
             try {
@@ -139,10 +161,9 @@ final class BatchEventProcessor extends AbstractEventProcessor
             } catch (Exception\TimeoutException $e) {
                 $this->_notifyTimeout($this->getSequence()->get());
             } catch (Exception\AlertException $e) {
-                //if (!$this->isRunning()) {     original disruptor code
-                //    break;
-                //}
-                break; // my disruptor code
+                if (!$this->running()) {
+                    break;
+                }
             } catch (\Exception $e) {
                 $event = isset($event) ? $event : '';
                 $this->exceptionHandler->handleEventException($e, $nextSequence, $event);
@@ -150,7 +171,9 @@ final class BatchEventProcessor extends AbstractEventProcessor
                 $nextSequence++;
             }
         }
+
         $this->_notifyShutdown();
+        $this->running = false;
     }
 
     /**
