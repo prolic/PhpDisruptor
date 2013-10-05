@@ -9,7 +9,7 @@ final class IgnoreExceptionHandler extends AbstractExceptionHandler
      */
     public function handleEventException(\Exception $ex, $sequence, $event)
     {
-        fwrite($this->fh, 'INFO: Exception processing: "' . $sequence);
+        fwrite($this->fh, 'INFO: Exception processing: ' . $sequence . ' ' . $event);
     }
 
     /**
