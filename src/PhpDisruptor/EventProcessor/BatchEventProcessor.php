@@ -156,7 +156,7 @@ final class BatchEventProcessor extends AbstractEventProcessor
             } catch (Exception\TimeoutException $e) {
                 $this->_notifyTimeout($this->getSequence()->get());
             } catch (Exception\AlertException $e) {
-                if (!$this->running()) {
+                if (!$this->running) {
                     break;
                 }
             } catch (\Exception $e) {
