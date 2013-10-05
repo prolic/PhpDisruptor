@@ -124,11 +124,6 @@ final class BatchEventProcessor extends AbstractEventProcessor
         $this->sequencerBarrier->alert();
     }
 
-    public function running() // isRunning method is from pthreads !!!
-    {
-        return $this->running;
-    }
-
     /**
      * @param ExceptionHandlerInterface $exceptionHandler
      */
