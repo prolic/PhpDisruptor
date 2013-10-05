@@ -12,7 +12,7 @@ final class FatalExceptionHandler extends AbstractExceptionHandler
     public function handleEventException(\Exception $ex, $sequence, $event)
     {
         fwrite($this->fh, 'ERR: Exception processing: ' . $sequence . ' ' . $event);
-        throw new Exception\RuntimeException($ex);
+        throw new Exception\RuntimeException('', 0, $ex);
     }
 
     /**
