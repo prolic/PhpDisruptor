@@ -2,6 +2,8 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Pthreads\StackableArray;
+
 interface EventTranslatorInterface extends EventClassCapableInterface
 {
     /**
@@ -9,8 +11,8 @@ interface EventTranslatorInterface extends EventClassCapableInterface
      *
      * @param object $event into which the data should be translated.
      * @param int $sequence that is assigned to event.
-     * @param array $args
+     * @param StackableArray $args
      * @return void
      */
-    public function translateTo($event, $sequence, array $args = array());
+    public function translateTo($event, $sequence, StackableArray $args);
 }
