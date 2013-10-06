@@ -2,41 +2,34 @@
 
 namespace PhpDisruptorTest\TestAsset;
 
-use PhpDisruptor\EventProcessor\AbstractEventProcessor;
-use PhpDisruptor\Sequence;
+use PhpDisruptor\EventTranslatorInterface;
+use PhpDisruptor\Pthreads\StackableArray;
+use Stackable;
 
-class StubEventProcessor extends AbstractEventProcessor
+class StubEventTranslator extends Stackable implements EventTranslatorInterface
 {
     /**
-     * @var Sequence
-     */
-    protected $sequence;
-
-    public function __construct()
-    {
-        $this->sequence = new Sequence();
-    }
-
-    public function setSequence($sequence)
-    {
-        $this->sequence->set($sequence);
-    }
-
-    /**
-     * Get a reference to the Sequence being used by this EventProcessor.
+     * Return the used event class name
      *
-     * @return Sequence reference to the Sequence for this EventProcessor
+     * @return string
      */
-    public function getSequence()
+    public function getEventClass()
     {
-        return $this->sequence;
+        return __NAMESPACE__ . '\StubEvent';
     }
 
     /**
+     * Translate a data representation into fields set in given event
+     *
+     * @param object $event into which the data should be translated.
+     * @param int $sequence that is assigned to event.
+     * @param StackableArray $args
      * @return void
      */
-    public function halt()
+    public function translateTo($event, $sequence, StackableArray $args)
     {
+        $event->setValue($args[0]);
+        $event->setTestString($args[1]);
     }
 
     public function run()
