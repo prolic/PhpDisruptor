@@ -54,4 +54,24 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(0, $this->ringBuffer->getCursor());
     }
+
+    public function testShouldClaimAndGetMultipleMessages()
+    {
+        $eventTranslator = new StubEventTranslator();
+        $numMessages = $this->ringBuffer->getBufferSize();
+        for ($i = 0; $i < $numMessages; $i++) {
+            $args = new StackableArray();
+            $args[] = $i;
+            $args[] = '';
+            $this->ringBuffer->publishEvent($eventTranslator, $args);
+        }
+
+        $expectedSequence = $numMessages - 1;
+        $available = $this->sequenceBarrier->waitFor($expectedSequence);
+        $this->assertEquals($expectedSequence, $available);
+
+        for ($i = 0; $i < $numMessages; $i++) {
+            $this->assertEquals($i, $this->ringBuffer->get($i)->getValue());
+        }
+    }
 }
