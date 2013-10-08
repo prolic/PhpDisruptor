@@ -35,9 +35,6 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
 
     protected function tearDown()
     {
-        $this->ringBuffer = null;
-        $this->sequenceBarrier = null;
-
         if (file_exists(sys_get_temp_dir() . '/testresult')) {
             unlink(sys_get_temp_dir() . '/testresult');
         }
@@ -53,15 +50,14 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
             $eventHandler
         );
 
-        $thread = new TestThread($batchEventProcessor);
-        $thread->start();
+        $batchEventProcessor->start();
 
         $this->assertEquals(-1, $batchEventProcessor->getSequence()->get());
         $this->ringBuffer->publish($this->ringBuffer->next());
 
         time_nanosleep(0, 45000);
         $batchEventProcessor->halt();
-        $thread->join();
+        $batchEventProcessor->join();
 
         $result = file_get_contents(sys_get_temp_dir() . '/testresult');
         $this->assertEquals('PhpDisruptorTest\TestAsset\StubEvent-0-1', $result);
@@ -81,12 +77,11 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         $this->ringBuffer->publish($this->ringBuffer->next());
         $this->ringBuffer->publish($this->ringBuffer->next());
 
-        $thread = new TestThread($batchEventProcessor);
-        $thread->start();
+        $batchEventProcessor->start();
 
         time_nanosleep(0, 45000);
         $batchEventProcessor->halt();
-        $thread->join();
+        $batchEventProcessor->join();
 
         $result = file_get_contents(sys_get_temp_dir() . '/testresult');
 
@@ -109,14 +104,13 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         );
         $batchEventProcessor->setExceptionHandler($exceptionHandler);
 
-        $thread = new TestThread($batchEventProcessor);
-        $thread->start();
+        $batchEventProcessor->start();
 
         $this->ringBuffer->publish($this->ringBuffer->next());
 
         time_nanosleep(0, 45000);
         $batchEventProcessor->halt();
-        $thread->join();
+        $batchEventProcessor->join();
 
         $result = file_get_contents(sys_get_temp_dir() . '/testresult');
 
