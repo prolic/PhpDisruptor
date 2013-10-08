@@ -141,7 +141,15 @@ final class BatchEventProcessor extends AbstractEventProcessor
         }
 
         $this->sequencerBarrier->clearAlert();
-        $this->_notifyStart();
+
+        // notify start
+        if ($this->eventHandler instanceof LifecycleAwareInterface) {
+            try {
+                $this->eventHandler->onStart();
+            } catch (\Exception $e) {
+                $this->exceptionHandler->handleOnStartException($e);
+            }
+        }
 
         $nextSequence = $this->getSequence()->get() + 1;
         while (true) {
@@ -154,7 +162,15 @@ final class BatchEventProcessor extends AbstractEventProcessor
                 }
                 $this->getSequence()->set($availableSequence);
             } catch (Exception\TimeoutException $e) {
-                $this->_notifyTimeout($this->getSequence()->get());
+                // notify timeout
+                $availableSequence = $this->getSequence()->get();
+                try {
+                    if (null !== $this->timeoutHandler) {
+                        $this->timeoutHandler->onTimeout($availableSequence);
+                    }
+                } catch (\Exception $e) {
+                    $this->exceptionHandler->handleEventException($e, $availableSequence, null);
+                }
             } catch (Exception\AlertException $e) {
                 if (!$this->running) {
                     break;
@@ -167,48 +183,7 @@ final class BatchEventProcessor extends AbstractEventProcessor
             }
         }
 
-        $this->_notifyShutdown();
-        $this->running = false;
-    }
-
-    /**
-     * @param $availableSequence
-     * @return void
-     */
-    public function _notifyTimeout($availableSequence) // private !! only public for pthreads reasons
-    {
-        try {
-            if (null !== $this->timeoutHandler) {
-                $this->timeoutHandler->onTimeout($availableSequence);
-            }
-        } catch (\Exception $e) {
-            $this->exceptionHandler->handleEventException($e, $availableSequence, null);
-        }
-    }
-
-    /**
-     * Notifies the EventHandler when this processor is starting up
-     *
-     * @return void
-     */
-    public function _notifyStart() // private !! only public for pthreads reasons
-    {
-        if ($this->eventHandler instanceof LifecycleAwareInterface) {
-            try {
-                $this->eventHandler->onStart();
-            } catch (\Exception $e) {
-                $this->exceptionHandler->handleOnStartException($e);
-            }
-        }
-    }
-
-    /**
-     * Notifies the EventHandler immediately prior to this processor shutting down
-     *
-     * @return void
-     */
-    public function _notifyShutdown() // private !! only public for pthreads reasons
-    {
+        // notify shutdown
         if ($this->eventHandler instanceof LifecycleAwareInterface) {
             try {
                 $this->eventHandler->onShutdown();
@@ -216,5 +191,6 @@ final class BatchEventProcessor extends AbstractEventProcessor
                 $this->exceptionHandler->handleOnShutdownException($e);
             }
         }
+        $this->running = false;
     }
 }
