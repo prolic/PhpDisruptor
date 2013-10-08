@@ -2,8 +2,11 @@
 
 namespace PhpDisruptorTest;
 
+use PhpDisruptor\Pthreads\StackableArray;
+use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceGroup;
+use PhpDisruptorTest\TestAsset\TestEventFactory;
 use PHPUnit_Framework_TestCase as TestCase;
 
 class SequenceGroupTest extends TestCase
@@ -121,22 +124,22 @@ class SequenceGroupTest extends TestCase
         $this->assertTrue($groupSequence->equals($sequence));
     }
 
-    //    /*
-    //    public function testShouldAddWhileRunning()
-    //    {
-    //        RingBuffer<TestEvent> ringBuffer = RingBuffer.createSingleProducer(TestEvent.EVENT_FACTORY, 32);
-    //        final Sequence sequenceThree = new Sequence(3L);
-    //        final Sequence sequenceSeven = new Sequence(7L);
-    //        final SequenceGroup sequenceGroup = new SequenceGroup();
-    //        sequenceGroup.add(sequenceSeven);
-    //
-    //        for (int i = 0; i < 11; i++)
-    //        {
-    //            ringBuffer.publish(ringBuffer.next());
-    //        }
-    //
-    //        sequenceGroup.addWhileRunning(ringBuffer, sequenceThree);
-    //        assertThat(sequenceThree.get(), is(10L));
-    //    }
-    //    */
+
+    public function testShouldAddWhileRunning()
+    {
+        $eventFactory = new TestEventFactory();
+        $ringBuffer = RingBuffer::createSingleProducer($eventFactory, 32);
+        $sequenceThree = new Sequence(3);
+        $sequenceSeven = new Sequence(7);
+        $sequenceGroup = new SequenceGroup();
+        $sequenceGroup->add($sequenceSeven);
+
+        for ($i = 0; $i < 11; $i++)
+        {
+            $ringBuffer->publish($ringBuffer->next());
+        }
+
+        $sequenceGroup->addWhileRunning($ringBuffer, $sequenceThree);
+        $this->assertEquals(10, $sequenceThree->get());
+    }
 }

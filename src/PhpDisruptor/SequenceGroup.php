@@ -95,12 +95,14 @@ final class SequenceGroup extends Sequence implements Countable, SequenceAggrega
      *
      * @param CursoredInterface $cursored The data structure that the owner of this sequence group will
      * be pulling it's events from.
-     * @param Sequence[] $sequences The sequence to add.
+     * @param Sequence $sequence The sequence to add.
      * @return void
      */
-    public function addWhileRunning(CursoredInterface $cursored, StackableArray $sequences)
+    public function addWhileRunning(CursoredInterface $cursored, Sequence $sequence)
     {
-        SequenceGroups::addSequences($this, $cursored, $sequences);
+        $sequencesToAdd = new StackableArray();
+        $sequencesToAdd[] = $sequence;
+        SequenceGroups::addSequences($this, $cursored, $sequencesToAdd);
     }
 
     /**
