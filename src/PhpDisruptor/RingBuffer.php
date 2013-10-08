@@ -383,7 +383,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @return void
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function publishEvent(EventTranslatorInterface $translator, StackableArray $args)
+    public function publishEvent(EventTranslatorInterface $translator, StackableArray $args = null)
     {
         $this->_checkTranslator($translator);
         $this->_translateAndPublish($translator, $this->sequencer->next(), $args);
@@ -397,12 +397,12 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * was not available.
      *
      * @param EventTranslatorInterface $translator The user specified translation for the event
-     * @param StackableArray $args
+     * @param StackableArray|null $args
      * @return bool true if the value was published, false if there was insufficient
      * capacity.
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function tryPublishEvent(EventTranslatorInterface $translator, StackableArray $args)
+    public function tryPublishEvent(EventTranslatorInterface $translator, StackableArray $args = null)
     {
         $this->_checkTranslator($translator);
         try {
@@ -421,13 +421,13 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * after translation.
      *
      * @param EventTranslatorInterface[] $translators The user specified translation for each event
-     * @param StackableArray $args
+     * @param StackableArray|null $args
      * @param int $batchStartsAt
      * @param int $batchSize
      * @return void
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function publishEvents(StackableArray $translators, StackableArray $args, $batchStartsAt = 0, $batchSize = 0)
+    public function publishEvents(StackableArray $translators, StackableArray $args = null, $batchStartsAt = 0, $batchSize = 0)
     {
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
@@ -468,14 +468,14 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * was not available.
      *
      * @param EventTranslatorInterface[] $translators The user specified translation for each event
-     * @param StackableArray $args
+     * @param StackableArray|null $args
      * @param int $batchStartsAt
      * @param int|null $batchSize
      * @return bool true if the value was published, false if there was insufficient
      *         capacity.
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function tryPublishEvents(StackableArray $translators, StackableArray $args, $batchStartsAt = 0, $batchSize = null)
+    public function tryPublishEvents(StackableArray $translators, StackableArray $args = null, $batchStartsAt = 0, $batchSize = null)
     {
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
@@ -586,7 +586,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      *
      * @param EventTranslatorInterface $translator
      * @param int $sequence
-     * @param StackableArray $args [optional]
+     * @param StackableArray|null $args
      * @return void
      * @throws \Exception
      */
@@ -608,7 +608,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param int $batchStartsAt
      * @param int $batchSize
      * @param int $finalSequence
-     * @param StackableArray $args
+     * @param StackableArray|null $args
      * @return void
      * @throws \Exception
      */
@@ -617,7 +617,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $batchStartsAt,
         $batchSize,
         $finalSequence,
-        StackableArray $args
+        StackableArray $args = null
     ) {
         $initialSequence = $finalSequence - ($batchSize - 1);
         try {
