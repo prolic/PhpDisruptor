@@ -26,8 +26,13 @@ class StubEventTranslator extends Stackable implements EventTranslatorInterface
      * @param StackableArray $args
      * @return void
      */
-    public function translateTo($event, $sequence, StackableArray $args)
+    public function translateTo($event, $sequence, StackableArray $args = null)
     {
+        if (null === $args) {
+            $args = new StackableArray();
+            $args[0] = 'error'; // error condition
+            $args[1] = 'error';
+        }
         $event->setValue($args[0]);
         $event->setTestString($args[1]);
     }
