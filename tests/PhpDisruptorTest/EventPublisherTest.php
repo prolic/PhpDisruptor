@@ -70,10 +70,10 @@ class EventPublisherTest extends \PHPUnit_Framework_TestCase implements EventTra
      *
      * @param object $event into which the data should be translated.
      * @param int $sequence that is assigned to event.
-     * @param array $args
+     * @param StackableArray $args
      * @return void
      */
-    public function translateTo($event, $sequence, array $args = array())
+    public function translateTo($event, $sequence, StackableArray $args)
     {
         $event->set($sequence + 29);
     }
