@@ -98,7 +98,7 @@ final class SequenceGroup extends Sequence implements Countable, SequenceAggrega
      * @param Sequence[] $sequences The sequence to add.
      * @return void
      */
-    public function addWhileRunning(CursoredInterface $cursored, array $sequences)
+    public function addWhileRunning(CursoredInterface $cursored, StackableArray $sequences)
     {
         SequenceGroups::addSequences($this, $cursored, $sequences);
     }

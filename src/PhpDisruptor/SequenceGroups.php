@@ -28,7 +28,7 @@ abstract class SequenceGroups
             foreach ($sequencesToAdd as $sequence) {
                 if (!$sequence instanceof Sequence) {
                     throw new Exception\InvalidArgumentException(
-                        '$sequences must be an array of PhpDisruptor\Sequence objects'
+                        '$sequences must be an StackableArray of PhpDisruptor\Sequence objects'
                     );
                 }
                 $sequence->set($cursorSequence);

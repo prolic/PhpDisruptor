@@ -187,7 +187,7 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
         foreach ($barrierEventProcessors as $barrierEventProcessor) {
             if (!$barrierEventProcessor instanceof Sequence) {
                 throw new Exception\InvalidArgumentException(
-                    '$barrierEventProcessors must be an array of Sequence'
+                    '$barrierEventProcessors must be an StackableArray of Sequence'
                 );
             }
             $this->_getEventProcessorInfoBySequence($barrierEventProcessor)->markAsUsedInBarrier();

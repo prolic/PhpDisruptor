@@ -60,7 +60,7 @@ class EventHandlerGroup extends Stackable implements EventClassCapableInterface
         foreach ($sequences as $sequence) {
             if (!$sequence instanceof Sequence) {
                 throw new Exception\InvalidArgumentException(
-                    'expected an array of PhpDisruptor\Sequence'
+                    'expected an StackableArray of PhpDisruptor\Sequence'
                 );
             }
             $this->sequences[] = $sequence;
@@ -84,7 +84,9 @@ class EventHandlerGroup extends Stackable implements EventClassCapableInterface
      */
     public function andEventHandlerGroup(self $otherHandlerGroup)
     {
-        $combinedSequences = array_merge($this->sequences, $otherHandlerGroup->sequences);
+        $combinedSequences = new StackableArray();
+        $combinedSequences->merge($this->sequences);
+        $combinedSequences->merge($otherHandlerGroup->sequences);
         return new self($this->disruptor, $this->consumerRepository, $combinedSequences);
     }
 
@@ -96,12 +98,12 @@ class EventHandlerGroup extends Stackable implements EventClassCapableInterface
      */
     public function andProcessors(StackableArray $processors)
     {
-        $combinedSequences = array();
+        $combinedSequences = new StackableArray();
         foreach ($processors as $processor) {
             $this->consumerRepository->addEventProcessor($processor);
             $combinedSequences[] = $processor->getSequence();
         }
-        $combinedSequences = array_merge($combinedSequences, $this->sequences);
+        $combinedSequences->merge($this->sequences);
         return new self($this->disruptor, $this->consumerRepository, $combinedSequences);
     }
 

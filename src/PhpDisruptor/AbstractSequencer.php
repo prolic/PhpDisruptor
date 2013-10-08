@@ -126,7 +126,7 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
     }
 
     /**
-     * @param array $sequencesToTrack
+     * @param StackableArray $sequencesToTrack
      * @return ProcessingSequenceBarrier
      */
     public function newBarrier(StackableArray $sequencesToTrack = null)

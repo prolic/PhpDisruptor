@@ -5,6 +5,7 @@ namespace PhpDisruptor;
 use PhpDisruptor\EventProcessor\WorkProcessor;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\Pthreads\AtomicStackableTrait;
+use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Util\Util;
 use Stackable;
 
@@ -49,13 +50,13 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
         RingBuffer $ringBuffer,
         SequenceBarrierInterface $sequenceBarrier,
         ExceptionHandlerInterface $exceptionHandler,
-        array $workHandlers
+        StackableArray $workHandlers
     ) {
         $this->started = false;
         $this->workSequence = new Sequence(SequencerInterface::INITIAL_CURSOR_VALUE);
         $this->ringBuffer = $ringBuffer;
         $this->eventClass = $ringBuffer->getEventClass();
-        $this->workProcessors = array();
+        $this->workProcessors = new StackableArray();
         foreach ($workHandlers as $workHandler) {
             $this->workProcessors[] = new WorkProcessor(
                 $ringBuffer,
@@ -88,7 +89,7 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
         RingBuffer $ringBuffer,
         SequenceBarrierInterface $sequenceBarrier,
         ExceptionHandlerInterface $exceptionHandler,
-        array $workHandlers
+        StackableArray $workHandlers
     ) {
         return new self($ringBuffer, $sequenceBarrier, $exceptionHandler, $workHandlers);
     }
@@ -104,7 +105,7 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
     public static function createFromEventFactory(
         EventFactoryInterface $eventFactory,
         ExceptionHandlerInterface $exceptionHandler,
-        array $workHandlers
+        StackableArray $workHandlers
     ) {
         $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 1024);
         $sequenceBarrier = $ringBuffer->newBarrier();
@@ -121,7 +122,7 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
      */
     public function getWorkerSequences()
     {
-        $sequences = array();
+        $sequences = new StackableArray();
         foreach ($this->workProcessors as $workProcessor) {
             $sequences[] = $workProcessor->getSequence();
         }

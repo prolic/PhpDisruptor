@@ -28,11 +28,11 @@ final class Util
     }
 
     /**
-     * Get the minimum sequence from an array of {@link com.lmax.disruptor.Sequence}s.
+     * Get the minimum sequence from an StackableArray of Sequences
      *
      * @param Sequence[] $sequences to compare with StackableArray as container instead of a php array
      * @param int|null  $minimum
-     * @return int the minimum sequence found or PHP_INT_MAX if the array is empty
+     * @return int the minimum sequence found or PHP_INT_MAX if the StackableArray is empty
      * @throws Exception\InvalidArgumentException
      */
     public static function getMinimumSequence(StackableArray $sequences, $minimum = PHP_INT_MAX)
@@ -45,7 +45,7 @@ final class Util
     }
 
     /**
-     * Get an array of Sequences for the passed EventProcessors
+     * Get an StackableArray of Sequences for the passed EventProcessors
      *
      * @param AbstractEventProcessor[] $processors for which to get the sequences with StackableArray as container instead of a php array
      * @return Sequence[] the array of Sequences

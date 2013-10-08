@@ -624,7 +624,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
             $sequence = $initialSequence;
             $batchEndsAt = $batchStartsAt + $batchSize;
             for ($i = $batchStartsAt; $i < $batchEndsAt; $i++) {
-                $translateArgs = array();
+                $translateArgs = new StackableArray();
                 foreach ($args as $arg) {
                     $translateArgs[] = $arg[$i];
                 }
