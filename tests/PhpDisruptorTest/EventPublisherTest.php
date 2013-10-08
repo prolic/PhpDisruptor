@@ -73,7 +73,7 @@ class EventPublisherTest extends \PHPUnit_Framework_TestCase implements EventTra
      * @param StackableArray $args
      * @return void
      */
-    public function translateTo($event, $sequence, StackableArray $args)
+    public function translateTo($event, $sequence, StackableArray $args = null)
     {
         $event->set($sequence + 29);
     }
