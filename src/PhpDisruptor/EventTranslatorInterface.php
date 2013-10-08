@@ -11,8 +11,8 @@ interface EventTranslatorInterface extends EventClassCapableInterface
      *
      * @param object $event into which the data should be translated.
      * @param int $sequence that is assigned to event.
-     * @param StackableArray $args
+     * @param StackableArray|null $args
      * @return void
      */
-    public function translateTo($event, $sequence, StackableArray $args);
+    public function translateTo($event, $sequence, StackableArray $args = null);
 }
