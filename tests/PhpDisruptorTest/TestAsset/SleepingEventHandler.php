@@ -39,6 +39,6 @@ class SleepingEventHandler extends UuidStackable implements EventHandlerInterfac
      */
     public function onEvent($event, $sequence, $endOfBatch)
     {
-        time_nanosleep(0, 100000000);
+        $this->wait(1);
     }
 }

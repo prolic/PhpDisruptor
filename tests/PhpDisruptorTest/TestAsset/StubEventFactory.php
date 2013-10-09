@@ -19,7 +19,8 @@ final class StubEventFactory extends Stackable implements EventFactoryInterface
 
     public function newInstance()
     {
-        return new StubEvent(-1);
+        $event = new StubEvent(-1);
+        return $event;
     }
 
     public function run()
