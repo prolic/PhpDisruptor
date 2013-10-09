@@ -2,6 +2,7 @@
 
 namespace PhpDisruptorTest;
 
+use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\EventTranslatorInterface;
 use PhpDisruptor\Pthreads\StackableArray;
@@ -14,13 +15,19 @@ class EventPublisherTest extends \PHPUnit_Framework_TestCase implements EventTra
     const RINGBUFFER_SIZE = 32;
 
     /**
+     * @var EventFactoryInterface
+     */
+    protected $eventFactory;
+
+    /**
      * @var RingBuffer
      */
     protected $ringBuffer;
 
     protected function setUp()
     {
-        $this->ringBuffer = RingBuffer::createMultiProducer(new LongEventFactory(), self::RINGBUFFER_SIZE);
+        $this->eventFactory = new LongEventFactory;
+        $this->ringBuffer = RingBuffer::createMultiProducer($this->eventFactory, self::RINGBUFFER_SIZE);
     }
 
     public function testShouldPublishEvent()
