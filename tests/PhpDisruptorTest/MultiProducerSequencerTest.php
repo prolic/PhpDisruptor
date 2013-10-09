@@ -9,7 +9,8 @@ class MultiProducerSequencerTest extends \PHPUnit_Framework_TestCase
 {
     public function testShouldOnlyAllowMessagesToBeAvailableIfSpecificallyPublished()
     {
-        $publisher = new MultiProducerSequencer(1024, new BlockingWaitStrategy());
+        $waitingStrategy = new BlockingWaitStrategy();
+        $publisher = new MultiProducerSequencer(1024, $waitingStrategy);
         $publisher->publish(3);
         $publisher->publish(5);
         
