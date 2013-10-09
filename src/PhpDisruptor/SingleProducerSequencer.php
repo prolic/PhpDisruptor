@@ -76,7 +76,7 @@ final class SingleProducerSequencer extends AbstractSequencer
         if ($wrapPoint > $cachedGatingSequence || $cachedGatingSequence >  $nextValue) {
 
             while ($wrapPoint > ($minSequence = Util::getMinimumSequence($this->getSequences(), $nextValue))) {
-                time_nanosleep(0, 1); // @todo: Use waiting strategy to spin?
+                $this->wait(1);
             }
             $this->cachedValue = $minSequence;
         }
