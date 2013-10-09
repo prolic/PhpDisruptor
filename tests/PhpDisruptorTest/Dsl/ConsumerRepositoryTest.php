@@ -3,6 +3,7 @@
 namespace PhpDisruptorTest\Dsl;
 
 use PhpDisruptor\Dsl\ConsumerRepository;
+use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\ProcessingSequenceBarrier;
 use PhpDisruptor\Pthreads\StackableArray;
@@ -15,6 +16,11 @@ use PhpDisruptorTest\TestAsset\TestEventProcessor;
 
 class ConsumerRepositoryTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var EventFactoryInterface
+     */
+    protected $eventFactory;
+
     /**
      * @var ConsumerRepository
      */
@@ -50,21 +56,20 @@ class ConsumerRepositoryTest extends \PHPUnit_Framework_TestCase
      */
     protected $barrier2;
 
-
     protected function setUp()
     {
-        $eventFactory = new TestEventFactory();
-        $this->consumerRepository = new ConsumerRepository($eventFactory);
+        $this->eventFactory = new TestEventFactory();
+        $this->consumerRepository = new ConsumerRepository($this->eventFactory);
 
         $sequence1 = new Sequence();
         $sequence2 = new Sequence();
         $this->eventProcessor1 = new TestEventProcessor($sequence1);
         $this->eventProcessor2 = new TestEventProcessor($sequence2);
 
-        $this->handler1 = new SleepingEventHandler($eventFactory->getEventClass());
-        $this->handler2 = new SleepingEventHandler($eventFactory->getEventClass());
+        $this->handler1 = new SleepingEventHandler($this->eventFactory->getEventClass());
+        $this->handler2 = new SleepingEventHandler($this->eventFactory->getEventClass());
 
-        $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 64);
+        $ringBuffer = RingBuffer::createMultiProducer($this->eventFactory, 64);
 
         $this->barrier1 = $ringBuffer->newBarrier();
         $this->barrier2 = $ringBuffer->newBarrier();
