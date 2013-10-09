@@ -42,7 +42,7 @@ final class MultiProducerSequencer extends AbstractSequencer
         $this->indexShift = Util::log2($bufferSize);
 
         $buffer = new StackableArray();
-        for ($i = 0; $i < $this->bufferSize; $i++) {
+        for ($i = 0; $i < $bufferSize; $i++) {
             $buffer[$i] = -1;
         }
         $this->availableBuffer = $buffer;
@@ -107,7 +107,7 @@ final class MultiProducerSequencer extends AbstractSequencer
                 $gatingSequence = Util::getMinimumSequence($this->getSequences(), $current);
 
                 if ($wrapPoint > $gatingSequence) {
-                    time_nanosleep(0, 1); // @todo: should we spin based on the wait strategy?
+                    $this->wait(1);
                     continue;
                 }
 
