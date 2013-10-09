@@ -56,7 +56,8 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
     public function testShouldHandleEmptyListOfEventHandlers()
     {
         $aggregateEventHandler = new AggregateEventHandler('stdClass', new StackableArray());
-        $aggregateEventHandler->onEvent(new \stdClass(), 0, true);
+        $event = new \stdClass();
+        $aggregateEventHandler->onEvent($event, 0, true);
         $aggregateEventHandler->onStart();
         $aggregateEventHandler->onShutdown();
     }
