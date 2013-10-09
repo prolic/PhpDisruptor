@@ -54,18 +54,21 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     {
         $this->eventFactory = $eventFactory;
         $this->sequencer = $sequencer;
-    }
 
-    public function run()
-    {
-        $this->bufferSize = $this->sequencer->getBufferSize();
-        $this->indexMask = $this->bufferSize - 1;
-        $this->eventClass = $this->eventFactory->getEventClass();
-        $bufferSize = $this->sequencer->getBufferSize();
+        $bufferSize = $sequencer->getBufferSize();
+        $this->bufferSize = $bufferSize;
+        $this->indexMask = $bufferSize - 1;
+        $this->eventClass = $eventFactory->getEventClass();
+
+
         $this->entries = new StackableArray();
         for ($i = 0; $i < $bufferSize; $i++) {
             $this->entries[$i] = $this->eventFactory->newInstance();
         }
+    }
+
+    public function run()
+    {
     }
 
     /**
@@ -96,7 +99,6 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         }
         $sequencer = new MultiProducerSequencer($bufferSize, $waitStrategy);
         $ringBuffer = new self($factory, $sequencer);
-        $ringBuffer->run();
         return $ringBuffer;
     }
 
@@ -118,7 +120,6 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         }
         $sequencer = new SingleProducerSequencer($bufferSize, $waitStrategy);
         $ringBuffer = new self($factory, $sequencer);
-        $ringBuffer->run();
         return $ringBuffer;
     }
 
@@ -137,15 +138,18 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $bufferSize,
         WaitStrategyInterface $waitStrategy = null
     ) {
-        switch ($producerType) {
+        switch ($producerType->getValue()) {
             case ProducerType::SINGLE:
                 $ringBuffer = self::createSingleProducer($eventFactory, $bufferSize, $waitStrategy);
                 break;
             case ProducerType::MULTI:
                 $ringBuffer = self::createMultiProducer($eventFactory, $bufferSize, $waitStrategy);
                 break;
+            default:
+                throw new Exception\RuntimeException(
+                    'Unknown producer type'
+                );
         }
-        $ringBuffer->run();
         return $ringBuffer;
     }
 
