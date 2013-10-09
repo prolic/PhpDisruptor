@@ -13,7 +13,6 @@ use PhpDisruptor\LifecycleAwareInterface;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequencerInterface;
 use PhpDisruptor\TimeoutHandlerInterface;
-use Thread;
 
 /**
  * Convenience class for handling the batching semantics of consuming entries from a RingBuffer
