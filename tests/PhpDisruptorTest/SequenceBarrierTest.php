@@ -2,19 +2,21 @@
 
 namespace PhpDisruptorTest;
 
+use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
-use PhpDisruptor\Util\Util;
-use PhpDisruptorTest\TestAsset\RingBufferThread;
-use PhpDisruptorTest\TestAsset\SequenceBarrierThread;
 use PhpDisruptorTest\TestAsset\StubEventProcessor;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
-use PhpDisruptorTest\TestAsset\StubEventProcessorThread;
 
 class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var EventFactoryInterface
+     */
+    protected $eventFactory;
+
     /**
      * @var RingBuffer
      */
@@ -37,11 +39,11 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        $this->eventFactory = new StubEventFactory();
         $this->eventProcessor1 = new StubEventProcessor();
         $this->eventProcessor2 = new StubEventProcessor();
         $this->eventProcessor3 = new StubEventProcessor();
-        $eventFactory = new StubEventFactory();
-        $this->ringBuffer = RingBuffer::createMultiProducer($eventFactory, 64);
+        $this->ringBuffer = RingBuffer::createMultiProducer($this->eventFactory, 64);
         $eventProcessor = new NoOpEventProcessor($this->ringBuffer);
         $sequences = new StackableArray();
         $sequences[] = $eventProcessor->getSequence();
