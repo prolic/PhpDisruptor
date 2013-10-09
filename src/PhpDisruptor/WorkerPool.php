@@ -165,7 +165,7 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
         $workerSequences = $this->getWorkerSequences();
 
         while ($this->ringBuffer->getCursor() > Util::getMinimumSequence($workerSequences)) {
-            time_nanosleep(0, 1); // todo: thread::yield()
+            $this->wait(1);
         }
 
         $this->halt();
