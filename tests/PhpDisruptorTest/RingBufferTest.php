@@ -80,4 +80,59 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals($i, $this->ringBuffer->get($i)->getValue());
         }
     }
+
+    public function testShouldWrap()
+    {
+        $eventTranslator = new StubEventTranslator();
+        $numMessages = $this->ringBuffer->getBufferSize();
+        $offset = 1000;
+
+        for ($i = 0; $i < $numMessages + $offset; $i++) {
+            $args = new StackableArray();
+            $args[0] = $i;
+            $args[1] = '';
+            $this->ringBuffer->publishEvent($eventTranslator, $args);
+        }
+
+        $expectedSequence = $numMessages + $offset - 1;
+        $available = $this->sequenceBarrier->waitFor($expectedSequence);
+        $this->assertEquals($expectedSequence, $available);
+
+        for ($i = $offset; $i < $numMessages + $offset; $i++) {
+            $value = $this->ringBuffer->get($i)->getValue();
+            $this->assertEquals($i, $value);
+        }
+    }
+
+    public function testShouldPreventWrapping()
+    {
+        $eventFactory = new StubEventFactory();
+        $eventTranslator = new StubEventTranslator();
+
+        $sequence = new Sequence();
+        $sequences = new StackableArray();
+        $sequences[] = $sequence;
+        $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 4);
+        $ringBuffer->addGatingSequences($sequences);
+
+        $arg0 = new StackableArray();
+        $arg0[] = 0;
+        $arg0[] = 0;
+        $ringBuffer->publishEvent($eventTranslator, $arg0);
+        $arg1 = new StackableArray();
+        $arg1[] = 1;
+        $arg1[] = 1;
+        $ringBuffer->publishEvent($eventTranslator, $arg1);
+        $arg2 = new StackableArray();
+        $arg2[] = 2;
+        $arg2[] = 2;
+        $ringBuffer->publishEvent($eventTranslator, $arg2);
+        $arg3 = new StackableArray();
+        $arg3[] = 3;
+        $arg3[] = 3;
+        $ringBuffer->publishEvent($eventTranslator, $arg3);
+
+        $this->assertFalse($ringBuffer->tryPublishEvent($eventTranslator, $arg3));
+
+    }
 }
