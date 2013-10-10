@@ -158,6 +158,13 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testShouldHandleResetToAndNotWrapUnecessarilySingleProducer()
+    {
+        $eventFactory = new StubEventFactory();
+        $ringBuffer = RingBuffer::createSingleProducer($eventFactory, 4);
+        $this->assertHandleResetAndNotWrap($ringBuffer);
+    }
+
     public function testShouldHandleResetToAndNotWrapUnecessarilyMultiProducer()
     {
         $eventFactory = new StubEventFactory();
