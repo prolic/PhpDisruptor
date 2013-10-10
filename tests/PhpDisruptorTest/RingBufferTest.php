@@ -4,6 +4,7 @@ namespace PhpDisruptorTest;
 
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
+use PhpDisruptor\Exception\InsufficientCapacityException;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
@@ -133,6 +134,58 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer->publishEvent($eventTranslator, $arg3);
 
         $this->assertFalse($ringBuffer->tryPublishEvent($eventTranslator, $arg3));
+    }
 
+    public function testShouldThrowExceptionIfBufferIsFull()
+    {
+        $sequences = new StackableArray();
+        $sequences[] = new Sequence($this->ringBuffer->getBufferSize());
+
+        $this->ringBuffer->addGatingSequences($sequences);
+
+        try {
+            for ($i = 0; $i < $this->ringBuffer->getBufferSize(); $i++) {
+                $this->ringBuffer->publish($this->ringBuffer->tryNext());
+            }
+        } catch (\Exception $e) {
+            $this->fail('Should not of thrown exception');
+        }
+
+        try {
+            $this->ringBuffer->tryNext();
+            $this->fail('Exception should have been thrown');
+        } catch (InsufficientCapacityException $e) {
+        }
+    }
+
+    public function testShouldHandleResetToAndNotWrapUnecessarilyMultiProducer()
+    {
+        $eventFactory = new StubEventFactory();
+        $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 4);
+        $this->assertHandleResetAndNotWrap($ringBuffer);
+    }
+
+    private function assertHandleResetAndNotWrap(RingBuffer $rb)
+    {
+        $sequences = new StackableArray();
+        $sequence = new Sequence();
+        $sequences[] = $sequence;
+        $rb->addGatingSequences($sequences);
+
+        for ($i = 0; $i < 128; $i++) {
+            $rb->publish($rb->next());
+            $sequence->incrementAndGet();
+        }
+
+        $this->assertEquals(127, $rb->getCursor());
+
+        $rb->resetTo(31);
+        $sequence->set(31);
+
+        for ($i = 0; $i < 4; $i++) {
+            $rb->publish($rb->next());
+        }
+
+        $this->assertFalse($rb->hasAvailableCapacity(1));
     }
 }
