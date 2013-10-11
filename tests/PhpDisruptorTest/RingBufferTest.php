@@ -9,6 +9,7 @@ use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
+use PhpDisruptorTest\TestAsset\ArrayEventTranslator;
 use PhpDisruptorTest\TestAsset\ArrayFactory;
 use PhpDisruptorTest\TestAsset\StubEvent;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
@@ -159,6 +160,50 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testShouldNotTryPublishEventsVarArgWhenBatchSizeIsNegative()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new ArrayEventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+        $args[0] = 'Foo0';
+        $args[1] = 'Foo1';
+        $args[2] = 'Foo2';
+        $args[3] = 'Foo3';
+
+        try {
+            $ringBuffer->tryPublishEvents($translators, $args, -1, -1);
+        } catch (\Exception $e) {
+            // ignore
+        }
+        $this->assertEmptyRingBuffer($ringBuffer);
+    }
+
+    public function testShouldNotTryPublishEventsWhenBatchStartsAtIsNegative()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new ArrayEventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+        $args[0] = 'Foo0';
+        $args[1] = 'Foo1';
+        $args[2] = 'Foo2';
+        $args[3] = 'Foo3';
+
+        try {
+            $ringBuffer->tryPublishEvents($translators, $args, -1, 2);
+        } catch (\Exception $e) {
+            // ignore
+        }
+        $this->assertEmptyRingBuffer($ringBuffer);
+    }
+
     public function testShouldAddAndRemoveSequences()
     {
         $arrayFactory = new ArrayFactory(1);
@@ -221,5 +266,20 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         }
 
         $this->assertFalse($rb->hasAvailableCapacity(1));
+    }
+
+    private function assertEmptyRingBuffer(RingBuffer $ringBuffer)
+    {
+        $event0 = $ringBuffer->get(0);
+        $this->assertNull($event0[0]);
+
+        $event1 = $ringBuffer->get(1);
+        $this->assertNull($event1[0]);
+
+        $event2 = $ringBuffer->get(0);
+        $this->assertNull($event2[0]);
+
+        $event3 = $ringBuffer->get(0);
+        $this->assertNull($event3[0]);
     }
 }

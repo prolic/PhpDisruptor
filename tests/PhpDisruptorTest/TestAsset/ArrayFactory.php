@@ -26,7 +26,7 @@ class ArrayFactory extends Stackable implements EventFactoryInterface
      */
     public function getEventClass()
     {
-        return 'StackableArray';
+        return 'PhpDisruptor\Pthreads\StackableArray';
     }
 
     public function newInstance()
