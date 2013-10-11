@@ -9,6 +9,7 @@ use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
+use PhpDisruptorTest\TestAsset\ArrayFactory;
 use PhpDisruptorTest\TestAsset\StubEvent;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 use PhpDisruptorTest\TestAsset\StubEventTranslator;
@@ -158,14 +159,40 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testShouldHandleResetToAndNotWrapUnecessarilySingleProducer()
+    public function testShouldAddAndRemoveSequences()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 16);
+
+        $sequenceThree = new Sequence(-1);
+        $sequenceSeven = new Sequence(-1);
+
+        $sequences = new StackableArray();
+        $sequences[] = $sequenceThree;
+        $sequences[] = $sequenceSeven;
+
+        $ringBuffer->addGatingSequences($sequences);
+
+        for ($i = 0; $i < 10; $i++) {
+            $ringBuffer->publish($ringBuffer->next());
+        }
+
+        $sequenceThree->set(3);
+        $sequenceSeven->set(7);
+
+        $this->assertEquals(3, $ringBuffer->getMinimumGatingSequence());
+        $this->assertTrue($ringBuffer->removeGatingSequence($sequenceThree));
+        $this->assertEquals(7, $ringBuffer->getMinimumGatingSequence());
+    }
+
+    public function testShouldHandleResetToAndNotWrapUnnecessarilySingleProducer()
     {
         $eventFactory = new StubEventFactory();
         $ringBuffer = RingBuffer::createSingleProducer($eventFactory, 4);
         $this->assertHandleResetAndNotWrap($ringBuffer);
     }
 
-    public function testShouldHandleResetToAndNotWrapUnecessarilyMultiProducer()
+    public function testShouldHandleResetToAndNotWrapUnnecessarilyMultiProducer()
     {
         $eventFactory = new StubEventFactory();
         $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 4);
