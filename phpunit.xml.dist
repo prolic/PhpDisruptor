@@ -13,6 +13,7 @@
         >
     <testsuite name="PHP Disruptor Test-Suite">
         <directory>./tests/PhpDisruptorTest</directory>
+        <exclude>./tests/PhpDisruptorTest/BatchEventProcessorTest.php</exclude>
     </testsuite>
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">
