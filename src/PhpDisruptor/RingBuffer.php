@@ -447,17 +447,17 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     }
 
     /**
-     * @param $batchSize
+     * @param int $batchSize
      * @param EventTranslatorInterface[] $translators The user specified translation for each event
      * @param StackableArray $args
      * @return int
      */
-    public function _calcBatchSize($batchSize, StackableArray $translators, StackableArray $args) // private !! only public for pthreads reasons
+    public function _calcBatchSize($batchSize, StackableArray $translators, StackableArray $args = null) // private !! only public for pthreads reasons
     {
         if (0 != $batchSize) {
             return $batchSize;
         }
-        $batchSize = count($args);
+        $batchSize = (null === $args) ? 0 : count($args);
         if (0 == $batchSize) {
             $batchSize = count($translators);
         }
@@ -540,11 +540,13 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param int $batchSize
      * @return void
      */
-    public function _checkArgumentsBounds(StackableArray $args, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
+    public function _checkArgumentsBounds(StackableArray $args = null, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
         $this->_checkBatchSizing($batchStartsAt, $batchSize);
-        foreach ($args as $arg) {
-            $this->_batchOverRuns($arg, $batchStartsAt, $batchSize);
+        if (null !== $args) {
+            foreach ($args as $arg) {
+                $this->_batchOverRuns($arg, $batchStartsAt, $batchSize);
+            }
         }
     }
 
@@ -575,7 +577,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    public function _batchOverRuns($args, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
+    public function _batchOverRuns(StackableArray $args, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
         if ($batchStartsAt + $batchSize > count($args)) {
             throw new Exception\InvalidArgumentException(
