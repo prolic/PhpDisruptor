@@ -569,13 +569,13 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     }
 
     /**
-     * @param StackableArray $args
+     * @param $args
      * @param int $batchStartsAt
      * @param int $batchSize
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    public function _batchOverRuns(StackableArray $args, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
+    public function _batchOverRuns($args, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
         if ($batchStartsAt + $batchSize > count($args)) {
             throw new Exception\InvalidArgumentException(

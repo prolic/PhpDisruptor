@@ -160,6 +160,37 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
+    public function testShouldNotTryPublishEventsVarArgWhenBatchExtendsPastEndOfArray()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new ArrayEventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+        $args[0] = 'Foo0';
+        $args[1] = 'Foo1';
+        $args[2] = 'Foo2';
+        $args[3] = 'Foo3';
+
+        try {
+            $ringBuffer->tryPublishEvents($translators, $args, 1, 3);
+        } catch (\Exception $e) {
+            // ignore
+        }
+        $this->assertEmptyRingBuffer($ringBuffer);
+        if (isset($e)) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
     public function testShouldNotTryPublishEventsVarArgWhenBatchSizeIsNegative()
     {
         $arrayFactory = new ArrayFactory(1);
@@ -180,8 +211,14 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
             // ignore
         }
         $this->assertEmptyRingBuffer($ringBuffer);
+        if (isset($e)) {
+            throw $e;
+        }
     }
 
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
     public function testShouldNotTryPublishEventsWhenBatchStartsAtIsNegative()
     {
         $arrayFactory = new ArrayFactory(1);
@@ -202,6 +239,9 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
             // ignore
         }
         $this->assertEmptyRingBuffer($ringBuffer);
+        if (isset($e)) {
+            throw $e;
+        }
     }
 
     public function testShouldAddAndRemoveSequences()
