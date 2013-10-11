@@ -18,7 +18,7 @@ class EventTranslator extends \Stackable implements EventTranslatorInterface
      */
     public function getEventClass()
     {
-        return 'stdClass';
+        return 'PhpDisruptor\Pthreads\StackableArray';
     }
 
     /**
@@ -31,6 +31,12 @@ class EventTranslator extends \Stackable implements EventTranslatorInterface
      */
     public function translateTo($event, $sequence, StackableArray $args = null)
     {
-        $event->result  = join('', $args) . '-' . $sequence;
+        $string = '';
+        if (null !== $args) {
+            foreach ($args as $arg) {
+                $string .= $arg[0];
+            }
+        }
+        $event->result  = $string . '-' . $sequence;
     }
 }

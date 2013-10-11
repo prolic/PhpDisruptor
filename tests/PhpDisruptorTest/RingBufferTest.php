@@ -11,6 +11,7 @@ use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptorTest\TestAsset\ArrayEventTranslator;
 use PhpDisruptorTest\TestAsset\ArrayFactory;
+use PhpDisruptorTest\TestAsset\EventTranslator;
 use PhpDisruptorTest\TestAsset\StubEvent;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 use PhpDisruptorTest\TestAsset\StubEventTranslator;
@@ -162,7 +163,28 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldPublishEvent()
     {
-        
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+
+        $ringBuffer->publishEvent($translator);
+        $ringBuffer->tryPublishEvent($translator);
+
+        $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1'));
+    }
+
+    public function testShouldPublishEventArgs()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+
+        $args = $this->prepareArgs();
+
+        $ringBuffer->publishEvent($translator, $args);
+        $ringBuffer->tryPublishEvent($translator, $args);
+
+        $this->assertRingBufferWithEvents($ringBuffer, array('Foo0Foo1Foo2Foo3-0', 'Foo0Foo1Foo2Foo3-1'));
     }
 
     /**
@@ -364,5 +386,14 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $foo3;
 
         return $args;
+    }
+
+    private function assertRingBufferWithEvents(RingBuffer $ringBuffer, array $results)
+    {
+        $events = array();
+        foreach ($results as $key => $result) {
+            $events[$key] = $ringBuffer->get($key);
+            $this->assertEquals($result, $events[$key]['result']);
+        }
     }
 }

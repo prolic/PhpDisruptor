@@ -32,7 +32,7 @@ class ArrayEventTranslator extends Stackable implements EventTranslatorInterface
      */
     public function translateTo($event, $sequence, StackableArray $args = null)
     {
-        $event[0] = $args[0] . $args[1] . $args[2] . $args[3] . '-' . $sequence;
+        $event[0] = (string) $args[0] . $args[1] . $args[2] . $args[3] . '-' . $sequence;
     }
 
 }

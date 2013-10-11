@@ -33,7 +33,8 @@ class ArrayFactory extends Stackable implements EventFactoryInterface
     {
         $array = new StackableArray();
         for ($i = 0; $i < $this->size; $i++) {
-            $array[] = new StackableArray();
+            $array[] = null;
         }
+        return $array;
     }
 }
