@@ -37,6 +37,6 @@ class EventTranslator extends \Stackable implements EventTranslatorInterface
                 $string .= $arg[0];
             }
         }
-        $event->result  = $string . '-' . $sequence;
+        $event[0]  = $string . '-' . $sequence;
     }
 }

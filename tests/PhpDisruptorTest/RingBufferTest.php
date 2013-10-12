@@ -173,7 +173,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1'));
     }
 
-    public function testShouldPublishEventArgs()
+    public function testShouldPublishEventWithArgs()
     {
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
@@ -185,6 +185,22 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer->tryPublishEvent($translator, $args);
 
         $this->assertRingBufferWithEvents($ringBuffer, array('Foo0Foo1Foo2Foo3-0', 'Foo0Foo1Foo2Foo3-1'));
+    }
+
+    public function testShouldPublishEvents()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+
+        $translators = new StackableArray();
+        $translators[] = $translator;
+        $translators[] = $translator;
+
+        $ringBuffer->publishEvents($translators);
+        $this->assertTrue($ringBuffer->tryPublishEvents($translators));
+
+        $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1', '-2', '-3'));
     }
 
     /**
@@ -393,7 +409,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $events = array();
         foreach ($results as $key => $result) {
             $events[$key] = $ringBuffer->get($key);
-            $this->assertEquals($result, $events[$key]['result']);
+            $this->assertEquals($result, $events[$key][0]);
         }
     }
 }
