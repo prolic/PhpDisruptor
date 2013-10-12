@@ -443,7 +443,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         }
 
         $finalSequence = $this->sequencer->next($batchSize);
-        $this->_translateAndPublishBatch($translators, $finalSequence, $args, $batchStartsAt, $batchSize);
+        $this->_translateAndPublishBatch($translators, $batchStartsAt, $batchSize, $finalSequence, $args);
     }
 
     /**
@@ -492,7 +492,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
 
         try {
             $finalSequence = $this->sequencer->tryNext($batchSize);
-            $this->_translateAndPublishBatch($translators, $finalSequence, $args, $batchStartsAt, $batchSize);
+            $this->_translateAndPublishBatch($translators, $batchStartsAt, $batchSize, $finalSequence, $args);
             return true;
         } catch (Exception\InsufficientCapacityException $e) {
             return false;
@@ -610,7 +610,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     /**
      * Translate and publish batch
      *
-     * @param EventTranslatorInterface $translator
+     * @param EventTranslatorInterface[] $translator
      * @param int $batchStartsAt
      * @param int $batchSize
      * @param int $finalSequence
@@ -619,7 +619,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @throws \Exception
      */
     public function _translateAndPublishBatch( // private !! only public for pthreads reasons
-        EventTranslatorInterface $translator,
+        StackableArray $translators,
         $batchStartsAt,
         $batchSize,
         $finalSequence,
@@ -631,9 +631,12 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
             $batchEndsAt = $batchStartsAt + $batchSize;
             for ($i = $batchStartsAt; $i < $batchEndsAt; $i++) {
                 $translateArgs = new StackableArray();
-                foreach ($args as $arg) {
-                    $translateArgs[] = $arg[$i];
+                if (null !== $args) {
+                    foreach ($args as $arg) {
+                        $translateArgs[] = $arg[$i];
+                    }
                 }
+                $translator = $translators[$i];
                 $translator->translateTo($this->get($sequence), $sequence++, $translateArgs);
             }
         } catch (\Exception $e) {
