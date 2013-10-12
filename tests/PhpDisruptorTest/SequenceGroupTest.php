@@ -76,6 +76,14 @@ class SequenceGroupTest extends TestCase
         $this->assertEquals(1, $sequenceGroup->count());
     }
 
+    public function testShouldDoNothingWhenRemovingNotContainingSequence()
+    {
+        $sequenceThree = new Sequence(3);
+        $sequenceGroup = new SequenceGroup();
+
+        $this->assertFalse($sequenceGroup->remove($sequenceThree));
+    }
+
     public function testShouldRemoveSequenceFromGroupWhereItBeenAddedMultipleTimes()
     {
         $sequenceThree = new Sequence(3);
