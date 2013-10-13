@@ -245,6 +245,23 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1', null, null));
     }
 
+    public function testShouldPublishEventsWithinBatch()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+
+        $translators = new StackableArray();
+        $translators[] = $translator;
+        $translators[] = $translator;
+        $translators[] = $translator;
+
+        $ringBuffer->publishEvents($translators, 1, 2);
+        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 1, 2));
+
+        $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1', '-2', '-3'));
+    }
+
     /**
      * @expectedException PhpDisruptor\Exception\InvalidArgumentException
      */
