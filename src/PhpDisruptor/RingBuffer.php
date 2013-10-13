@@ -425,14 +425,18 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * after translation.
      *
      * @param EventTranslatorInterface[] $translators The user specified translation for each event
-     * @param StackableArray|null $args
      * @param int $batchStartsAt
      * @param int $batchSize
+     * @param StackableArray|null $args
      * @return void
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function publishEvents(StackableArray $translators, StackableArray $args = null, $batchStartsAt = 0, $batchSize = 0)
-    {
+    public function publishEvents(
+        StackableArray $translators,
+        $batchStartsAt = 0,
+        $batchSize = 0,
+        StackableArray $args = null
+    ) {
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
@@ -472,15 +476,19 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * was not available.
      *
      * @param EventTranslatorInterface[] $translators The user specified translation for each event
-     * @param StackableArray|null $args
      * @param int $batchStartsAt
      * @param int|null $batchSize
+     * @param StackableArray|null $args
      * @return bool true if the value was published, false if there was insufficient
      *         capacity.
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function tryPublishEvents(StackableArray $translators, StackableArray $args = null, $batchStartsAt = 0, $batchSize = null)
-    {
+    public function tryPublishEvents(
+        StackableArray $translators,
+        $batchStartsAt = 0,
+        $batchSize = null,
+        StackableArray $args = null
+    ) {
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
