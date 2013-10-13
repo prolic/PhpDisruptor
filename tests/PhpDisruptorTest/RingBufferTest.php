@@ -206,6 +206,31 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException PhpDisruptor\Exception\InvalidArgumentException
      */
+    public function testShouldNotPublishEventsIfBatchIsLargerThanRingBuffer()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+
+        $translators = new StackableArray();
+        $translators[] = $translator;
+        $translators[] = $translator;
+        $translators[] = $translator;
+        $translators[] = $translator;
+        $translators[] = $translator;
+
+        try {
+            $ringBuffer->publishEvents($translators);
+        } catch (\Exception $e) {
+            $this->assertEmptyRingBuffer($ringBuffer);
+            throw $e;
+        }
+        $this->assertEmptyRingBuffer($ringBuffer);
+    }
+
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
     public function testShouldNotPublishEventsWhenBatchStartsAtIsNegative()
     {
         $arrayFactory = new ArrayFactory(1);
