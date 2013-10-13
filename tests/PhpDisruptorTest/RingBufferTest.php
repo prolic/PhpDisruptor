@@ -228,6 +228,23 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $this->assertEmptyRingBuffer($ringBuffer);
     }
 
+    public function testShouldPublishEventsWithBatchSizeOfOne()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+
+        $translators = new StackableArray();
+        $translators[] = $translator;
+        $translators[] = $translator;
+        $translators[] = $translator;
+
+        $ringBuffer->publishEvents($translators, 0, 1);
+        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 0, 1));
+
+        $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1', null, null));
+    }
+
     /**
      * @expectedException PhpDisruptor\Exception\InvalidArgumentException
      */
@@ -242,7 +259,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args = $this->prepareArgs();
 
         try {
-            $ringBuffer->publishEvents($translators, $args, -1, 2);
+            $ringBuffer->publishEvents($translators, -1, 2, $args);
         } catch (\Exception $e) {
             // ignore
         }
@@ -266,7 +283,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args = $this->prepareArgs();
 
         try {
-            $ringBuffer->tryPublishEvents($translators, $args, 1, 3);
+            $ringBuffer->tryPublishEvents($translators, 1, 3, $args);
         } catch (\Exception $e) {
             // ignore
         }
@@ -290,7 +307,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args = $this->prepareArgs();
 
         try {
-            $ringBuffer->tryPublishEvents($translators, $args, -1, -1);
+            $ringBuffer->tryPublishEvents($translators, -1, -1, $args);
         } catch (\Exception $e) {
             // ignore
         }
@@ -314,7 +331,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args = $this->prepareArgs();
 
         try {
-            $ringBuffer->tryPublishEvents($translators, $args, -1, 2);
+            $ringBuffer->tryPublishEvents($translators, -1, 2, $args);
         } catch (\Exception $e) {
             // ignore
         }
