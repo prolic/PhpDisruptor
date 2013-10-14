@@ -434,9 +434,16 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     public function publishEvents(
         StackableArray $translators,
         $batchStartsAt = 0,
-        $batchSize = 0,
+        $batchSize = null,
         StackableArray $args = null
     ) {
+        if (null === $batchSize &&
+            null !== $args
+        ) {
+            $batchSize = count($args);
+            $f = true;
+        }
+
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
@@ -445,7 +452,6 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         } else {
             $this->_checkArgumentsBounds($args, $batchStartsAt, $batchSize);
         }
-
         $finalSequence = $this->sequencer->next($batchSize);
         $this->_translateAndPublishBatch($translators, $batchStartsAt, $batchSize, $finalSequence, $args);
     }
@@ -489,6 +495,12 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $batchSize = null,
         StackableArray $args = null
     ) {
+        if (null === $batchSize &&
+            null !== $args
+        ) {
+            $batchSize = count($args);
+        }
+
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
@@ -589,8 +601,8 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     {
         if ($batchStartsAt + $batchSize > count($args)) {
             throw new Exception\InvalidArgumentException(
-                'A batchSize of: ' . $batchSize . ' with batchStartsAt of: ' . $batchStartsAt
-                . ' will overrun the available number of arguments: ' . (count($args) - $batchStartsAt)
+                'A batchSize of "' . $batchSize . '" with batchStartsAt of "' . $batchStartsAt
+                . '" will overrun the available number of arguments "' . (count($args) - $batchStartsAt) . '"'
             );
         }
     }
@@ -637,14 +649,22 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         try {
             $sequence = $initialSequence;
             $batchEndsAt = $batchStartsAt + $batchSize;
+
             for ($i = $batchStartsAt; $i < $batchEndsAt; $i++) {
-                $translateArgs = new StackableArray();
-                if (null !== $args) {
-                    foreach ($args as $arg) {
-                        $translateArgs[] = $arg[$i];
-                    }
+
+                if (null === $args) {
+                    $translateArgs = null;
+                } else {
+                    $translateArgs = new StackableArray();
+                    $translateArgs[] = $args[$i];
                 }
-                $translator = $translators[$i];
+
+                if (count($translators) > 1) {
+                    $translator = $translators[$i];
+                } else {
+                    $translator = $translators[0];
+                }
+
                 $translator->translateTo($this->get($sequence), $sequence++, $translateArgs);
             }
         } catch (\Exception $e) {
