@@ -34,7 +34,13 @@ class EventTranslator extends \Stackable implements EventTranslatorInterface
         $string = '';
         if (null !== $args) {
             foreach ($args as $arg) {
-                $string .= $arg[0];
+                if ($arg instanceof StackableArray) {
+                    foreach ($arg as $v) {
+                        $string .= $v;
+                    }
+                } else {
+                    $string .= $arg;
+                }
             }
         }
         $event[0]  = $string . '-' . $sequence;
