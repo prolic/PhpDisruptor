@@ -225,7 +225,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
         }
-        $this->assertEmptyRingBuffer($ringBuffer);
     }
 
     public function testShouldPublishEventsWithBatchSizeOfOne()
@@ -371,10 +370,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         try {
             $ringBuffer->publishEvents($translators, -1, 2, $args);
         } catch (\Exception $e) {
-            // ignore
-        }
-        $this->assertEmptyRingBuffer($ringBuffer);
-        if (isset($e)) {
+            $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
         }
     }
@@ -395,10 +391,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         try {
             $ringBuffer->tryPublishEvents($translators, 1, 3, $args);
         } catch (\Exception $e) {
-            // ignore
-        }
-        $this->assertEmptyRingBuffer($ringBuffer);
-        if (isset($e)) {
+            $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
         }
     }
@@ -419,10 +412,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         try {
             $ringBuffer->tryPublishEvents($translators, -1, -1, $args);
         } catch (\Exception $e) {
-            // ignore
-        }
-        $this->assertEmptyRingBuffer($ringBuffer);
-        if (isset($e)) {
+            $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
         }
     }
@@ -443,10 +433,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         try {
             $ringBuffer->tryPublishEvents($translators, -1, 2, $args);
         } catch (\Exception $e) {
-            // ignore
-        }
-        $this->assertEmptyRingBuffer($ringBuffer);
-        if (isset($e)) {
+            $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
         }
     }
