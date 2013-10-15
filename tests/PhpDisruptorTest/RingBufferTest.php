@@ -227,6 +227,37 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testShouldPublishEventsVarArgBatchSizeOfOne()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+
+        $arg0 = new StackableArray();
+        $arg0[] = 'Foo';
+        $arg0[] = 'Bar';
+        $arg0[] = 'Baz';
+        $arg0[] = 'Bam';
+
+        $arg1 = new StackableArray();
+        $arg1[] = 'Foo';
+        $arg1[] = 'Bar';
+        $arg1[] = 'Baz';
+        $arg1[] = 'Bam';
+
+        $args[] = $arg0;
+        $args[] = $arg1;
+
+        $ringBuffer->publishEvents($translators, 0, 1, $args);
+        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 0, 1, $args));
+
+        $this->assertRingBufferWithEvents($ringBuffer, array('FooBarBazBam-0', 'FooBarBazBam-1', null, null));
+    }
+
     public function testShouldPublishEventsWithBatchSizeOfOne()
     {
         $arrayFactory = new ArrayFactory(1);
