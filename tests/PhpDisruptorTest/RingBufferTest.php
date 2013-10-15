@@ -269,6 +269,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $translator = new EventTranslator();
         $translators = new StackableArray();
         $translators[] = $translator;
+
         $args = new StackableArray();
 
         $arg0 = new StackableArray();
@@ -295,6 +296,63 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
             'FooBarBazBam-2',
             'FooBarBazBam-3'
         ));
+    }
+
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
+    public function testShouldNotPublishEventsVarArgIfBatchIsLargerThanRingBuffer()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+
+        $arg0 = new StackableArray();
+        $arg0[] = 'Foo';
+        $arg0[] = 'Bar';
+        $arg0[] = 'Baz';
+        $arg0[] = 'Bam';
+
+        $arg1 = new StackableArray();
+        $arg1[] = 'Foo';
+        $arg1[] = 'Bar';
+        $arg1[] = 'Baz';
+        $arg1[] = 'Bam';
+
+        $arg2 = new StackableArray();
+        $arg2[] = 'Foo';
+        $arg2[] = 'Bar';
+        $arg2[] = 'Baz';
+        $arg2[] = 'Bam';
+
+        $arg3 = new StackableArray();
+        $arg3[] = 'Foo';
+        $arg3[] = 'Bar';
+        $arg3[] = 'Baz';
+        $arg3[] = 'Bam';
+
+        $arg4 = new StackableArray();
+        $arg4[] = 'Foo';
+        $arg4[] = 'Bar';
+        $arg4[] = 'Baz';
+        $arg4[] = 'Bam';
+
+        $args[] = $arg0;
+        $args[] = $arg1;
+        $args[] = $arg2;
+        $args[] = $arg3;
+        $args[] = $arg4;
+
+        try {
+            $ringBuffer->publishEvents($translators, 0, null, $args);
+        } catch (\Exception $e) {
+            $this->assertEmptyRingBuffer($ringBuffer);
+            throw $e;
+        }
     }
 
     /**
