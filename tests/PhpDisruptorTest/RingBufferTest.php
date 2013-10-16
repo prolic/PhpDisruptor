@@ -65,6 +65,11 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, $this->ringBuffer->getCursor());
     }
 
+    public function testShouldClaimAndGetInSeparateThread()
+    {
+        $this->markTestIncomplete();
+    }
+
     public function testShouldClaimAndGetMultipleMessages()
     {
         $eventTranslator = new StubEventTranslator();
@@ -161,6 +166,11 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testShouldPreventPublishersOvertakingEventProcessorWrapPoint()
+    {
+        $this->markTestIncomplete();
+    }
+
     public function testShouldPublishEvent()
     {
         $arrayFactory = new ArrayFactory(1);
@@ -171,20 +181,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer->tryPublishEvent($translator);
 
         $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1'));
-    }
-
-    public function testShouldPublishEventWithArgs()
-    {
-        $arrayFactory = new ArrayFactory(1);
-        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
-        $translator = new EventTranslator();
-
-        $args = $this->prepareArgs();
-
-        $ringBuffer->publishEvent($translator, $args);
-        $ringBuffer->tryPublishEvent($translator, $args);
-
-        $this->assertRingBufferWithEvents($ringBuffer, array('Foo0Foo1Foo2Foo3-0', 'Foo0Foo1Foo2Foo3-1'));
     }
 
     public function testShouldPublishEvents()
@@ -201,6 +197,20 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($ringBuffer->tryPublishEvents($translators));
 
         $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1', '-2', '-3'));
+    }
+
+    public function testShouldPublishEventWithArgs()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+
+        $args = $this->prepareArgs();
+
+        $ringBuffer->publishEvent($translator, $args);
+        $ringBuffer->tryPublishEvent($translator, $args);
+
+        $this->assertRingBufferWithEvents($ringBuffer, array('Foo0Foo1Foo2Foo3-0', 'Foo0Foo1Foo2Foo3-1'));
     }
 
     /**
@@ -227,7 +237,134 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testShouldPublishEventsVarArgBatchSizeOfOne()
+    public function testShouldPublishEventsWithBatchSizeOfOne()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+
+        $translators = new StackableArray();
+        $translators[] = $translator;
+        $translators[] = $translator;
+        $translators[] = $translator;
+
+        $ringBuffer->publishEvents($translators, 0, 1);
+        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 0, 1));
+
+        $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1', null, null));
+    }
+
+    public function testShouldPublishEventsWithinBatch()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+
+        $translators = new StackableArray();
+        $translators[] = $translator;
+        $translators[] = $translator;
+        $translators[] = $translator;
+
+        $ringBuffer->publishEvents($translators, 1, 2);
+        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 1, 2));
+
+        $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1', '-2', '-3'));
+    }
+
+    public function testShouldPublishEventsWithArgs()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+
+        $arg0 = new StackableArray();
+        $arg0[] = 'Foo';
+        $arg0[] = 'Bar';
+        $arg0[] = 'Baz';
+        $arg0[] = 'Bam';
+
+        $arg1 = new StackableArray();
+        $arg1[] = 'Foo';
+        $arg1[] = 'Bar';
+        $arg1[] = 'Baz';
+        $arg1[] = 'Bam';
+
+        $args[] = $arg0;
+        $args[] = $arg1;
+
+        $ringBuffer->publishEvents($translators, 0, null, $args);
+        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 0, null, $args));
+
+        $this->assertRingBufferWithEvents($ringBuffer, array(
+            'FooBarBazBam-0',
+            'FooBarBazBam-1',
+            'FooBarBazBam-2',
+            'FooBarBazBam-3'
+        ));
+    }
+
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
+    public function testShouldNotPublishEventsWithArgsIfBatchIsLargerThanRingBuffer()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+
+        $arg0 = new StackableArray();
+        $arg0[] = 'Foo';
+        $arg0[] = 'Bar';
+        $arg0[] = 'Baz';
+        $arg0[] = 'Bam';
+
+        $arg1 = new StackableArray();
+        $arg1[] = 'Foo';
+        $arg1[] = 'Bar';
+        $arg1[] = 'Baz';
+        $arg1[] = 'Bam';
+
+        $arg2 = new StackableArray();
+        $arg2[] = 'Foo';
+        $arg2[] = 'Bar';
+        $arg2[] = 'Baz';
+        $arg2[] = 'Bam';
+
+        $arg3 = new StackableArray();
+        $arg3[] = 'Foo';
+        $arg3[] = 'Bar';
+        $arg3[] = 'Baz';
+        $arg3[] = 'Bam';
+
+        $arg4 = new StackableArray();
+        $arg4[] = 'Foo';
+        $arg4[] = 'Bar';
+        $arg4[] = 'Baz';
+        $arg4[] = 'Bam';
+
+        $args[] = $arg0;
+        $args[] = $arg1;
+        $args[] = $arg2;
+        $args[] = $arg3;
+        $args[] = $arg4;
+
+        try {
+            $ringBuffer->publishEvents($translators, 0, null, $args);
+        } catch (\Exception $e) {
+            $this->assertEmptyRingBuffer($ringBuffer);
+            throw $e;
+        }
+    }
+
+    public function testShouldPublishEventsWithArgsBatchSizeOfOne()
     {
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
@@ -258,7 +395,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $this->assertRingBufferWithEvents($ringBuffer, array('FooBarBazBam-0', 'FooBarBazBam-1', null, null));
     }
 
-    public function testShouldPublishEventsVarArgWithinBatch()
+    public function testShouldPublishEventsWithArgsWithinBatch()
     {
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
@@ -366,127 +503,47 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testShouldPublishEventsWithBatchSizeOfOne()
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
+    public function testShouldNotTryPublishEventsWhenBatchExtendsPastEndOfArray()
     {
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
-        $translator = new EventTranslator();
-
+        $translator = new ArrayEventTranslator();
         $translators = new StackableArray();
         $translators[] = $translator;
-        $translators[] = $translator;
-        $translators[] = $translator;
 
-        $ringBuffer->publishEvents($translators, 0, 1);
-        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 0, 1));
+        $args = $this->prepareArgs();
 
-        $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1', null, null));
+        try {
+            $ringBuffer->tryPublishEvents($translators, 1, 3, $args);
+        } catch (\Exception $e) {
+            $this->assertEmptyRingBuffer($ringBuffer);
+            throw $e;
+        }
     }
 
-    public function testShouldPublishEventsWithinBatch()
+    public function testShouldNotPublishEventsWhenBatchSizeIsNegative()
     {
-        $arrayFactory = new ArrayFactory(1);
-        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
-        $translator = new EventTranslator();
-
-        $translators = new StackableArray();
-        $translators[] = $translator;
-        $translators[] = $translator;
-        $translators[] = $translator;
-
-        $ringBuffer->publishEvents($translators, 1, 2);
-        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 1, 2));
-
-        $this->assertRingBufferWithEvents($ringBuffer, array('-0', '-1', '-2', '-3'));
-    }
-
-    public function testShouldPublishEventsWithArgs()
-    {
-        $arrayFactory = new ArrayFactory(1);
-        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
-        $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
-
-        $args = new StackableArray();
-
-        $arg0 = new StackableArray();
-        $arg0[] = 'Foo';
-        $arg0[] = 'Bar';
-        $arg0[] = 'Baz';
-        $arg0[] = 'Bam';
-
-        $arg1 = new StackableArray();
-        $arg1[] = 'Foo';
-        $arg1[] = 'Bar';
-        $arg1[] = 'Baz';
-        $arg1[] = 'Bam';
-
-        $args[] = $arg0;
-        $args[] = $arg1;
-
-        $ringBuffer->publishEvents($translators, 0, null, $args);
-        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 0, null, $args));
-
-        $this->assertRingBufferWithEvents($ringBuffer, array(
-            'FooBarBazBam-0',
-            'FooBarBazBam-1',
-            'FooBarBazBam-2',
-            'FooBarBazBam-3'
-        ));
+        $this->markTestIncomplete();
     }
 
     /**
      * @expectedException PhpDisruptor\Exception\InvalidArgumentException
      */
-    public function testShouldNotPublishEventsVarArgIfBatchIsLargerThanRingBuffer()
+    public function testShouldNotTryPublishEventsWhenBatchSizeIsNegative()
     {
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
-        $translator = new EventTranslator();
+        $translator = new ArrayEventTranslator();
         $translators = new StackableArray();
         $translators[] = $translator;
 
-        $args = new StackableArray();
-
-        $arg0 = new StackableArray();
-        $arg0[] = 'Foo';
-        $arg0[] = 'Bar';
-        $arg0[] = 'Baz';
-        $arg0[] = 'Bam';
-
-        $arg1 = new StackableArray();
-        $arg1[] = 'Foo';
-        $arg1[] = 'Bar';
-        $arg1[] = 'Baz';
-        $arg1[] = 'Bam';
-
-        $arg2 = new StackableArray();
-        $arg2[] = 'Foo';
-        $arg2[] = 'Bar';
-        $arg2[] = 'Baz';
-        $arg2[] = 'Bam';
-
-        $arg3 = new StackableArray();
-        $arg3[] = 'Foo';
-        $arg3[] = 'Bar';
-        $arg3[] = 'Baz';
-        $arg3[] = 'Bam';
-
-        $arg4 = new StackableArray();
-        $arg4[] = 'Foo';
-        $arg4[] = 'Bar';
-        $arg4[] = 'Baz';
-        $arg4[] = 'Bam';
-
-        $args[] = $arg0;
-        $args[] = $arg1;
-        $args[] = $arg2;
-        $args[] = $arg3;
-        $args[] = $arg4;
+        $args = $this->prepareArgs();
 
         try {
-            $ringBuffer->publishEvents($translators, 0, null, $args);
+            $ringBuffer->tryPublishEvents($translators, -1, -1, $args);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -517,48 +574,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException PhpDisruptor\Exception\InvalidArgumentException
      */
-    public function testShouldNotTryPublishEventsWhenBatchExtendsPastEndOfArray()
-    {
-        $arrayFactory = new ArrayFactory(1);
-        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
-        $translator = new ArrayEventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
-
-        $args = $this->prepareArgs();
-
-        try {
-            $ringBuffer->tryPublishEvents($translators, 1, 3, $args);
-        } catch (\Exception $e) {
-            $this->assertEmptyRingBuffer($ringBuffer);
-            throw $e;
-        }
-    }
-
-    /**
-     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
-     */
-    public function testShouldNotTryPublishEventsWhenBatchSizeIsNegative()
-    {
-        $arrayFactory = new ArrayFactory(1);
-        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
-        $translator = new ArrayEventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
-
-        $args = $this->prepareArgs();
-
-        try {
-            $ringBuffer->tryPublishEvents($translators, -1, -1, $args);
-        } catch (\Exception $e) {
-            $this->assertEmptyRingBuffer($ringBuffer);
-            throw $e;
-        }
-    }
-
-    /**
-     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
-     */
     public function testShouldNotTryPublishEventsWhenBatchStartsAtIsNegative()
     {
         $arrayFactory = new ArrayFactory(1);
@@ -575,6 +590,41 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
         }
+    }
+
+    public function testShouldNotPublishEventsWithArgsWhenBatchSizeIs0()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testShouldNotPublishEventsWithArgsWhenBatchExtendsPastEndOfArray()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testShouldNotPublishEventsWithArgsWhenBatchSizeIsNegative()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testShouldNotPublishEventsWithArgsWhenBatchStartsAtIsNegative()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testShouldNotTryPublishEventsWithArgsWhenBatchExtendsPastEndOfArray()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testShouldNotTryPublishEventsWithArgsWhenBatchSizeIsNegative()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function testShouldNotTryPublishEventsWithArgsWhenBatchStartsAtIsNegative()
+    {
+        $this->markTestIncomplete();
     }
 
     public function testShouldAddAndRemoveSequences()
