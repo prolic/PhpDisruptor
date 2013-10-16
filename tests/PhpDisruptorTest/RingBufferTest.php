@@ -258,6 +258,73 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $this->assertRingBufferWithEvents($ringBuffer, array('FooBarBazBam-0', 'FooBarBazBam-1', null, null));
     }
 
+    public function testShouldPublishEventsVarArgWithinBatch()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+
+        $arg0 = new StackableArray();
+        $arg0[] = 'Foo0';
+        $arg0[] = 'Bar0';
+        $arg0[] = 'Baz0';
+        $arg0[] = 'Bam0';
+
+        $arg1 = new StackableArray();
+        $arg1[] = 'Foo1';
+        $arg1[] = 'Bar1';
+        $arg1[] = 'Baz1';
+        $arg1[] = 'Bam1';
+
+        $arg2 = new StackableArray();
+        $arg2[] = 'Foo2';
+        $arg2[] = 'Bar2';
+        $arg2[] = 'Baz2';
+        $arg2[] = 'Bam2';
+
+        $args[] = $arg0;
+        $args[] = $arg1;
+        $args[] = $arg2;
+
+        $ringBuffer->publishEvents($translators, 1, 2, $args);
+
+        $args = new StackableArray();
+
+        $arg0 = new StackableArray();
+        $arg0[] = 'Foo3';
+        $arg0[] = 'Bar3';
+        $arg0[] = 'Baz3';
+        $arg0[] = 'Bam3';
+
+        $arg1 = new StackableArray();
+        $arg1[] = 'Foo4';
+        $arg1[] = 'Bar4';
+        $arg1[] = 'Baz4';
+        $arg1[] = 'Bam4';
+
+        $arg2 = new StackableArray();
+        $arg2[] = 'Foo5';
+        $arg2[] = 'Bar5';
+        $arg2[] = 'Baz5';
+        $arg2[] = 'Bam5';
+
+        $args[] = $arg0;
+        $args[] = $arg1;
+        $args[] = $arg2;
+
+        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 1, 2, $args));
+        $this->assertRingBufferWithEvents($ringBuffer, array(
+            'Foo1Bar1Baz1Bam1-0',
+            'Foo2Bar2Baz2Bam2-1',
+            'Foo4Bar4Baz4Bam4-2',
+            'Foo5Bar5Baz5Bam5-3'
+        ));
+    }
+
     public function testShouldPublishEventsWithBatchSizeOfOne()
     {
         $arrayFactory = new ArrayFactory(1);
