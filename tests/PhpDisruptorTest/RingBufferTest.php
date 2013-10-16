@@ -325,6 +325,26 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         ));
     }
 
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
+    public function testShouldNotPublishEventsWhenBatchSizeIs0()
+    {
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        try {
+            $ringBuffer->publishEvents($translators, 1, 0);
+            $ringBuffer->tryPublishEvents($translators, 1, 0);
+        } catch (\Exception $e) {
+            $this->assertEmptyRingBuffer($ringBuffer);
+            throw $e;
+        }
+    }
+
     public function testShouldPublishEventsWithBatchSizeOfOne()
     {
         $arrayFactory = new ArrayFactory(1);
