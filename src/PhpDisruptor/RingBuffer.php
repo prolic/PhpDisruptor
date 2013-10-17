@@ -437,13 +437,6 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $batchSize = null,
         StackableArray $args = null
     ) {
-        if (null === $batchSize &&
-            null !== $args
-        ) {
-            $batchSize = count($args);
-            $f = true;
-        }
-
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
@@ -495,12 +488,6 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $batchSize = null,
         StackableArray $args = null
     ) {
-        if (null === $batchSize &&
-            null !== $args
-        ) {
-            $batchSize = count($args);
-        }
-
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
