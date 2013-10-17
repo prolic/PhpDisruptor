@@ -617,14 +617,90 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $this->markTestIncomplete();
     }
 
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
     public function testShouldNotTryPublishEventsWithArgsWhenBatchSizeIsNegative()
     {
-        $this->markTestIncomplete();
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+
+        $arg0 = new StackableArray();
+        $arg0[] = 'Foo0';
+        $arg0[] = 'Bar0';
+        $arg0[] = 'Baz0';
+        $arg0[] = 'Bam0';
+
+        $arg1 = new StackableArray();
+        $arg1[] = 'Foo1';
+        $arg1[] = 'Bar1';
+        $arg1[] = 'Baz1';
+        $arg1[] = 'Bam1';
+
+        $arg2 = new StackableArray();
+        $arg2[] = 'Foo2';
+        $arg2[] = 'Bar2';
+        $arg2[] = 'Baz2';
+        $arg2[] = 'Bam2';
+
+        $args[] = $arg0;
+        $args[] = $arg1;
+        $args[] = $arg2;
+
+        try {
+            $ringBuffer->publishEvents($translators, 1, -1, $args);
+        } catch (\Exception $e) {
+            $this->assertEmptyRingBuffer($ringBuffer);
+            throw $e;
+        }
     }
 
+    /**
+     * @expectedException PhpDisruptor\Exception\InvalidArgumentException
+     */
     public function testShouldNotTryPublishEventsWithArgsWhenBatchStartsAtIsNegative()
     {
-        $this->markTestIncomplete();
+        $arrayFactory = new ArrayFactory(1);
+        $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
+        $translator = new EventTranslator();
+        $translators = new StackableArray();
+        $translators[] = $translator;
+
+        $args = new StackableArray();
+
+        $arg0 = new StackableArray();
+        $arg0[] = 'Foo0';
+        $arg0[] = 'Bar0';
+        $arg0[] = 'Baz0';
+        $arg0[] = 'Bam0';
+
+        $arg1 = new StackableArray();
+        $arg1[] = 'Foo1';
+        $arg1[] = 'Bar1';
+        $arg1[] = 'Baz1';
+        $arg1[] = 'Bam1';
+
+        $arg2 = new StackableArray();
+        $arg2[] = 'Foo2';
+        $arg2[] = 'Bar2';
+        $arg2[] = 'Baz2';
+        $arg2[] = 'Bam2';
+
+        $args[] = $arg0;
+        $args[] = $arg1;
+        $args[] = $arg2;
+
+        try {
+            $ringBuffer->publishEvents($translators, -1, 2, $args);
+        } catch (\Exception $e) {
+            $this->assertEmptyRingBuffer($ringBuffer);
+            throw $e;
+        }
     }
 
     public function testShouldAddAndRemoveSequences()
