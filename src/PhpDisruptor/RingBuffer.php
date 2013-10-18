@@ -440,10 +440,10 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
-        if (empty($args)) {
-            $this->_checkTranslatorsBounds($translators, $batchStartsAt, $batchSize);
+        if (null === $args) {
+            $this->_checkBounds($translators, $batchStartsAt, $batchSize);
         } else {
-            $this->_checkArgumentsBounds($args, $batchStartsAt, $batchSize);
+            $this->_checkBounds($args, $batchStartsAt, $batchSize);
         }
         $finalSequence = $this->sequencer->next($batchSize);
         $this->_translateAndPublishBatch($translators, $batchStartsAt, $batchSize, $finalSequence, $args);
@@ -491,10 +491,10 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
 
-        if (empty($args)) {
-            $this->_checkTranslatorsBounds($translators, $batchStartsAt, $batchSize);
+        if (null === $args) {
+            $this->_checkBounds($translators, $batchStartsAt, $batchSize);
         } else {
-            $this->_checkArgumentsBounds($args, $batchStartsAt, $batchSize);
+            $this->_checkBounds($args, $batchStartsAt, $batchSize);
         }
 
         try {
@@ -530,31 +530,15 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     }
 
     /**
-     * @param EventTranslatorInterface[] $translators
+     * @param StackableArray $translatorsOrArgs
      * @param int $batchStartsAt
      * @param int $batchSize
      * @return void
      */
-    public function _checkTranslatorsBounds(StackableArray $translators, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
+    public function _checkBounds(StackableArray $translatorsOrArgs, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
         $this->_checkBatchSizing($batchStartsAt, $batchSize);
-        $this->_batchOverRuns($translators, $batchStartsAt, $batchSize);
-    }
-
-    /**
-     * @param StackableArray $args
-     * @param int $batchStartsAt
-     * @param int $batchSize
-     * @return void
-     */
-    public function _checkArgumentsBounds(StackableArray $args = null, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
-    {
-        $this->_checkBatchSizing($batchStartsAt, $batchSize);
-        if (null !== $args) {
-            foreach ($args as $arg) {
-                $this->_batchOverRuns($arg, $batchStartsAt, $batchSize);
-            }
-        }
+        $this->_batchOverRuns($translatorsOrArgs, $batchStartsAt, $batchSize);
     }
 
     /**
