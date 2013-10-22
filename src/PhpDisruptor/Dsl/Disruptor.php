@@ -159,7 +159,8 @@ class Disruptor extends Worker implements EventClassCapableInterface
      */
     public function handleEventsWithWorkerPool(StackableArray $workHandlers)
     {
-        return $this->createWorkerPool(new StackableArray(), $workHandlers);
+        $barrierSequences = new StackableArray();
+        return $this->createWorkerPool($barrierSequences, $workHandlers);
     }
 
     /**
