@@ -17,10 +17,10 @@ class WorkHandlerList extends StackableArray
     /**
      * Constructor
      *
-     * @param WorkHandlerInterface|array|Traversable $entities
+     * @param WorkHandlerInterface|array|Traversable|null $entities
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct($entities)
+    public function __construct($entities = null)
     {
         if ($entities instanceof WorkHandlerInterface) {
             $this->add($entities);
@@ -28,7 +28,7 @@ class WorkHandlerList extends StackableArray
             foreach ($entities as $entity) {
                 $this->add($entity);
             }
-        } else {
+        } else if (null !== $entities) {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Parameter provided to %s must be an %s, %s or %s',
                 __METHOD__, 'array', 'Traversable', 'PhpDisruptor\WorkHandlerInterface'
