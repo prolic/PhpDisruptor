@@ -3,26 +3,42 @@
 namespace PhpDisruptor\Lists;
 
 use PhpDisruptor\EventTranslatorInterface;
+use PhpDisruptor\Exception;
 use PhpDisruptor\Pthreads\StackableArray;
+use Traversable;
 
 class EventTranslatorList extends StackableArray
 {
+    /**
+     * @var array
+     */
     public $list;
 
     /**
-     * @param EventTranslatorInterface|array $entities
+     * Constructor
+     *
+     * @param EventTranslatorInterface|array|Traversable $entities
+     * @throws Exception\InvalidArgumentException
      */
     public function __construct($entities)
     {
         if ($entities instanceof EventTranslatorInterface) {
             $this->add($entities);
-        } else if (is_array($entities)) {
+        } else if (is_array($entities) || $entities instanceof Traversable) {
             foreach ($entities as $entity) {
                 $this->add($entity);
             }
+        } else {
+            throw new Exception\InvalidArgumentException(sprintf(
+                'Parameter provided to %s must be an %s, %s or %s',
+                __METHOD__, 'array', 'Traversable', 'PhpDisruptor\EventTranslatorInterface'
+            ));
         }
     }
 
+    /**
+     * @param EventTranslatorInterface $entity
+     */
     public function add(EventTranslatorInterface $entity)
     {
         $this->list[] = $entity;

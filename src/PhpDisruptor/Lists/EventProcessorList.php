@@ -2,12 +2,12 @@
 
 namespace PhpDisruptor\Lists;
 
+use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Pthreads\StackableArray;
-use PhpDisruptor\Sequence;
 use Traversable;
 
-class SequenceList extends StackableArray
+class EventProcessorList extends StackableArray
 {
     /**
      * @var array
@@ -17,12 +17,12 @@ class SequenceList extends StackableArray
     /**
      * Constructor
      *
-     * @param Sequence|array|Traversable $entities
+     * @param AbstractEventProcessor|array|Traversable $entities
      * @throws Exception\InvalidArgumentException
      */
     public function __construct($entities)
     {
-        if ($entities instanceof Sequence) {
+        if ($entities instanceof AbstractEventProcessor) {
             $this->add($entities);
         } else if (is_array($entities) || $entities instanceof Traversable) {
             foreach ($entities as $entity) {
@@ -31,15 +31,15 @@ class SequenceList extends StackableArray
         } else {
             throw new Exception\InvalidArgumentException(sprintf(
                 'Parameter provided to %s must be an %s, %s or %s',
-                __METHOD__, 'array', 'Traversable', 'PhpDisruptor\Sequence'
+                __METHOD__, 'array', 'Traversable', 'PhpDisruptor\EventProcessor\AbstractEventProcessor'
             ));
         }
     }
 
     /**
-     * @param Sequence $entity
+     * @param AbstractEventProcessor $entity
      */
-    public function add(Sequence $entity)
+    public function add(AbstractEventProcessor $entity)
     {
         $this->list[] = $entity;
     }
