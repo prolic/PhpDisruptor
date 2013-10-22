@@ -5,7 +5,7 @@ namespace PhpDisruptor\Lists;
 use PhpDisruptor\Sequence as Seq;
 use PhpDisruptor\Pthreads\StackableArray;
 
-class Sequence extends StackableArray
+class SequenceList extends StackableArray
 {
     public $list;
 

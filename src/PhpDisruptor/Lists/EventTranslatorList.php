@@ -5,7 +5,7 @@ namespace PhpDisruptor\Lists;
 use PhpDisruptor\EventTranslatorInterface;
 use PhpDisruptor\Pthreads\StackableArray;
 
-class EventTranslator extends StackableArray
+class EventTranslatorList extends StackableArray
 {
     public $list;
 
