@@ -14,7 +14,7 @@ class EventHandlerList extends StackableArray
      */
     public function __construct($entities)
     {
-        if ($entities instanceof Seq) {
+        if ($entities instanceof EventHandlerInterface) {
             $this->add($entities);
         } else if (is_array($entities)) {
             foreach ($entities as $entity) {
