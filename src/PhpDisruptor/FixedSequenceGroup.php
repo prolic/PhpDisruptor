@@ -4,6 +4,7 @@ namespace PhpDisruptor;
 
 use ArrayIterator;
 use CachingIterator;
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Util\Util;
 
@@ -13,25 +14,18 @@ use PhpDisruptor\Util\Util;
 final class FixedSequenceGroup extends Sequence
 {
     /**
-     * @var Sequence[]
+     * @var SequenceList
      */
     public $sequences;
 
     /**
      * Constructor
      *
-     * @param Sequence[] $sequences the list of sequences to be tracked under this sequence group
+     * @param SequenceList $sequences the list of sequences to be tracked under this sequence group
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct(StackableArray $sequences)
+    public function __construct(SequenceList $sequences)
     {
-        foreach ($sequences as $sequence) {
-            if (!$sequence instanceof Sequence) {
-                throw new Exception\InvalidArgumentException(
-                    'sequence must be an instance of PhpDisruptor\Sequence'
-                );
-            }
-        }
         $this->sequences = $sequences;
     }
 
@@ -43,28 +37,6 @@ final class FixedSequenceGroup extends Sequence
     public function get()
     {
         return Util::getMinimumSequence($this->sequences);
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        $it = new CachingIterator(
-            new ArrayIterator($this->sequences),
-            CachingIterator::FULL_CACHE
-        );
-
-        $output = '[';
-        foreach ($it as $sequence) {
-            $output .= (string) $sequence;
-            if ($it->hasNext()) {
-                $output .= ', ';
-            }
-        }
-        $output .= ']';
-
-        return $output;
     }
 
     /**
