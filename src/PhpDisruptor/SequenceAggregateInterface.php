@@ -2,25 +2,25 @@
 
 namespace PhpDisruptor;
 
-use PhpDisruptor\Pthreads\StackableArray;
+use PhpDisruptor\Lists\SequenceList;
 
 interface SequenceAggregateInterface
 {
     /**
-     * @return Sequence[]
+     * @return SequenceList
      */
     public function getSequences();
 
     /**
-     * @param Sequence[] $sequences
+     * @param SequenceList $sequences
      * @return void
      */
-    public function setSequences(StackableArray $sequences);
+    public function setSequences(SequenceList $sequences);
 
     /**
-     * @param Sequence[] $oldSequences
-     * @param Sequence[] $newSequences
+     * @param SequenceList $oldSequences
+     * @param SequenceList $newSequences
      * @return bool
      */
-    public function casSequences(StackableArray $oldSequences, StackableArray $newSequences);
+    public function casSequences(SequenceList $oldSequences, SequenceList $newSequences);
 }
