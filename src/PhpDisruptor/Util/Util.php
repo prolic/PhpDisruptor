@@ -4,6 +4,8 @@ namespace PhpDisruptor\Util;
 
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
+use PhpDisruptor\Lists\EventProcessorList;
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceAggregateInterface;
@@ -28,14 +30,14 @@ final class Util
     }
 
     /**
-     * Get the minimum sequence from an StackableArray of Sequences
+     * Get the minimum sequence from an SequenceList
      *
-     * @param Sequence[] $sequences to compare with StackableArray as container instead of a php array
+     * @param SequenceList $sequences to compare with StackableArray as container instead of a php array
      * @param int|null  $minimum
      * @return int the minimum sequence found or PHP_INT_MAX if the StackableArray is empty
      * @throws Exception\InvalidArgumentException
      */
-    public static function getMinimumSequence(StackableArray $sequences, $minimum = PHP_INT_MAX)
+    public static function getMinimumSequence(SequenceList $sequences, $minimum = PHP_INT_MAX)
     {
         foreach ($sequences as $sequence) {
             $value = $sequence->get();
@@ -47,19 +49,14 @@ final class Util
     /**
      * Get an StackableArray of Sequences for the passed EventProcessors
      *
-     * @param AbstractEventProcessor[] $processors for which to get the sequences with StackableArray as container instead of a php array
-     * @return Sequence[] the array of Sequences
+     * @param EventProcessorList $processors for which to get the sequences with StackableArray as container instead of a php array
+     * @return SequenceList the array of Sequences
      * @throws Exception\InvalidArgumentException
      */
-    public static function getSequencesFor(StackableArray $processors)
+    public static function getSequencesFor(EventProcessorList $processors)
     {
-        $sequences = new StackableArray();
+        $sequences = new SequenceList();
         foreach ($processors as $eventProcessor) {
-            if (!$eventProcessor instanceof AbstractEventProcessor) {
-                throw new Exception\InvalidArgumentException(
-                    '$processor must be an instance of PhpDisruptor\AbstractEventProcessor'
-                );
-            }
             $sequences[] = $eventProcessor->getSequence();
         }
         return $sequences;
@@ -67,14 +64,14 @@ final class Util
 
     /**
      * @param SequenceAggregateInterface $sequenceAggregate
-     * @param Sequence[] $oldSequences
-     * @param Sequence[] $newSequences
+     * @param SequenceList $oldSequences
+     * @param SequenceList $newSequences
      * @return bool
      */
     public static function casSequences(
         SequenceAggregateInterface $sequenceAggregate,
-        StackableArray $oldSequences,
-        StackableArray $newSequences
+        SequenceList $oldSequences,
+        SequenceList $newSequences
     ) {
         $set = false;
         $sequenceAggregate->lock();
