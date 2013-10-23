@@ -2,6 +2,7 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\AtomicStackableTrait;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Util\Util;
@@ -28,7 +29,7 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
     public $cursor;
 
     /**
-     * @var Sequence[]
+     * @var SequenceList
      */
     public $sequences;
 
@@ -51,7 +52,7 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
 
         $this->bufferSize = $bufferSize;
         $this->waitStrategy = $waitStrategy;
-        $this->sequences = new StackableArray();
+        $this->sequences = new SequenceList();
         $this->cursor = new Sequence();
     }
 
@@ -72,7 +73,7 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
     /**
      * Returns the gating sequences
      *
-     * @return Sequence[]
+     * @return SequenceList
      */
     public function getSequences()
     {
@@ -100,10 +101,10 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
     }
 
     /**
-     * @param Sequence[] $gatingSequences
+     * @param SequenceList $gatingSequences
      * @return void
      */
-    public function addGatingSequences(StackableArray $gatingSequences)
+    public function addGatingSequences(SequenceList $gatingSequences)
     {
         SequenceGroups::addSequences($this, $this, $gatingSequences);
     }
@@ -126,13 +127,13 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
     }
 
     /**
-     * @param StackableArray|null $sequencesToTrack
+     * @param SequenceList|null $sequencesToTrack
      * @return ProcessingSequenceBarrier
      */
-    public function newBarrier(StackableArray $sequencesToTrack = null)
+    public function newBarrier(SequenceList $sequencesToTrack = null)
     {
         if (null === $sequencesToTrack) {
-            $sequencesToTrack = new StackableArray();
+            $sequencesToTrack = new SequenceList();
         }
         $barrier = new ProcessingSequenceBarrier($this, $this->waitStrategy, $this->cursor, $sequencesToTrack);
         return $barrier;
@@ -141,16 +142,16 @@ abstract class AbstractSequencer extends Stackable implements SequencerInterface
     /**
      * @inheritdoc
      */
-    public function casSequences(StackableArray $oldSequences, StackableArray $newSequences)
+    public function casSequences(SequenceList $oldSequences, SequenceList $newSequences)
     {
         return Util::casSequences($this, $oldSequences, $newSequences);
     }
 
     /**
-     * @param Sequence[] $sequences
+     * @param SequenceList $sequences
      * @return void
      */
-    public function setSequences(StackableArray $sequences)
+    public function setSequences(SequenceList $sequences)
     {
         $this->sequences = $sequences;
     }

@@ -3,6 +3,7 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Exception\InsufficientCapacityException;
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Util\Util;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
@@ -41,11 +42,10 @@ final class MultiProducerSequencer extends AbstractSequencer
         $this->indexMask = $bufferSize - 1;
         $this->indexShift = Util::log2($bufferSize);
 
-        $buffer = new StackableArray();
+        $this->availableBuffer = new StackableArray();
         for ($i = 0; $i < $bufferSize; $i++) {
-            $buffer[$i] = -1;
+            $this->availableBuffer[$i] = -1;
         }
-        $this->availableBuffer = $buffer;
     }
 
     /**
@@ -59,12 +59,12 @@ final class MultiProducerSequencer extends AbstractSequencer
     }
 
     /**
-     * @param Sequence[] $gatingSequences with StackableArray as container instead of php array
+     * @param SequenceList $gatingSequences
      * @param int $requiredCapacity
      * @param int $cursorValue
      * @return bool
      */
-    public function _internalHasAvailableCapacity(StackableArray $gatingSequences, $requiredCapacity, $cursorValue) // private !! only public for pthreads reasons
+    public function _internalHasAvailableCapacity(SequenceList $gatingSequences, $requiredCapacity, $cursorValue) // private !! only public for pthreads reasons
     {
         $wrapPoint = ($cursorValue + $requiredCapacity) - $this->bufferSize;
         $cachedGatingSequence = $this->gatingSequenceCache->get();
