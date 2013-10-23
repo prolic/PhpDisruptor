@@ -10,11 +10,6 @@ use Traversable;
 class WorkHandlerList extends StackableArray
 {
     /**
-     * @var array
-     */
-    public $list;
-
-    /**
      * Constructor
      *
      * @param WorkHandlerInterface|array|Traversable|null $entities
@@ -41,6 +36,6 @@ class WorkHandlerList extends StackableArray
      */
     public function add(WorkHandlerInterface $entity)
     {
-        $this->list[] = $entity;
+        $this[] = $entity;
     }
 }

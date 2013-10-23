@@ -10,11 +10,6 @@ use Traversable;
 class EventTranslatorList extends StackableArray
 {
     /**
-     * @var array
-     */
-    public $list;
-
-    /**
      * Constructor
      *
      * @param EventTranslatorInterface|array|Traversable|null $entities
@@ -41,6 +36,6 @@ class EventTranslatorList extends StackableArray
      */
     public function add(EventTranslatorInterface $entity)
     {
-        $this->list[] = $entity;
+        $this[] = $entity;
     }
 }

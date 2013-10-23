@@ -10,11 +10,6 @@ use Traversable;
 class EventProcessorList extends StackableArray
 {
     /**
-     * @var array
-     */
-    public $list;
-
-    /**
      * Constructor
      *
      * @param AbstractEventProcessor|array|Traversable|null $entities
@@ -41,6 +36,6 @@ class EventProcessorList extends StackableArray
      */
     public function add(AbstractEventProcessor $entity)
     {
-        $this->list[] = $entity;
+        $this[] = $entity;
     }
 }

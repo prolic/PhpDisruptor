@@ -10,11 +10,6 @@ use Traversable;
 class SequenceList extends StackableArray
 {
     /**
-     * @var array
-     */
-    public $list;
-
-    /**
      * Constructor
      *
      * @param Sequence|array|Traversable|null $entities
@@ -41,6 +36,6 @@ class SequenceList extends StackableArray
      */
     public function add(Sequence $entity)
     {
-        $this->list[] = $entity;
+        $this[] = $entity;
     }
 }
