@@ -2,7 +2,7 @@
 
 namespace PhpDisruptor;
 
-use PhpDisruptor\Pthreads\StackableArray;
+use PhpDisruptor\Lists\SequenceList;
 
 interface SequencerInterface extends CursoredInterface, SequenceAggregateInterface
 {
@@ -80,11 +80,11 @@ interface SequencerInterface extends CursoredInterface, SequenceAggregateInterfa
      * Add the specified gating sequences to this instance of the Disruptor.  They will
      * safely and atomically added to the list of gating sequences.
      *
-     * @param Sequence[] $gatingSequences The sequences to add.
+     * @param SequenceList $gatingSequences The sequences to add.
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    public function addGatingSequences(StackableArray $gatingSequences);
+    public function addGatingSequences(SequenceList $gatingSequences);
 
     /**
      * Remove the specified sequence from this sequencer.
@@ -99,10 +99,10 @@ interface SequencerInterface extends CursoredInterface, SequenceAggregateInterfa
      * are available to be read from the ring buffer given a list of sequences to track.
      *
      * @see SequenceBarrierInterface
-     * @param Sequence[] $sequencesToTrack
+     * @param SequenceList $sequencesToTrack
      * @return SequenceBarrierInterface A sequence barrier that will track the specified sequences.
      */
-    public function newBarrier(StackableArray $sequencesToTrack = null);
+    public function newBarrier(SequenceList $sequencesToTrack = null);
 
     /**
      * Get the minimum sequence value from all of the gating sequences
