@@ -2,6 +2,7 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Lists\EventHandlerList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Pthreads\UuidStackable;
 
@@ -21,10 +22,10 @@ final class AggregateEventHandler extends UuidStackable implements EventHandlerI
      * Constructor
      *
      * @param string $eventClass
-     * @param EventHandlerInterface[] $eventHandlers
+     * @param EventHandlerList $eventHandlers
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct($eventClass, StackableArray $eventHandlers)
+    public function __construct($eventClass, EventHandlerList $eventHandlers)
     {
         parent::__construct();
 
@@ -36,8 +37,7 @@ final class AggregateEventHandler extends UuidStackable implements EventHandlerI
         $this->eventClass = $eventClass;
 
         foreach ($eventHandlers as $eventHandler) {
-            if (!$eventHandler instanceof EventHandlerInterface
-                || $eventHandler->getEventClass() != $eventClass
+            if ($eventHandler->getEventClass() != $eventClass
             ) {
                 throw new Exception\InvalidArgumentException(
                     'all event handler must use the same event class as the aggregate event handler, '
