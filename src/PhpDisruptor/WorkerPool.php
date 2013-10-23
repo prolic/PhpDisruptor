@@ -4,6 +4,8 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\EventProcessor\WorkProcessor;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
+use PhpDisruptor\Lists\SequenceList;
+use PhpDisruptor\Lists\WorkHandlerList;
 use PhpDisruptor\Pthreads\AtomicStackableTrait;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Util\Util;
@@ -44,13 +46,13 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
      * @param RingBuffer $ringBuffer
      * @param SequenceBarrierInterface $sequenceBarrier
      * @param ExceptionHandlerInterface $exceptionHandler
-     * @param WorkHandlerInterface[] $workHandlers
+     * @param WorkHandlerList $workHandlers
      */
     protected function __construct(
         RingBuffer $ringBuffer,
         SequenceBarrierInterface $sequenceBarrier,
         ExceptionHandlerInterface $exceptionHandler,
-        StackableArray $workHandlers
+        WorkHandlerList $workHandlers
     ) {
         $this->started = false;
         $this->workSequence = new Sequence(SequencerInterface::INITIAL_CURSOR_VALUE);
@@ -82,14 +84,14 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
      * @param RingBuffer $ringBuffer
      * @param SequenceBarrierInterface $sequenceBarrier
      * @param ExceptionHandlerInterface $exceptionHandler
-     * @param WorkHandlerInterface[] $workHandlers
+     * @param WorkHandlerList $workHandlers
      * @return WorkerPool
      */
     public static function createFromRingBuffer(
         RingBuffer $ringBuffer,
         SequenceBarrierInterface $sequenceBarrier,
         ExceptionHandlerInterface $exceptionHandler,
-        StackableArray $workHandlers
+        WorkHandlerList $workHandlers
     ) {
         return new self($ringBuffer, $sequenceBarrier, $exceptionHandler, $workHandlers);
     }
@@ -99,13 +101,13 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
      *
      * @param EventFactoryInterface $eventFactory
      * @param ExceptionHandlerInterface $exceptionHandler
-     * @param WorkHandlerInterface[] $workHandlers
+     * @param WorkHandlerList $workHandlers
      * @return WorkerPool
      */
     public static function createFromEventFactory(
         EventFactoryInterface $eventFactory,
         ExceptionHandlerInterface $exceptionHandler,
-        StackableArray $workHandlers
+        WorkHandlerList $workHandlers
     ) {
         $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 1024);
         $sequenceBarrier = $ringBuffer->newBarrier();
@@ -122,7 +124,7 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
      */
     public function getWorkerSequences()
     {
-        $sequences = new StackableArray();
+        $sequences = new SequenceList();
         foreach ($this->workProcessors as $workProcessor) {
             $sequences[] = $workProcessor->getSequence();
         }
