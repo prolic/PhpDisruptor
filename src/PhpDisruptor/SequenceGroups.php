@@ -2,35 +2,29 @@
 
 namespace PhpDisruptor;
 
-use PhpDisruptor\Pthreads\StackableArray;
+use PhpDisruptor\Lists\SequenceList;
 
 abstract class SequenceGroups
 {
     /**
      * @param SequenceAggregateInterface $sequenceAggregate
      * @param CursoredInterface $cursor
-     * @param Sequence[] $sequencesToAdd
+     * @param SequenceList $sequencesToAdd
      * @return void
-     * @throws Exception\InvalidArgumentException
      */
     public static function addSequences(
         SequenceAggregateInterface $sequenceAggregate,
         CursoredInterface $cursor,
-        StackableArray $sequencesToAdd
+        SequenceList $sequencesToAdd
     ) {
 
         do {
             $currentSequences = $sequenceAggregate->getSequences();
-            $updatedSequences = new StackableArray();
+            $updatedSequences = new SequenceList();
             $updatedSequences->merge($currentSequences);
             $cursorSequence = $cursor->getCursor();
 
             foreach ($sequencesToAdd as $sequence) {
-                if (!$sequence instanceof Sequence) {
-                    throw new Exception\InvalidArgumentException(
-                        '$sequences must be an StackableArray of PhpDisruptor\Sequence objects'
-                    );
-                }
                 $sequence->set($cursorSequence);
                 $updatedSequences[] = $sequence;
             }
@@ -59,7 +53,7 @@ abstract class SequenceGroups
 
             $oldSize = count($oldSequences);
 
-            $newSequences = new StackableArray();
+            $newSequences = new SequenceList();
             for ($i = 0, $pos = 0; $i < $oldSize; $i++) {
                 $testSequence = $oldSequences[$i];
                 if (!$testSequence->equals($sequence)) {
@@ -71,11 +65,11 @@ abstract class SequenceGroups
     }
 
     /**
-     * @param Sequence[] $sequences
+     * @param SequenceList $sequences
      * @param Sequence $sequence
      * @return int
      */
-    public static function countMatching(StackableArray $sequences, Sequence $sequence)
+    public static function countMatching(SequenceList $sequences, Sequence $sequence)
     {
         $numToRemove = 0;
         foreach ($sequences as $sequenceToTest) {
