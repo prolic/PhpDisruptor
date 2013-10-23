@@ -3,6 +3,8 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Dsl\ProducerType;
+use PhpDisruptor\Lists\EventTranslatorList;
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\WaitStrategy\BlockingWaitStrategy;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
@@ -261,10 +263,10 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * Add the specified gating sequences to this instance of the Disruptor.  They will
      * safely and atomically added to the list of gating sequences.
      *
-     * @param Sequence[] $gatingSequences The sequences to add.
+     * @param SequenceList $gatingSequences The sequences to add.
      * @return void
      */
-    public function addGatingSequences(StackableArray $gatingSequences)
+    public function addGatingSequences(SequenceList $gatingSequences)
     {
         $this->sequencer->addGatingSequences($gatingSequences);
     }
@@ -296,13 +298,13 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * Create a new SequenceBarrier to be used by an EventProcessor to track which messages
      * are available to be read from the ring buffer given a list of sequences to track.
      *
-     * @param Sequence[] $sequencesToTrack the additional sequences to track
+     * @param SequenceList $sequencesToTrack the additional sequences to track
      * @return SequenceBarrierInterface A sequence barrier that will track the specified sequences.
      */
-    public function newBarrier(StackableArray $sequencesToTrack = null)
+    public function newBarrier(SequenceList $sequencesToTrack = null)
     {
         if (null === $sequencesToTrack) {
-            $sequencesToTrack = new StackableArray();
+            $sequencesToTrack = new SequenceList();
         }
         return $this->sequencer->newBarrier($sequencesToTrack);
     }
@@ -360,20 +362,25 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     }
 
     /**
-     * @param EventTranslatorInterface[] $translators
+     * @param EventTranslatorInterface|EventTranslatorList $translators
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    public function _checkTranslators(StackableArray $translators) // private !! only public for pthreads reasons
+    public function _checkTranslators($translators) // private !! only public for pthreads reasons
     {
-        foreach ($translators as $translator) {
-            if ($translator->getEventClass() != $this->getEventClass()) {
-                throw new Exception\InvalidArgumentException(
-                    'Event translator does not match event class, translator has "' . $translator->getEventClass() . '"'
-                    . ' and Ringbuffer has "' . $this->getEventClass() . '"'
-                );
+        if ($translators instanceof EventTranslatorInterface) {
+            $this->_checkTranslator($translators);
+        } else if ($translators instanceof EventTranslatorList) {
+            foreach ($translators as $translator) {
+                $this->_checkTranslator($translator);
             }
+        } else {
+            throw new Exception\InvalidArgumentException(
+                '$translators must be an instance of PhpDisruptor\EventTranslatorInterface or '
+                . 'PhpDisruptor\Lists\EventTranslatorList'
+            );
         }
+
     }
 
     /**
@@ -424,7 +431,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * event from the ring buffer and publishing the claimed sequence
      * after translation.
      *
-     * @param EventTranslatorInterface[] $translators The user specified translation for each event
+     * @param EventTranslatorInterface|EventTranslatorList $translators The user specified translation for each event
      * @param int $batchStartsAt
      * @param int $batchSize
      * @param StackableArray|null $args
@@ -432,7 +439,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
     public function publishEvents(
-        StackableArray $translators,
+        $translators,
         $batchStartsAt = 0,
         $batchSize = null,
         StackableArray $args = null
@@ -451,18 +458,27 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
 
     /**
      * @param int $batchSize
-     * @param EventTranslatorInterface[] $translators The user specified translation for each event
+     * @param EventTranslatorList|EventTranslatorInterface $translators The user specified translation for each event
      * @param StackableArray $args
      * @return int
      */
-    public function _calcBatchSize($batchSize, StackableArray $translators, StackableArray $args = null) // private !! only public for pthreads reasons
+    public function _calcBatchSize($batchSize, $translators, StackableArray $args = null) // private !! only public for pthreads reasons
     {
         if (0 != $batchSize) {
             return $batchSize;
         }
         $batchSize = (null === $args) ? 0 : count($args);
         if (0 == $batchSize) {
-            $batchSize = count($translators);
+            if ($translators instanceof EventTranslatorInterface) {
+                $batchSize = 1;
+            } else if ($translators instanceof EventTranslatorList) {
+                $batchSize = count($translators);
+            } else {
+                throw new Exception\InvalidArgumentException(
+                    '$translators must be an instance of PhpDisruptor\EventTranslatorInterface or '
+                    . 'PhpDisruptor\Lists\EventTranslatorList'
+                );
+            }
         }
         return $batchSize;
     }
@@ -474,7 +490,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * after translation.  Will return false if specified capacity
      * was not available.
      *
-     * @param EventTranslatorInterface[] $translators The user specified translation for each event
+     * @param EventTranslatorList|EventTranslatorInterface $translators The user specified translation for each event
      * @param int $batchStartsAt
      * @param int|null $batchSize
      * @param StackableArray|null $args
@@ -483,7 +499,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
     public function tryPublishEvents(
-        StackableArray $translators,
+        $translators,
         $batchStartsAt = 0,
         $batchSize = null,
         StackableArray $args = null
@@ -530,12 +546,12 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     }
 
     /**
-     * @param StackableArray $translatorsOrArgs
+     * @param $translatorsOrArgs
      * @param int $batchStartsAt
      * @param int $batchSize
      * @return void
      */
-    public function _checkBounds(StackableArray $translatorsOrArgs, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
+    public function _checkBounds($translatorsOrArgs, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
         $this->_checkBatchSizing($batchStartsAt, $batchSize);
         $this->_batchOverRuns($translatorsOrArgs, $batchStartsAt, $batchSize);
@@ -568,12 +584,17 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @return void
      * @throws Exception\InvalidArgumentException
      */
-    public function _batchOverRuns(StackableArray $args, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
+    public function _batchOverRuns($args, $batchStartsAt, $batchSize) // private !! only public for pthreads reasons
     {
-        if ($batchStartsAt + $batchSize > count($args)) {
+        if ($args instanceof EventTranslatorInterface) {
+            $count = 1;
+        } else {
+            $count = count($args);
+        }
+        if ($batchStartsAt + $batchSize > $count) {
             throw new Exception\InvalidArgumentException(
                 'A batchSize of "' . $batchSize . '" with batchStartsAt of "' . $batchStartsAt
-                . '" will overrun the available number of arguments "' . (count($args) - $batchStartsAt) . '"'
+                . '" will overrun the available number of arguments "' . ($count - $batchStartsAt) . '"'
             );
         }
     }
@@ -601,16 +622,17 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     /**
      * Translate and publish batch
      *
-     * @param EventTranslatorInterface[] $translator
+     * @param EventTranslatorList|EventTranslatorInterface $translators
      * @param int $batchStartsAt
      * @param int $batchSize
      * @param int $finalSequence
      * @param StackableArray|null $args
      * @return void
+     * @throws Exception\InvalidArgumentException
      * @throws \Exception
      */
     public function _translateAndPublishBatch( // private !! only public for pthreads reasons
-        StackableArray $translators,
+        $translators,
         $batchStartsAt,
         $batchSize,
         $finalSequence,
@@ -630,7 +652,14 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
                     $translateArgs[] = $args[$i];
                 }
 
-                if (count($translators) > 1) {
+                if ($translators instanceof EventTranslatorInterface) {
+                    $translator = $translators;
+                } else if (!$translators instanceof EventTranslatorList) {
+                    throw new Exception\InvalidArgumentException(
+                        '$translators must be an instance of PhpDisruptor\EventTranslatorInterface or '
+                        . 'PhpDisruptor\Lists\EventTranslatorList'
+                    );
+                } else if (count($translators) > 1) {
                     $translator = $translators[$i];
                 } else {
                     $translator = $translators[0];
