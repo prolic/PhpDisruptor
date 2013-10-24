@@ -4,6 +4,7 @@ namespace PhpDisruptorTest;
 
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
@@ -45,8 +46,7 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $this->eventProcessor3 = new StubEventProcessor();
         $this->ringBuffer = RingBuffer::createMultiProducer($this->eventFactory, 64);
         $eventProcessor = new NoOpEventProcessor($this->ringBuffer);
-        $sequences = new StackableArray();
-        $sequences[] = $eventProcessor->getSequence();
+        $sequences = new SequenceList($eventProcessor->getSequence());
         $this->ringBuffer->addGatingSequences($sequences);
     }
 
@@ -60,10 +60,12 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $this->eventProcessor2->setSequence($expectedWorkSequence);
         $this->eventProcessor3->setSequence($expectedNumberMessages);
 
-        $sequences = new StackableArray();
-        $sequences[] = $this->eventProcessor1->getSequence();
-        $sequences[] = $this->eventProcessor2->getSequence();
-        $sequences[] = $this->eventProcessor3->getSequence();
+        $seqs = array(
+            $this->eventProcessor1->getSequence(),
+            $this->eventProcessor2->getSequence(),
+            $this->eventProcessor3->getSequence()
+        );
+        $sequences = new SequenceList($seqs);
 
         $sequenceBarrier = $this->ringBuffer->newBarrier($sequences);
 
