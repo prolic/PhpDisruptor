@@ -2,6 +2,7 @@
 
 namespace PhpDisruptorTest;
 
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\FixedSequenceGroup;
@@ -13,9 +14,10 @@ class FixedSequenceGroupTest extends PHPUnit_Framework_TestCase
     {
         $sequence1 = new Sequence(34);
         $sequence2 = new Sequence(47);
-        $sequences = new StackableArray();
-        $sequences[] = $sequence1;
-        $sequences[] = $sequence2;
+        $sequences = new SequenceList(array(
+            $sequence1,
+            $sequence2
+        ));
         $sequenceGroup = new FixedSequenceGroup($sequences);
 
         $this->assertEquals(34, $sequenceGroup->get());
