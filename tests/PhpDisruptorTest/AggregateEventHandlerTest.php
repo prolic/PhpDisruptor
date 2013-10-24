@@ -3,6 +3,7 @@
 namespace PhpDisruptorTest;
 
 use PhpDisruptor\AggregateEventHandler;
+use PhpDisruptor\Lists\EventHandlerList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptorTest\TestAsset\EventHandler;
 use PHPUnit_Framework_MockObject_MockObject;
@@ -55,7 +56,8 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldHandleEmptyListOfEventHandlers()
     {
-        $aggregateEventHandler = new AggregateEventHandler('stdClass', new StackableArray());
+        $handlers = new EventHandlerList();
+        $aggregateEventHandler = new AggregateEventHandler('stdClass', $handlers);
         $event = new \stdClass();
         $aggregateEventHandler->onEvent($event, 0, true);
         $aggregateEventHandler->onStart();
@@ -64,10 +66,11 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function prepareAggregateEventHandler()
     {
-        $handlers = new StackableArray();
-        $handlers[] = $this->eventHandlerOne;
-        $handlers[] = $this->eventHandlerTwo;
-        $handlers[] = $this->eventHandlerThree;
+        $handlers = new EventHandlerList(array(
+            $this->eventHandlerOne,
+            $this->eventHandlerTwo,
+            $this->eventHandlerThree
+        ));
 
         $aggregateEventHandler = new AggregateEventHandler(
             'stdClass',
