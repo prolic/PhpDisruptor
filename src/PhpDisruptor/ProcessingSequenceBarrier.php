@@ -2,6 +2,7 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Pthreads\UuidStackable;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
@@ -46,13 +47,13 @@ final class ProcessingSequenceBarrier extends UuidStackable implements SequenceB
      * @param SequencerInterface $sequencer
      * @param WaitStrategyInterface $waitStrategy
      * @param Sequence $cursorSequence
-     * @param Sequence[] $dependentSequences
+     * @param SequenceList $dependentSequences
      */
     public function __construct(
         SequencerInterface $sequencer,
         WaitStrategyInterface $waitStrategy,
         Sequence $cursorSequence,
-        StackableArray $dependentSequences
+        SequenceList $dependentSequences
     ) {
         parent::__construct();
         $this->sequencer = $sequencer;
