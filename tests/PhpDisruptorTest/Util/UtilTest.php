@@ -2,6 +2,7 @@
 
 namespace PhpDisruptorTest\Util;
 
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\Util\Util;
@@ -35,21 +36,26 @@ class UtilTest extends TestCase
 
     public function dataProvider()
     {
-        $one = new StackableArray();
-        $two = new StackableArray();
-        $three = new StackableArray();
+        $sequences1 = array(
+            new Sequence(3),
+            new Sequence(5),
+            new Sequence(7)
+        );
+        $one = new SequenceList($sequences1);
 
-        $one[] = new Sequence(3);
-        $one[] = new Sequence(5);
-        $one[] = new Sequence(7);
+        $sequences2 = array(
+            new Sequence(7),
+            new Sequence(5),
+            new Sequence(3)
+        );
+        $two = new SequenceList($sequences2);
 
-        $two[] = new Sequence(7);
-        $two[] = new Sequence(5);
-        $two[] = new Sequence(3);
-
-        $three[] = new Sequence(5);
-        $three[] = new Sequence(7);
-        $three[] = new Sequence(3);
+        $sequences3 = array(
+            new Sequence(5),
+            new Sequence(7),
+            new Sequence(3)
+        );
+        $three = new SequenceList($sequences3);
 
         return array(
             array(
@@ -74,7 +80,7 @@ class UtilTest extends TestCase
 
     public function testShouldReturnPhpIntMaxWhenNoEventProcessors()
     {
-        $sequences = new StackableArray();
+        $sequences = new SequenceList();
         $this->assertEquals(PHP_INT_MAX, Util::getMinimumSequence($sequences));
     }
 }
