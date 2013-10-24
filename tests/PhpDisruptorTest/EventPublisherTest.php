@@ -5,6 +5,7 @@ namespace PhpDisruptorTest;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\EventTranslatorInterface;
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
@@ -33,8 +34,7 @@ class EventPublisherTest extends \PHPUnit_Framework_TestCase implements EventTra
     public function testShouldPublishEvent()
     {
         $eventProcessor = new NoOpEventProcessor($this->ringBuffer);
-        $sequences = new StackableArray();
-        $sequences[] = $eventProcessor->getSequence();
+        $sequences = new SequenceList($eventProcessor->getSequence());
 
         $this->ringBuffer->addGatingSequences($sequences);
 
@@ -47,8 +47,8 @@ class EventPublisherTest extends \PHPUnit_Framework_TestCase implements EventTra
 
     public function testShouldTryPublishEvent()
     {
-        $sequences = new StackableArray();
-        $sequences[] = new Sequence();
+        $sequence = new Sequence();
+        $sequences = new SequenceList($sequence);
         $this->ringBuffer->addGatingSequences($sequences);
 
         for ($i = 0; $i < self::RINGBUFFER_SIZE; $i++) {
