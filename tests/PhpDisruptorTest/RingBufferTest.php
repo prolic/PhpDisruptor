@@ -5,6 +5,8 @@ namespace PhpDisruptorTest;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\Exception\InsufficientCapacityException;
+use PhpDisruptor\Lists\EventTranslatorList;
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
@@ -40,8 +42,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $this->sequenceBarrier = $this->ringBuffer->newBarrier();
 
         $eventProcessor = new NoOpEventProcessor($this->ringBuffer);
-        $sequences = new StackableArray();
-        $sequences[] = $eventProcessor->getSequence();
+        $sequences = new SequenceList($eventProcessor->getSequence());
         $this->ringBuffer->addGatingSequences($sequences);
     }
 
@@ -119,8 +120,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $eventTranslator = new StubEventTranslator();
 
         $sequence = new Sequence();
-        $sequences = new StackableArray();
-        $sequences[] = $sequence;
+        $sequences = new SequenceList($sequence);
         $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 4);
         $ringBuffer->addGatingSequences($sequences);
 
@@ -146,9 +146,8 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldThrowExceptionIfBufferIsFull()
     {
-        $sequences = new StackableArray();
-        $sequences[] = new Sequence($this->ringBuffer->getBufferSize());
-
+        $sequence = new Sequence($this->ringBuffer->getBufferSize());
+        $sequences = new SequenceList($sequence);
         $this->ringBuffer->addGatingSequences($sequences);
 
         try {
@@ -189,9 +188,10 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $translators = new StackableArray();
-        $translators[] = $translator;
-        $translators[] = $translator;
+        $translators = new EventTranslatorList(array(
+            $translator,
+            $translator
+        ));
 
         $ringBuffer->publishEvents($translators);
         $this->assertTrue($ringBuffer->tryPublishEvents($translators));
@@ -222,12 +222,13 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $translators = new StackableArray();
-        $translators[] = $translator;
-        $translators[] = $translator;
-        $translators[] = $translator;
-        $translators[] = $translator;
-        $translators[] = $translator;
+        $translators = new EventTranslatorList(array(
+            $translator,
+            $translator,
+            $translator,
+            $translator,
+            $translator
+        ));
 
         try {
             $ringBuffer->publishEvents($translators);
@@ -243,10 +244,11 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $translators = new StackableArray();
-        $translators[] = $translator;
-        $translators[] = $translator;
-        $translators[] = $translator;
+        $translators = new EventTranslatorList(array(
+            $translator,
+            $translator,
+            $translator
+        ));
 
         $ringBuffer->publishEvents($translators, 0, 1);
         $this->assertTrue($ringBuffer->tryPublishEvents($translators, 0, 1));
@@ -260,10 +262,11 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $translators = new StackableArray();
-        $translators[] = $translator;
-        $translators[] = $translator;
-        $translators[] = $translator;
+        $translators = new EventTranslatorList(array(
+            $translator,
+            $translator,
+            $translator
+        ));
 
         $ringBuffer->publishEvents($translators, 1, 2);
         $this->assertTrue($ringBuffer->tryPublishEvents($translators, 1, 2));
@@ -276,8 +279,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -296,8 +297,8 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg0;
         $args[] = $arg1;
 
-        $ringBuffer->publishEvents($translators, 0, null, $args);
-        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 0, null, $args));
+        $ringBuffer->publishEvents($translator, 0, null, $args);
+        $this->assertTrue($ringBuffer->tryPublishEvents($translator, 0, null, $args));
 
         $this->assertRingBufferWithEvents($ringBuffer, array(
             'FooBarBazBam-0',
@@ -369,8 +370,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -389,8 +388,8 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg0;
         $args[] = $arg1;
 
-        $ringBuffer->publishEvents($translators, 0, 1, $args);
-        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 0, 1, $args));
+        $ringBuffer->publishEvents($translator, 0, 1, $args);
+        $this->assertTrue($ringBuffer->tryPublishEvents($translator, 0, 1, $args));
 
         $this->assertRingBufferWithEvents($ringBuffer, array('FooBarBazBam-0', 'FooBarBazBam-1', null, null));
     }
@@ -400,8 +399,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -427,7 +424,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg1;
         $args[] = $arg2;
 
-        $ringBuffer->publishEvents($translators, 1, 2, $args);
+        $ringBuffer->publishEvents($translator, 1, 2, $args);
 
         $args = new StackableArray();
 
@@ -453,7 +450,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg1;
         $args[] = $arg2;
 
-        $this->assertTrue($ringBuffer->tryPublishEvents($translators, 1, 2, $args));
+        $this->assertTrue($ringBuffer->tryPublishEvents($translator, 1, 2, $args));
         $this->assertRingBufferWithEvents($ringBuffer, array(
             'Foo1Bar1Baz1Bam1-0',
             'Foo2Bar2Baz2Bam2-1',
@@ -470,12 +467,10 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         try {
-            $ringBuffer->publishEvents($translators, 1, 0);
-            $ringBuffer->tryPublishEvents($translators, 1, 0);
+            $ringBuffer->publishEvents($translator, 1, 0);
+            $ringBuffer->tryPublishEvents($translator, 1, 0);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -490,10 +485,11 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
-        $translators[] = $translator;
-        $translators[] = $translator;
+        $translators = new EventTranslatorList(array(
+            $translator,
+            $translator,
+            $translator
+        ));
 
         try {
             $ringBuffer->publishEvents($translators, 1, 3);
@@ -511,11 +507,11 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new ArrayEventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
-        $translators[] = $translator;
-        $translators[] = $translator;
-
+        $translators = new EventTranslatorList(array(
+            $translator,
+            $translator,
+            $translator
+        ));
 
         try {
             $ringBuffer->tryPublishEvents($translators, 1, 3);
@@ -533,11 +529,9 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new ArrayEventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         try {
-            $ringBuffer->tryPublishEvents($translators, 1, -1);
+            $ringBuffer->tryPublishEvents($translator, 1, -1);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -552,13 +546,11 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new ArrayEventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = $this->prepareArgs();
 
         try {
-            $ringBuffer->tryPublishEvents($translators, -1, -1, $args);
+            $ringBuffer->tryPublishEvents($translator, -1, -1, $args);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -573,13 +565,11 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new ArrayEventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = $this->prepareArgs();
 
         try {
-            $ringBuffer->publishEvents($translators, -1, 2, $args);
+            $ringBuffer->publishEvents($translator, -1, 2, $args);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -594,13 +584,11 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new ArrayEventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = $this->prepareArgs();
 
         try {
-            $ringBuffer->tryPublishEvents($translators, -1, 2, $args);
+            $ringBuffer->tryPublishEvents($translator, -1, 2, $args);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -615,8 +603,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -643,7 +629,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg2;
 
         try {
-            $ringBuffer->publishEvents($translators, 1, 3, $args);
+            $ringBuffer->publishEvents($translator, 1, 3, $args);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -658,8 +644,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -686,7 +670,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg2;
 
         try {
-            $ringBuffer->publishEvents($translators, 1, -1, $args);
+            $ringBuffer->publishEvents($translator, 1, -1, $args);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -701,8 +685,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -729,7 +711,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg2;
 
         try {
-            $ringBuffer->publishEvents($translators, -1, 2, $args);
+            $ringBuffer->publishEvents($translator, -1, 2, $args);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -744,8 +726,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -772,7 +752,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg2;
 
         try {
-            $ringBuffer->publishEvents($translators, 1, 0, $args);
+            $ringBuffer->publishEvents($translator, 1, 0, $args);
             $this->assertFalse($ringBuffer->tryPublishEvents($translators, 1, 0, $args));
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
@@ -788,8 +768,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -816,7 +794,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg2;
 
         try {
-            $ringBuffer->publishEvents($translators, 1, 0, $args);
+            $ringBuffer->publishEvents($translator, 1, 0, $args);
             $this->assertFalse($ringBuffer->tryPublishEvents($translators, 1, 0, $args));
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
@@ -832,8 +810,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -860,7 +836,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg2;
 
         try {
-            $ringBuffer->publishEvents($translators, 1, -1, $args);
+            $ringBuffer->publishEvents($translator, 1, -1, $args);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -875,8 +851,6 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
-        $translators[] = $translator;
 
         $args = new StackableArray();
 
@@ -903,7 +877,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $args[] = $arg2;
 
         try {
-            $ringBuffer->publishEvents($translators, -1, 2, $args);
+            $ringBuffer->publishEvents($translator, -1, 2, $args);
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -918,9 +892,10 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $sequenceThree = new Sequence(-1);
         $sequenceSeven = new Sequence(-1);
 
-        $sequences = new StackableArray();
-        $sequences[] = $sequenceThree;
-        $sequences[] = $sequenceSeven;
+        $sequences = new SequenceList(array(
+            $sequenceThree,
+            $sequenceSeven
+        ));
 
         $ringBuffer->addGatingSequences($sequences);
 
@@ -952,9 +927,8 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
 
     private function assertHandleResetAndNotWrap(RingBuffer $rb)
     {
-        $sequences = new StackableArray();
         $sequence = new Sequence();
-        $sequences[] = $sequence;
+        $sequences = new SequenceList($sequence);
         $rb->addGatingSequences($sequences);
 
         for ($i = 0; $i < 128; $i++) {
