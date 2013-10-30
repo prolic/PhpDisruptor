@@ -4,10 +4,13 @@ namespace PhpDisruptorTest;
 
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
+use PhpDisruptor\Lists\EventProcessorList;
 use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
+use PhpDisruptor\Util\Util;
+use PhpDisruptorTest\TestAsset\RingBufferThread;
 use PhpDisruptorTest\TestAsset\StubEventProcessor;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 
@@ -81,15 +84,18 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
     //        $expectedNumberMessages = 10;
     //        $this->fillRingBuffer($expectedNumberMessages);
     //
-    //        $workers = new StackableArray();
+    //        $workers = new EventProcessorList();
     //        for ($i = 0; $i < 3; $i++) {
-    //            $worker = $workers[$i] = new StubEventProcessor();
+    //            $worker = new StubEventProcessor();
     //            $worker->setSequence($expectedNumberMessages - 1);
+    //            $workers->add($worker);
     //        }
     //
     //        $sequenceBarrier = $this->ringBuffer->newBarrier(Util::getSequencesFor($workers));
     //        $thread = new RingBufferThread($this->ringBuffer, $workers);
     //        $thread->start();
+    //        $thread->join();
+    //        return;
     //        $expectedWorkSequence = $expectedNumberMessages;
     //        $completedWorkSequence = $sequenceBarrier->waitFor($expectedNumberMessages);
     //        $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);

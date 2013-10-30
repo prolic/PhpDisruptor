@@ -2,7 +2,7 @@
 
 namespace PhpDisruptorTest\TestAsset;
 
-use PhpDisruptor\Pthreads\StackableArray;
+use PhpDisruptor\Lists\EventProcessorList;
 use PhpDisruptor\RingBuffer;
 
 class RingBufferThread extends \Thread
@@ -11,7 +11,7 @@ class RingBufferThread extends \Thread
 
     public $workers;
 
-    public function __construct(RingBuffer $ringBuffer, StackableArray $workers)
+    public function __construct(RingBuffer $ringBuffer, EventProcessorList $workers)
     {
         $this->ringBuffer = $ringBuffer;
         $this->workers = $workers;
