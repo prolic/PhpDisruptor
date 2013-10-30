@@ -25,7 +25,8 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->ringBuffer = RingBuffer::createMultiProducer(new StubEventFactory(), 16);
+        $factory = new StubEventFactory();
+        $this->ringBuffer = RingBuffer::createMultiProducer($factory, 16);
         $this->sequenceBarrier = $this->ringBuffer->newBarrier();
 
         if (file_exists(sys_get_temp_dir() . '/testresult')) {

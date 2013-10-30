@@ -113,7 +113,8 @@ class ConsumerRepositoryTest extends \PHPUnit_Framework_TestCase
     public function testShouldThrowExceptionWhenHandlerIsNotRegistered()
     {
         $eventFactory = new TestEventFactory();
-        $this->consumerRepository->getEventProcessorFor(new SleepingEventHandler($eventFactory->getEventClass()));
+        $eventHandler = new SleepingEventHandler($eventFactory->getEventClass());
+        $this->consumerRepository->getEventProcessorFor($eventHandler);
     }
 
     public function testShouldIterateAllEventProcessors()
