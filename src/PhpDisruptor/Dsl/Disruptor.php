@@ -10,6 +10,10 @@ use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\EventTranslatorInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
+use PhpDisruptor\Lists\EventHandlerList;
+use PhpDisruptor\Lists\EventProcessorList;
+use PhpDisruptor\Lists\SequenceList;
+use PhpDisruptor\Lists\WorkHandlerList;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
@@ -126,22 +130,22 @@ class Disruptor extends Worker implements EventClassCapableInterface
      *
      * $dw->handleEventsWithEventHandlers($A)->then($B);
      *
-     * @param EventHandlerInterface[] $handlers
+     * @param EventHandlerList $handlers
      * @return EventHandlerGroup that can be used to chain dependencies
      */
-    public function handleEventsWithEventHandlers(StackableArray $handlers)
+    public function handleEventsWithEventHandlers(EventHandlerList $handlers)
     {
-        return $this->createEventProcessors(new StackableArray(), $handlers);
+        return $this->createEventProcessors(null, $handlers);
     }
 
     /**
      * Set up custom event processors to handle events from the ring buffer. The Disruptor will
      * automatically start this processors when #start() is called
      *
-     * @param AbstractEventProcessor[] $processors
+     * @param EventProcessorList $processors
      * @return EventHandlerGroup that can be used to chain dependencies
      */
-    public function handleEventsWithEventProcessors(StackableArray $processors)
+    public function handleEventsWithEventProcessors(EventProcessorList $processors)
     {
         foreach ($processors as $processor) {
             $this->consumerRepository->addEventProcessor($processor);
@@ -154,13 +158,12 @@ class Disruptor extends Worker implements EventClassCapableInterface
      * Each event will only be processed by one of the work handlers.
      * The Disruptor will automatically start this processors when #start() is called.
      *
-     * @param WorkHandlerInterface[] $workHandlers the work handlers that will process events.
+     * @param WorkHandlerList $workHandlers the work handlers that will process events.
      * @return EventHandlerGroup that can be used to chain dependencies.
      */
-    public function handleEventsWithWorkerPool(StackableArray $workHandlers)
+    public function handleEventsWithWorkerPool(WorkHandlerList $workHandlers)
     {
-        $barrierSequences = new StackableArray();
-        return $this->createWorkerPool($barrierSequences, $workHandlers);
+        return $this->createWorkerPool(null, $workHandlers);
     }
 
     /**
@@ -209,15 +212,16 @@ class Disruptor extends Worker implements EventClassCapableInterface
     /**
      * Create a group of event processors to be used as a dependency.
      *
-     * @param AbstractEventProcessor[] $processors the event processors
+     * @param EventProcessorList $processors the event processors
      * @return EventHandlerGroup that can be used to setup a SequenceBarrier over the specified event processors
      */
-    public function afterEventProcessors($processors)
+    public function afterEventProcessors(EventProcessorList $processors)
     {
         foreach ($processors as $processor) {
             $this->consumerRepository->addEventProcessor($processor);
         }
-        return new EventHandlerGroup($this, $this->consumerRepository, Util::getSequencesFor($processors));
+        $group = new EventHandlerGroup($this, $this->consumerRepository, Util::getSequencesFor($processors));
+        return $group;
     }
 
     /**
@@ -362,14 +366,14 @@ class Disruptor extends Worker implements EventClassCapableInterface
     /**
      * Create event processors
      *
-     * @param Sequence[] $barrierSequences
-     * @param EventHandlerInterface[] $eventHandlers
+     * @param SequenceList|null $barrierSequences
+     * @param EventHandlerList $eventHandlers
      * @return EventHandlerGroup
      */
-    public function createEventProcessors(StackableArray $barrierSequences, StackableArray $eventHandlers)
+    public function createEventProcessors(SequenceList $barrierSequences = null, EventHandlerList $eventHandlers)
     {
         $this->_checkNotStarted();
-        $processorSequences = new StackableArray();
+        $processorSequences = new SequenceList();
         $barrier = $this->ringBuffer->newBarrier($barrierSequences);
 
         foreach ($eventHandlers as $eventHandler) {
@@ -397,11 +401,11 @@ class Disruptor extends Worker implements EventClassCapableInterface
     /**
      * Create worker pool
      *
-     * @param Sequence[] $barrierSequences
-     * @param WorkHandlerInterface[] $workHandlers
+     * @param SequenceList|null $barrierSequences
+     * @param WorkHandlerList $workHandlers
      * @return EventHandlerGroup
      */
-    public function createWorkerPool(StackableArray $barrierSequences, StackableArray $workHandlers)
+    public function createWorkerPool(SequenceList $barrierSequences = null, WorkHandlerList $workHandlers)
     {
         $sequenceBarrier = $this->ringBuffer->newBarrier($barrierSequences);
         $workerPool = WorkerPool::createFromRingBuffer(
