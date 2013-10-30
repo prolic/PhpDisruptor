@@ -47,11 +47,10 @@ final class Util
     }
 
     /**
-     * Get an StackableArray of Sequences for the passed EventProcessors
+     * Get a SequenceList of Sequences for the passed EventProcessors
      *
-     * @param EventProcessorList $processors for which to get the sequences with StackableArray as container instead of a php array
-     * @return SequenceList the array of Sequences
-     * @throws Exception\InvalidArgumentException
+     * @param EventProcessorList $processors for which to get the sequences
+     * @return SequenceList of Sequences
      */
     public static function getSequencesFor(EventProcessorList $processors)
     {
