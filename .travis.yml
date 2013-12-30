@@ -15,6 +15,7 @@ before_script:
   - ./configure
   - make
   - sudo make install
+  - cd ..
   - echo "extension = pthreads.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer self-update
   - composer update --prefer-source --dev
