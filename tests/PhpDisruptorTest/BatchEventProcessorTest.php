@@ -56,7 +56,7 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(-1, $batchEventProcessor->getSequence()->get());
         $this->ringBuffer->publish($this->ringBuffer->next());
 
-        time_nanosleep(0, 45000);
+        time_nanosleep(0, 250000);
         $batchEventProcessor->halt();
         $batchEventProcessor->join();
 
@@ -80,7 +80,7 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
 
         $batchEventProcessor->start();
 
-        time_nanosleep(0, 75000);
+        time_nanosleep(0, 250000);
         $batchEventProcessor->halt();
         $batchEventProcessor->join();
 
@@ -109,7 +109,7 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
 
         $this->ringBuffer->publish($this->ringBuffer->next());
 
-        time_nanosleep(0, 45000);
+        time_nanosleep(0, 250000);
         $batchEventProcessor->halt();
         $batchEventProcessor->join();
 
