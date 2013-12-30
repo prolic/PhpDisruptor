@@ -9,7 +9,13 @@ install:
 
 before_script:
   - printf "\n" | pecl install uuid
-  - pecl install pthreads-0.0.45
+  - git clone https://github.com/krakjoe/pthreads lib-pthreads
+  - cd lib-pthreads
+  - phpize
+  - ./configure
+  - make
+  - sudo make install
+  - echo "extension = pthreads.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer self-update
   - composer update --prefer-source --dev
 
