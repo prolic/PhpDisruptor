@@ -80,7 +80,7 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
 
         $batchEventProcessor->start();
 
-        time_nanosleep(0, 45000);
+        time_nanosleep(0, 75000);
         $batchEventProcessor->halt();
         $batchEventProcessor->join();
 

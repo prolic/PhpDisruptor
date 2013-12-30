@@ -13,6 +13,7 @@ use PhpDisruptor\Util\Util;
 use PhpDisruptorTest\TestAsset\RingBufferThread;
 use PhpDisruptorTest\TestAsset\StubEventProcessor;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
+use PhpDisruptorTest\TestAsset\StubEventProcessorThread;
 
 class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
 {
@@ -76,30 +77,27 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
     }
 
-    /**
-     * @todo: failing !!! $this === NULL, WTF ???
-     */
-    //    public function testShouldWaitForWorkCompleteWhereAllWorkersAreBlockedOnRingBuffer()
-    //    {
-    //        $expectedNumberMessages = 10;
-    //        $this->fillRingBuffer($expectedNumberMessages);
-    //
-    //        $workers = new EventProcessorList();
-    //        for ($i = 0; $i < 3; $i++) {
-    //            $worker = new StubEventProcessor();
-    //            $worker->setSequence($expectedNumberMessages - 1);
-    //            $workers->add($worker);
-    //        }
-    //
-    //        $sequenceBarrier = $this->ringBuffer->newBarrier(Util::getSequencesFor($workers));
-    //        $thread = new RingBufferThread($this->ringBuffer, $workers);
-    //        $thread->start();
-    //        $thread->join();
-    //        return;
-    //        $expectedWorkSequence = $expectedNumberMessages;
-    //        $completedWorkSequence = $sequenceBarrier->waitFor($expectedNumberMessages);
-    //        $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
-    //    }
+    public function testShouldWaitForWorkCompleteWhereAllWorkersAreBlockedOnRingBuffer()
+    {
+        $expectedNumberMessages = 10;
+        $this->fillRingBuffer($expectedNumberMessages);
+
+        $workers = new EventProcessorList();
+        for ($i = 0; $i < 3; $i++) {
+            $worker = new StubEventProcessor();
+            $worker->setSequence($expectedNumberMessages - 1);
+            $workers->add($worker);
+        }
+
+        $sequenceBarrier = $this->ringBuffer->newBarrier(Util::getSequencesFor($workers));
+        $thread = new RingBufferThread($this->ringBuffer, $workers);
+        $thread->start();
+        $thread->join();
+
+        $expectedWorkSequence = $expectedNumberMessages;
+        $completedWorkSequence = $sequenceBarrier->waitFor($expectedNumberMessages);
+        $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
+    }
 
     /**
      * @todo: failing !!!
@@ -145,30 +143,27 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
     //        $this->assertTrue($alerted[0], 'Thread was not interrupted');
     //    }
 
-    /**
-     * @todo: failing !!! $this === NULL, AGAIN !!!!
-     */
-    //    public function testShouldWaitForWorkCompleteWhereCompleteWorkThresholdIsBehind()
-    //    {
-    //        $expectedNumberMessages = 10;
-    //        $this->fillRingBuffer($expectedNumberMessages);
-    //
-    //        $eventProcessors = new StackableArray();
-    //        for ($i = 0; $i < 3; $i++) {
-    //            $eventProcessors[$i] = new StubEventProcessor();
-    //            $eventProcessors[$i]->setSequence($expectedNumberMessages - 2);
-    //        }
-    //
-    //        $sequenceBarrier = $this->ringBuffer->newBarrier(Util::getSequencesFor($eventProcessors));
-    //
-    //        $thread = new StubEventProcessorThread($eventProcessors);
-    //        $thread->start();
-    //        $thread->join();
-    //
-    //        $expectedWorkSequence = $expectedNumberMessages - 1;
-    //        $completedWorkSequence = $sequenceBarrier->waitFor($expectedWorkSequence);
-    //        $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
-    //    }
+    public function testShouldWaitForWorkCompleteWhereCompleteWorkThresholdIsBehind()
+    {
+        $expectedNumberMessages = 10;
+        $this->fillRingBuffer($expectedNumberMessages);
+
+        $eventProcessors = new EventProcessorList();
+        for ($i = 0; $i < 3; $i++) {
+            $eventProcessors[$i] = new StubEventProcessor();
+            $eventProcessors[$i]->setSequence($expectedNumberMessages - 2);
+        }
+
+        $sequenceBarrier = $this->ringBuffer->newBarrier(Util::getSequencesFor($eventProcessors));
+
+        $thread = new StubEventProcessorThread($eventProcessors);
+        $thread->start();
+        $thread->join();
+
+        $expectedWorkSequence = $expectedNumberMessages - 1;
+        $completedWorkSequence = $sequenceBarrier->waitFor($expectedWorkSequence);
+        $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
+    }
 
     public function testShouldSetAndClearAlertStatus()
     {
@@ -181,7 +176,6 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $sequenceBarrier->clearAlert();
         $this->assertFalse($sequenceBarrier->isAlerted());
     }
-
 
     protected function fillRingBuffer($expectedNumberMessages)
     {

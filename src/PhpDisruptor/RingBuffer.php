@@ -303,9 +303,6 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      */
     public function newBarrier(SequenceList $sequencesToTrack = null)
     {
-        if (null === $sequencesToTrack) {
-            $sequencesToTrack = new SequenceList();
-        }
         return $this->sequencer->newBarrier($sequencesToTrack);
     }
 
