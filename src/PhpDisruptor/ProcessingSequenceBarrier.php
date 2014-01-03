@@ -90,6 +90,7 @@ final class ProcessingSequenceBarrier extends UuidStackable implements SequenceB
         if ($availableSequence < $sequence) {
             return $availableSequence;
         }
+
         return $this->sequencer->getHighestPublishedSequence($sequence, $availableSequence);
     }
 
@@ -142,7 +143,7 @@ final class ProcessingSequenceBarrier extends UuidStackable implements SequenceB
      */
     public function checkAlert()
     {
-        if ($this->alerted) {
+        if (true === $this->alerted) {
             throw new Exception\AlertException('alert');
         }
     }
