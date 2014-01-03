@@ -103,7 +103,7 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo
+     * @todo context checking happens to early, this test is currently not working as expected
      */
     public function testShouldInterruptDuringBusySpin()
     {
