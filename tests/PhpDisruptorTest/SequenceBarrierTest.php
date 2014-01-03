@@ -6,11 +6,14 @@ use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\Lists\EventProcessorList;
 use PhpDisruptor\Lists\SequenceList;
+use PhpDisruptor\Pthreads\CountDownLatch;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\Util\Util;
+use PhpDisruptorTest\TestAsset\CountDownLatchSequence;
 use PhpDisruptorTest\TestAsset\RingBufferThread;
+use PhpDisruptorTest\TestAsset\SequenceBarrierThread;
 use PhpDisruptorTest\TestAsset\StubEventProcessor;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 use PhpDisruptorTest\TestAsset\StubEventProcessorThread;
@@ -100,48 +103,43 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @todo: failing !!!
+     * @todo
      */
-    //    public function testShouldInterruptDuringBusySpin()
-    //    {
-    //        $expectedNumberMessages = 10;
-    //        $this->fillRingBuffer($expectedNumberMessages);
-    //
-    //        $sequence1 = new Sequence(8);
-    //        $sequence2 = new Sequence(8);
-    //        $sequence3 = new Sequence(8);
-    //
-    //        $this->eventProcessor1->setSequence($sequence1->get());
-    //        $this->eventProcessor2->setSequence($sequence2->get());
-    //        $this->eventProcessor3->setSequence($sequence3->get());
-    //
-    //        $processors = new StackableArray();
-    //        $processors[] = $this->eventProcessor1;
-    //        $processors[] = $this->eventProcessor2;
-    //        $processors[] = $this->eventProcessor3;
-    //
-    //        $sequenceBarrier = $this->ringBuffer->newBarrier(
-    //            Util::getSequencesFor($processors)
-    //        );
-    //
-    //        $alerted = new StackableArray();
-    //        $alerted[0] = false;
-    //
-    //        var_dump(get_class($this));
-    //        var_dump(gettype($this));
-    //
-    //        $thread = new SequenceBarrierThread($sequenceBarrier, $expectedNumberMessages, $alerted);
-    //        $thread->start();
-    //
-    //        var_dump(get_class($this));
-    //        var_dump(gettype($this));
-    //        die;
-    //        sleep(3);
-    //
-    //        $thread->join();
-    //
-    //        $this->assertTrue($alerted[0], 'Thread was not interrupted');
-    //    }
+    public function testShouldInterruptDuringBusySpin()
+    {
+        $expectedNumberMessages = 10;
+        $this->fillRingBuffer($expectedNumberMessages);
+
+        $countDownLatch = new CountDownLatch(3);
+        $sequence1 = new CountDownLatchSequence(8, $countDownLatch);
+        $sequence2 = new CountDownLatchSequence(8, $countDownLatch);
+        $sequence3 = new CountDownLatchSequence(8, $countDownLatch);
+
+        $this->eventProcessor1->setSequence($sequence1->get());
+        $this->eventProcessor2->setSequence($sequence2->get());
+        $this->eventProcessor3->setSequence($sequence3->get());
+
+        $processors = new EventProcessorList();
+        $processors->add($this->eventProcessor1);
+        $processors->add($this->eventProcessor2);
+        $processors->add($this->eventProcessor3);
+
+        $sequenceBarrier = $this->ringBuffer->newBarrier(
+            Util::getSequencesFor($processors)
+        );
+
+        $alerted = new StackableArray();
+        $alerted[0] = false;
+
+
+        $thread = new SequenceBarrierThread($sequenceBarrier, $expectedNumberMessages, $alerted);
+        $thread->start();
+        $countDownLatch->await(3000000); // 3sec
+        $sequenceBarrier->alert();
+        $thread->join();
+
+        $this->assertTrue($alerted[0], 'Thread was not interrupted');
+    }
 
     public function testShouldWaitForWorkCompleteWhereCompleteWorkThresholdIsBehind()
     {

@@ -4,8 +4,9 @@ namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\Exception\AlertException;
 use PhpDisruptor\SequenceBarrierInterface;
+use Thread;
 
-class SequenceBarrierThread extends \Thread
+class SequenceBarrierThread extends Thread
 {
     public $barrier;
 
