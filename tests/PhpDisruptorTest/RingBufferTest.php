@@ -2,6 +2,7 @@
 
 namespace PhpDisruptorTest;
 
+use PhpDisruptor;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\Exception\InsufficientCapacityException;
