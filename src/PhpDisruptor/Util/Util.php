@@ -56,7 +56,7 @@ final class Util
     {
         $sequences = new SequenceList();
         foreach ($processors as $eventProcessor) {
-            $sequences[] = $eventProcessor->getSequence();
+            $sequences->add($eventProcessor->getSequence());
         }
         return $sequences;
     }
