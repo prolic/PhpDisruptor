@@ -754,7 +754,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
 
         try {
             $ringBuffer->publishEvents($translator, 1, 0, $args);
-            $this->assertFalse($ringBuffer->tryPublishEvents($translators, 1, 0, $args));
+            $this->assertFalse($ringBuffer->tryPublishEvents($translator, 1, 0, $args));
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
@@ -796,7 +796,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
 
         try {
             $ringBuffer->publishEvents($translator, 1, 0, $args);
-            $this->assertFalse($ringBuffer->tryPublishEvents($translators, 1, 0, $args));
+            $this->assertFalse($ringBuffer->tryPublishEvents($translator, 1, 0, $args));
         } catch (\Exception $e) {
             $this->assertEmptyRingBuffer($ringBuffer);
             throw $e;
