@@ -22,6 +22,11 @@ class StubEventProcessor extends AbstractEventProcessor
         $this->sequence->set($sequence);
     }
 
+    public function setSequenceObject(Sequence $se)
+    {
+        $this->sequence = $se;
+    }
+
     /**
      * Get a reference to the Sequence being used by this EventProcessor.
      *

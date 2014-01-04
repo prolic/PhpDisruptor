@@ -115,22 +115,20 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $sequence2 = new CountDownLatchSequence(8, $countDownLatch);
         $sequence3 = new CountDownLatchSequence(8, $countDownLatch);
 
-        $this->eventProcessor1->setSequence($sequence1->get());
-        $this->eventProcessor2->setSequence($sequence2->get());
-        $this->eventProcessor3->setSequence($sequence3->get());
+        $this->eventProcessor1->setSequenceObject($sequence1);
+        $this->eventProcessor2->setSequenceObject($sequence2);
+        $this->eventProcessor3->setSequenceObject($sequence3);
 
         $processors = new EventProcessorList();
         $processors->add($this->eventProcessor1);
         $processors->add($this->eventProcessor2);
         $processors->add($this->eventProcessor3);
 
-        $sequenceBarrier = $this->ringBuffer->newBarrier(
-            Util::getSequencesFor($processors)
-        );
+        $sequencesToTrack = Util::getSequencesFor($processors);
+        $sequenceBarrier = $this->ringBuffer->newBarrier($sequencesToTrack);
 
         $alerted = new StackableArray();
         $alerted[0] = false;
-
 
         $thread = new SequenceBarrierThread($sequenceBarrier, $expectedNumberMessages, $alerted);
         $thread->start();
