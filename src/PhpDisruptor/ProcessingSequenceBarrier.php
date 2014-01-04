@@ -2,12 +2,10 @@
 
 namespace PhpDisruptor;
 
+use PhpDisruptor\Exception;
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Pthreads\UuidStackable;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
-
-require_once __DIR__ . '/Exception/AlertException.php'; // @todo: why is this required ???
 
 final class ProcessingSequenceBarrier extends UuidStackable implements SequenceBarrierInterface
 {
@@ -55,16 +53,21 @@ final class ProcessingSequenceBarrier extends UuidStackable implements SequenceB
         Sequence $cursorSequence,
         SequenceList $dependentSequences
     ) {
+        // @todo: why is this required ???
+        if (!class_exists('PhpDisruptor\Exception\AlertException', false)) {
+            spl_autoload_call('PhpDisruptor\Exception\AlertException');
+        }
         parent::__construct();
         $this->sequencer = $sequencer;
         $this->waitStrategy = $waitStrategy;
         $this->cursorSequence = $cursorSequence;
+        $this->alerted = false;
+
         if (0 == count($dependentSequences)) {
             $this->dependentSequence = $cursorSequence;
         } else {
             $this->dependentSequence = new FixedSequenceGroup($dependentSequences);
         }
-        $this->alerted = false;
     }
 
     /**
