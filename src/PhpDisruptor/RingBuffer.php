@@ -6,7 +6,7 @@ use PhpDisruptor\Dsl\ProducerType;
 use PhpDisruptor\Lists\EventTranslatorList;
 use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Pthreads\StackableArray;
-use PhpDisruptor\WaitStrategy\BlockingWaitStrategy;
+use PhpDisruptor\WaitStrategy\BusySpinWaitStrategy;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use Stackable;
 
@@ -88,8 +88,10 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      *
      * @param EventFactoryInterface $factory used to create the events within the ring buffer.
      * @param int $bufferSize number of elements to create within the ring buffer.
-     * @param WaitStrategyInterface|null $waitStrategy used, default: BlockingWaitStrategy
+     * @param WaitStrategyInterface|null $waitStrategy used, default: BusySpinWaitStrategy
      * @return RingBuffer
+     *
+     * @todo: change the default to BlockingWaitStrategy
      */
     public static function createMultiProducer(
         EventFactoryInterface $factory,
@@ -97,7 +99,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         WaitStrategyInterface $waitStrategy = null
     ) {
         if (null === $waitStrategy) {
-            $waitStrategy = new BlockingWaitStrategy();
+            $waitStrategy = new BusySpinWaitStrategy();
         }
         $sequencer = new MultiProducerSequencer($bufferSize, $waitStrategy);
         $ringBuffer = new self($factory, $sequencer);
@@ -109,8 +111,10 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      *
      * @param EventFactoryInterface $factory used to create the events within the ring buffer.
      * @param int $bufferSize number of elements to create within the ring buffer.
-     * @param WaitStrategyInterface|null $waitStrategy used, default: BlockingWaitStrategy
+     * @param WaitStrategyInterface|null $waitStrategy used, default: BusySpinWaitStrategy
      * @return RingBuffer
+     *
+     * @todo: change the default to BlockingWaitStrategy
      */
     public static function createSingleProducer(
         EventFactoryInterface $factory,
@@ -118,7 +122,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         WaitStrategyInterface $waitStrategy = null
     ) {
         if (null === $waitStrategy) {
-            $waitStrategy = new BlockingWaitStrategy();
+            $waitStrategy = new BusySpinWaitStrategy();
         }
         $sequencer = new SingleProducerSequencer($bufferSize, $waitStrategy);
         $ringBuffer = new self($factory, $sequencer);
