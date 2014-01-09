@@ -8,6 +8,7 @@ use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\Exception\InsufficientCapacityException;
 use PhpDisruptor\Lists\EventTranslatorList;
 use PhpDisruptor\Lists\SequenceList;
+use PhpDisruptor\Pthreads\CountDownLatch;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
@@ -15,9 +16,11 @@ use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptorTest\TestAsset\ArrayEventTranslator;
 use PhpDisruptorTest\TestAsset\ArrayFactory;
 use PhpDisruptorTest\TestAsset\EventTranslator;
+use PhpDisruptorTest\TestAsset\RingBufferThread2;
 use PhpDisruptorTest\TestAsset\StubEvent;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 use PhpDisruptorTest\TestAsset\StubEventTranslator;
+use PhpDisruptorTest\TestAsset\TestEventProcessor2;
 
 class RingBufferTest extends \PHPUnit_Framework_TestCase
 {
@@ -168,7 +171,33 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
 
     public function testShouldPreventPublishersOvertakingEventProcessorWrapPoint()
     {
-        $this->markTestIncomplete();
+        $ringBufferSize = 4;
+        $latch = new CountDownLatch($ringBufferSize);
+        $publisherComplete = new StackableArray();
+        $publisherComplete[0] = false;
+
+        $eventFactory = new StubEventFactory();
+
+        $ringBuffer = RingBuffer::createMultiProducer($eventFactory, $ringBufferSize);
+        $barrier = $ringBuffer->newBarrier();
+        $processor = new TestEventProcessor2($barrier);
+
+        $sequence = $processor->getSequence();
+        $sequenceList = new SequenceList($sequence);
+        $ringBuffer->addGatingSequences($sequenceList);
+
+        $thread = new RingBufferThread2($ringBuffer, $latch, $publisherComplete);
+        $thread->start();
+
+        $latch->await();
+
+        $this->assertEquals($ringBuffer->getCursor(), 3);
+        $this->assertFalse($publisherComplete[0]);
+
+        $processor->start();
+        $thread->join();
+
+        $this->assertTrue($publisherComplete[0]);
     }
 
     public function testShouldPublishEvent()
