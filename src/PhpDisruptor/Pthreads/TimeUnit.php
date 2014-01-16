@@ -52,7 +52,7 @@ class TimeUnit extends Enum
     public function toNanos($d)
     {
         $v = $this->getValue();
-        return self::x($d, $this->{'c'.$v}/$this->c0, PHP_INT_MAX/($this->{'c'.$v}/$this->c0));
+        return $this->x($d, $this->{'c'.$v}/$this->c0, PHP_INT_MAX/($this->{'c'.$v}/$this->c0));
     }
 
     /**
@@ -67,7 +67,7 @@ class TimeUnit extends Enum
         if ($v < self::MICROSECONDS) {
             return $d/($this->c1/$this->c0);
         } else {
-            return self::x($d, $this->{'c'.$v}/$this->c1, PHP_INT_MAX/($this->{'c'.$v})/$this->c1);
+            return $this->x($d, $this->{'c'.$v}/$this->c1, PHP_INT_MAX/($this->{'c'.$v})/$this->c1);
         }
     }
 
@@ -83,7 +83,7 @@ class TimeUnit extends Enum
         if ($v < self::MILLISECONDS) {
             return $d/($this->c2/$this->{'c'.$v});
         } else {
-            return self::x($d, $this->{'c'.$v}/$this->c2, PHP_INT_MAX/($this->{'c'.$v}/$this->c2));
+            return $this->x($d, $this->{'c'.$v}/$this->c2, PHP_INT_MAX/($this->{'c'.$v}/$this->c2));
         }
     }
 
@@ -99,7 +99,7 @@ class TimeUnit extends Enum
         if ($v < self::SECONDS) {
             return $d/($this->c3/$this->{'c'.$v});
         } else {
-            return self::x($d, $this->{'c'.$v}/$this->c3, PHP_INT_MAX/($this->{'c'.$v}/$this->c3));
+            return $this->x($d, $this->{'c'.$v}/$this->c3, PHP_INT_MAX/($this->{'c'.$v}/$this->c3));
         }
     }
 
@@ -115,7 +115,7 @@ class TimeUnit extends Enum
         if ($v < self::MINUTES) {
             return $d/($this->c4/$this->{'c'.$v});
         } else {
-            return self::x($d, $this->{'c'.$v}/$this->c4, PHP_INT_MAX/($this->{'c'.$v}/$this->c4));
+            return $this->x($d, $this->{'c'.$v}/$this->c4, PHP_INT_MAX/($this->{'c'.$v}/$this->c4));
         }
     }
 
@@ -131,7 +131,7 @@ class TimeUnit extends Enum
         if ($v < self::HOURS) {
             return $d/($this->c5/$this->{'c'.$v});
         } else {
-            return self::x($d, $this->{'c'.$v}/$this->c5, PHP_INT_MAX/($this->{'c'.$v}/$this->c5));
+            return $this->x($d, $this->{'c'.$v}/$this->c5, PHP_INT_MAX/($this->{'c'.$v}/$this->c5));
         }
     }
 
@@ -166,7 +166,7 @@ class TimeUnit extends Enum
      */
     public function convert($sourceDuration, TimeUnit $sourceUnit)
     {
-        switch ($sourceUnit->getValue()) {
+        switch ($this->getValue()) {
             case self::NANOSECONDS:
                 return $sourceUnit->toNanos($sourceDuration);
             case self::MICROSECONDS:
@@ -185,25 +185,6 @@ class TimeUnit extends Enum
     }
 
     /**
-     * Utility to compute the excess-nanosecond argument to wait, sleep, join.
-     *
-     * @param int $d the duration
-     * @param int $m the number of microseconds
-     * @return int the number of nanoseconds
-     */
-    public function excessNanos($d, $m)
-    {
-        switch ($this->getValue()) {
-            case self::NANOSECONDS:
-                return (int) ($d - ($m*$this->c2));
-            case self::MICROSECONDS:
-                return (int) ($d*$this->c1 - $m*$this->c2);
-            default:
-                return 0;
-        }
-    }
-
-    /**
      * Scale d by m, checking for overflow.
      * This has a short name to make code more readable.
      *
@@ -212,7 +193,7 @@ class TimeUnit extends Enum
      * @param int $over
      * @return int
      */
-    private static function x($d, $m, $over)
+    private function x($d, $m, $over)
     {
         if ($d > $over) {
             return PHP_INT_MAX;
