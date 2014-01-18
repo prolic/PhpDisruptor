@@ -30,17 +30,21 @@ class CountDownLatch extends StackableArray
     /**
      * Causes the current thread to wait until the latch has counted down to zero, unless the thread is interrupted.
      *
-     * @param int $timeout in microseconds
+     * @param int $timeout
+     * @param TimeUnit|null $unit the timeunit of the given timeout
      * @return bool true if the count reached zero and false if the waiting time elapsed before the count reached zero
      */
-    public function await($timeout = 0)
+    public function await($timeout = 0, TimeUnit $unit = null)
     {
+        if (null !== $unit) {
+            $timeout = $unit->toMicros($timeout);
+        }
         $timeoutAt = microtime(true) + ($timeout / 1000000);
         while (0 != $this->count) {
-            if ($timeout > 0 && microtime(true) > $timeoutAt) {
+            if ($timeout > 0 && (microtime(true) > $timeoutAt)) {
                 return false;
             }
-            $this->wait(1);
+            time_nanosleep(0, 1);
         }
         return true;
     }

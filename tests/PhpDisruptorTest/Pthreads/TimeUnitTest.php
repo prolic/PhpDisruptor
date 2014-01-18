@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpDisruptor\Pthreads;
+namespace PhpDisruptorTest\Pthreads;
 
 use PhpDisruptor\Pthreads\TimeUnit;
 
