@@ -75,7 +75,13 @@ class CyclicBarrier extends StackableArray
         $this->trip->signal();
     }
 
-    private function doWait($timed, $nanos)
+    /**
+     * @param bool $timed
+     * @param int $micros
+     * @return int
+     * @throws \Exception
+     */
+    private function doWait($timed, $micros)
     {
         Mutex::lock($this->lock);
         try {
@@ -106,8 +112,7 @@ class CyclicBarrier extends StackableArray
 
                 if (!$timed) {
                     Cond::wait($this->trip, $this->lock);
-                } else if ($nanos > 0) {
-                    $micros = TimeUnit::NANOSECONDS()->toMicros($nanos);
+                } else if ($micros > 0) {
                     Cond::wait($this->trip, $this->lock, $micros);
                 }
 
@@ -115,7 +120,7 @@ class CyclicBarrier extends StackableArray
                     throw new Exception\BrokenBarrierException();
                 }
 
-                if ($timed && $nanos > 0) {
+                if ($timed && $micros > 0) {
                     $this->breakBarrier();
                     throw new Exception\TimeoutException();
                 }
@@ -132,16 +137,28 @@ class CyclicBarrier extends StackableArray
         return $this->parties;
     }
 
-    public function await($timeout = 0, TimeUnit $unit = null)
+    /**
+     * @param int|null $timeout
+     * @param TimeUnit|null $unit
+     * @return int
+     * @throws Exception\InvalidArgumentException if timeout is given without a timeunit
+     */
+    public function await($timeout = null, TimeUnit $unit = null)
     {
-        if (null !== $unit) {
+        if (null === $timeout) {
             return $this->doWait(false, 0);
-        } else {
-            $micros = $unit->toMicros($timeout);
-            return $this->doWait(true, $micros);
         }
+        if (null === $unit) {
+            throw new Exception\InvalidArgumentException('timeeout expects a timeunit');
+        }
+        $micros = $unit->toMicros($timeout);
+        return $this->doWait(true, $micros);
     }
 
+    /**
+     * @return bool
+     * @throws \Exception
+     */
     public function isBroken()
     {
         Mutex::lock($this->lock);
