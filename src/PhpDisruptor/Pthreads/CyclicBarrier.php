@@ -49,6 +49,7 @@ class CyclicBarrier extends StackableArray
             throw new Exception\InvalidArgumentException();
         }
         $this->parties = $parties;
+        $this->count = $parties;
         $this->barrierCommand = $barrierAction;
         $this->lock = Mutex::create(false);
         $this->trip = Cond::create();
@@ -58,21 +59,26 @@ class CyclicBarrier extends StackableArray
     /**
      * Updates state on barrier trip and wakes up everyone.
      * Called only while holding lock.
+     *
+     * @return void
      */
     public function nextGeneration()
     {
+        echo 'next generation' . PHP_EOL;
         // signal completion of last generation
         Cond::signal($this->trip);
         // set up next generation
         $this->count = $this->parties;
         $this->generation = new Generation();
+        echo 'end ng' . PHP_EOL;
     }
 
     public function breakBarrier()
     {
+        echo 'break barrier' . PHP_EOL;
         $this->generation->setBroken();
         $this->count = $this->parties;
-        Cond::signal($this->trip);
+        var_dump(Cond::signal($this->trip));
     }
 
     /**
@@ -84,32 +90,36 @@ class CyclicBarrier extends StackableArray
     public function doWait($timed, $micros)
     {
         Mutex::lock($this->lock);
+        echo __LINE__ . 'Thread . locked' . "\n";
         try {
 
+            echo 'broken ? ' . ($this->generation->broken() ? 'yes' : 'no') . PHP_EOL;
             if ($this->generation->broken()) {
                 throw new Exception\BrokenBarrierException();
             }
 
             $index = --$this->count;
+            echo 'index: ' . $index . PHP_EOL;
             if ($index == 0) { // tripped
                 $ranAction = false;
                 try {
                     if (null !== $this->barrierCommand) {
                         $this->barrierCommand->start();
-                        $ranAction = true;
-                        $this->nextGeneration();
-                        return 0;
                     }
+                    $ranAction = true;
+                    $this->nextGeneration();
+                    Mutex::unlock($this->lock);
+                    return 0;
                 } catch (\Exception $e) {
                     if (!$ranAction) {
                         $this->breakBarrier();
                     }
+                    throw $e;
                 }
             }
 
             // loop until tripped, broken or timed out
             for (;;) {
-
                 if (!$timed) {
                     Cond::wait($this->trip, $this->lock);
                 } else if ($micros > 0) {
@@ -139,20 +149,16 @@ class CyclicBarrier extends StackableArray
 
     /**
      * @param int|null $timeout
-     * @param TimeUnit|null $unit
      * @return int
      * @throws Exception\InvalidArgumentException if timeout is given without a timeunit
      */
-    public function await($timeout = null, TimeUnit $unit = null)
+    public function await($timeout = null)
     {
+        echo 'await ?' . PHP_EOL;
         if (null === $timeout) {
             return $this->doWait(false, 0);
         }
-        if (null === $unit) {
-            throw new Exception\InvalidArgumentException('timeeout expects a timeunit');
-        }
-        $micros = $unit->toMicros($timeout);
-        return $this->doWait(true, $micros);
+        return $this->doWait(true, $timeout);
     }
 
     /**
@@ -196,5 +202,11 @@ class CyclicBarrier extends StackableArray
         }
         Mutex::unlock($this->lock);
         return $res;
+    }
+
+    public function __destruct()
+    {
+        Mutex::destroy($this->lock);
+        Cond::destroy($this->trip);
     }
 }

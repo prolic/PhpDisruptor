@@ -19,6 +19,7 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
+        spl_autoload_call('PhpDisruptor\Pthreads\TimeUnit');
         $this->atTheStartingGate = new CyclicBarrier(3);
     }
 
@@ -91,7 +92,9 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
     public function toTheStartingGate()
     {
         try {
-            $this->atTheStartingGate->await(10, TimeUnit::SECONDS());
+            echo 'to the starting gate' . PHP_EOL;
+            $this->atTheStartingGate->await(10);
+            echo 'waited at starting gate' . PHP_EOL;
         } catch (\Exception $e) {
             self::reset($this->atTheStartingGate);
             self::fail($e->getMessage());
@@ -100,7 +103,6 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
 
     public function testNormalUse()
     {
-        TimeUnit::MILLISECONDS();
         try {
             $barrier = new CyclicBarrier(3);
             $this->assertEquals($barrier->getParties(), 3);
@@ -108,10 +110,14 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
             foreach (array(false, true) as $doReset) {
                 for ($i = 0; $i < 4; $i++) {
                     $a1 = $awaiters->next();
-                    $a1->start();
                     $a2 = $awaiters->next();
+                    echo 'starting a1' . PHP_EOL;
+                    $a1->start();
+                    echo 'starting a2' . PHP_EOL;
                     $a2->start();
+                    echo 'to the starting gate' . PHP_EOL;
                     $this->toTheStartingGate();
+                    echo 'barrier await' . PHP_EOL;
                     $barrier->await();
                     $a1->join();
                     $a2->join();

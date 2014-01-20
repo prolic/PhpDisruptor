@@ -11,12 +11,13 @@ class AwaiterOne extends AbstractAwaiter
 
     public function __construct(CyclicBarrier $barrier)
     {
-        $this->barrier = $barrier;
         parent::__construct();
+        $this->barrier = $barrier;
     }
 
     public function run()
     {
+        echo 'starting ' . $this->getName() . ' (class: ' . get_class($this) . ') ' . PHP_EOL;
         try {
             $this->barrier->await();
         } catch (\Exception $e) {

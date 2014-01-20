@@ -13,20 +13,16 @@ class AwaiterTwo extends AbstractAwaiter
 
     public function __construct(CyclicBarrier $barrier, $millies)
     {
+        parent::__construct();
         $this->barrier = $barrier;
         $this->millies = $millies;
-        parent::__construct();
     }
 
     public function run()
     {
+        echo 'starting ' . $this->getName() . PHP_EOL;
         try {
-            $unit = TimeUnit::get(2);
-            $f = fopen('/tmp/foobar', 'w+');
-            fwrite($f, serialize($unit));
-            fclose($f);
-            var_dump($unit); die;
-            $this->barrier->await($this->millies, $unit);
+            $this->barrier->await($this->millies);
         } catch (\Exception $e) {
             $this->setResult($e);
         }

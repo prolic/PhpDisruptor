@@ -14,8 +14,10 @@ abstract class AbstractAwaiter extends Thread
 
     public function __construct()
     {
-        self::$count = 1;
-        $this->name = 'Awaiter' + self::$count++;
+        if (!is_numeric(self::$count)) {
+            self::$count = 1;
+        }
+        $this->name = 'Awaiter ' . self::$count++;
     }
 
     public function setResult(\Exception $result)
