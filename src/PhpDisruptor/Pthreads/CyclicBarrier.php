@@ -59,20 +59,20 @@ class CyclicBarrier extends StackableArray
      * Updates state on barrier trip and wakes up everyone.
      * Called only while holding lock.
      */
-    private function nextGeneration()
+    public function nextGeneration()
     {
         // signal completion of last generation
-        $this->trip->signal();
+        Cond::signal($this->trip);
         // set up next generation
         $this->count = $this->parties;
         $this->generation = new Generation();
     }
 
-    private function breakBarrier()
+    public function breakBarrier()
     {
         $this->generation->setBroken();
         $this->count = $this->parties;
-        $this->trip->signal();
+        Cond::signal($this->trip);
     }
 
     /**
@@ -81,7 +81,7 @@ class CyclicBarrier extends StackableArray
      * @return int
      * @throws \Exception
      */
-    private function doWait($timed, $micros)
+    public function doWait($timed, $micros)
     {
         Mutex::lock($this->lock);
         try {
