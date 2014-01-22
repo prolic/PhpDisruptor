@@ -17,7 +17,6 @@ class AwaiterOne extends AbstractAwaiter
 
     public function run()
     {
-        echo 'starting ' . $this->getName() . ' (class: ' . get_class($this) . ') ' . PHP_EOL;
         try {
             $this->barrier->await();
         } catch (\Exception $e) {

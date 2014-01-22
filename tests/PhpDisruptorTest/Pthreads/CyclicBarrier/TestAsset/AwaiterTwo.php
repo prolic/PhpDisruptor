@@ -20,7 +20,6 @@ class AwaiterTwo extends AbstractAwaiter
 
     public function run()
     {
-        echo 'starting ' . $this->getName() . PHP_EOL;
         try {
             $this->barrier->await($this->millies);
         } catch (\Exception $e) {

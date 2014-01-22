@@ -7,23 +7,18 @@ namespace PhpDisruptor\Pthreads;
  */
 class Generation extends StackableArray
 {
-    /**
-     * @var bool
-     */
-    public $broken;
-
     public function __construct()
     {
-        $this->broken = false;
+        $this[0] = false;
     }
 
     public function setBroken()
     {
-        $this->broken = true;
+        $this[0] = true;
     }
 
     public function broken()
     {
-        return $this->broken;
+        return $this[0];
     }
 }

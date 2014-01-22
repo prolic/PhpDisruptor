@@ -4,8 +4,10 @@ namespace PhpDisruptor\Pthreads;
 
 use Cond;
 use Mutex;
-use PhpDisruptor\Exception\TimeoutException;
 use Thread;
+
+require_once __DIR__ . '/Exception/TimeoutException.php';
+require_once __DIR__ . '/Exception/BrokenBarrierException.php';
 
 class CyclicBarrier extends StackableArray
 {
@@ -43,6 +45,13 @@ class CyclicBarrier extends StackableArray
      */
     public $count;
 
+    /**
+     * Constructor
+     *
+     * @param int $parties
+     * @param Thread $barrierAction
+     * @throws Exception\InvalidArgumentException
+     */
     public function __construct($parties, Thread $barrierAction = null)
     {
         if ($parties <= 0) {
@@ -64,21 +73,18 @@ class CyclicBarrier extends StackableArray
      */
     public function nextGeneration()
     {
-        echo 'next generation' . PHP_EOL;
         // signal completion of last generation
-        Cond::signal($this->trip);
+        Cond::broadcast($this->trip);
         // set up next generation
         $this->count = $this->parties;
         $this->generation = new Generation();
-        echo 'end ng' . PHP_EOL;
     }
 
     public function breakBarrier()
     {
-        echo 'break barrier' . PHP_EOL;
         $this->generation->setBroken();
         $this->count = $this->parties;
-        var_dump(Cond::signal($this->trip));
+        Cond::broadcast($this->trip);
     }
 
     /**
@@ -90,16 +96,14 @@ class CyclicBarrier extends StackableArray
     public function doWait($timed, $micros)
     {
         Mutex::lock($this->lock);
-        echo __LINE__ . 'Thread . locked' . "\n";
         try {
 
-            echo 'broken ? ' . ($this->generation->broken() ? 'yes' : 'no') . PHP_EOL;
-            if ($this->generation->broken()) {
+            $generation = $this->generation;
+            if ($generation->broken()) {
                 throw new Exception\BrokenBarrierException();
             }
 
             $index = --$this->count;
-            echo 'index: ' . $index . PHP_EOL;
             if ($index == 0) { // tripped
                 $ranAction = false;
                 try {
@@ -126,11 +130,11 @@ class CyclicBarrier extends StackableArray
                     Cond::wait($this->trip, $this->lock, $micros);
                 }
 
-                if ($this->generation->broken()) {
+                if ($generation->broken()) {
                     throw new Exception\BrokenBarrierException();
                 }
 
-                if ($timed && $micros > 0) {
+                if ($timed) {
                     $this->breakBarrier();
                     throw new Exception\TimeoutException();
                 }
@@ -154,7 +158,6 @@ class CyclicBarrier extends StackableArray
      */
     public function await($timeout = null)
     {
-        echo 'await ?' . PHP_EOL;
         if (null === $timeout) {
             return $this->doWait(false, 0);
         }
