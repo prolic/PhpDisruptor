@@ -6,19 +6,9 @@ use Thread;
 
 abstract class AbstractAwaiter extends Thread
 {
-    public static $count;
-
     public $name;
 
     public $result;
-
-    public function __construct()
-    {
-        if (!is_numeric(self::$count)) {
-            self::$count = 1;
-        }
-        $this->name = 'Awaiter ' . self::$count++;
-    }
 
     public function setResult(\Exception $result)
     {

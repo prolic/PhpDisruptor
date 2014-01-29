@@ -3,7 +3,8 @@
 namespace PhpDisruptorTest\Pthreads\CyclicBarrier\TestAsset;
 
 use PhpDisruptor\Pthreads\CyclicBarrier;
-use PhpDisruptor\Pthreads\TimeUnit;
+use PhpDisruptorTest\Pthreads\CyclicBarrier\ToTheStartingGateTrait;
+use PhpDisruptorTest\Pthreads\CyclicBarrierTest;
 
 class AwaiterTwo extends AbstractAwaiter
 {
@@ -11,15 +12,19 @@ class AwaiterTwo extends AbstractAwaiter
 
     public $millies;
 
-    public function __construct(CyclicBarrier $barrier, $millies)
+    public $atTheStartingGate;
+
+    public function __construct(CyclicBarrier $barrier, CyclicBarrier $atTheStartingGate, $millies)
     {
-        parent::__construct();
+        $this->name = 'AwaiterTwo';
         $this->barrier = $barrier;
         $this->millies = $millies;
+        $this->atTheStartingGate = $atTheStartingGate;
     }
 
     public function run()
     {
+        CyclicBarrierTest::toTheStartingGate($this->atTheStartingGate);
         try {
             $this->barrier->await($this->millies);
         } catch (\Exception $e) {

@@ -6,20 +6,44 @@ use Cond;
 use Mutex;
 use Thread;
 
-require_once __DIR__ . '/Exception/TimeoutException.php';
+// @todo: check why this is required
 require_once __DIR__ . '/Exception/BrokenBarrierException.php';
+require_once __DIR__ . '/Exception/InvalidArgumentException.php';
+require_once __DIR__ . '/Exception/TimeoutException.php';
 
 class CyclicBarrier extends StackableArray
 {
     /**
      * @var int the lock for guarding the barrier entry
      */
-    public $lock;
+    public $mutex;
 
     /**
      * @var int condition to wait until tripped
      */
-    public $trip;
+    public $cond;
+
+    /**
+     * Constructor
+     *
+     * @param int $mutex
+     * @param int $cond
+     * @param int $parties
+     * @param Thread|null $barrierAction
+     * @throws Exception\InvalidArgumentException
+     */
+    public function __construct($mutex, $cond, $parties, Thread $barrierAction = null)
+    {
+        if ($parties <= 0) {
+            throw new Exception\InvalidArgumentException();
+        }
+        $this->parties = $parties;
+        $this->count = $parties;
+        $this->barrierCommand = $barrierAction;
+        $this->mutex = $mutex;
+        $this->cond = $cond;
+        $this->generation = new Generation();
+    }
 
     /**
      * @var int the number of parties
@@ -46,26 +70,6 @@ class CyclicBarrier extends StackableArray
     public $count;
 
     /**
-     * Constructor
-     *
-     * @param int $parties
-     * @param Thread $barrierAction
-     * @throws Exception\InvalidArgumentException
-     */
-    public function __construct($parties, Thread $barrierAction = null)
-    {
-        if ($parties <= 0) {
-            throw new Exception\InvalidArgumentException();
-        }
-        $this->parties = $parties;
-        $this->count = $parties;
-        $this->barrierCommand = $barrierAction;
-        $this->lock = Mutex::create(false);
-        $this->trip = Cond::create();
-        $this->generation = new Generation();
-    }
-
-    /**
      * Updates state on barrier trip and wakes up everyone.
      * Called only while holding lock.
      *
@@ -74,7 +78,8 @@ class CyclicBarrier extends StackableArray
     public function nextGeneration()
     {
         // signal completion of last generation
-        Cond::broadcast($this->trip);
+        Cond::broadcast($this->cond);
+
         // set up next generation
         $this->count = $this->parties;
         $this->generation = new Generation();
@@ -82,86 +87,117 @@ class CyclicBarrier extends StackableArray
 
     public function breakBarrier()
     {
-        $this->generation->setBroken();
+        $this->generation->broken = true;
         $this->count = $this->parties;
-        Cond::broadcast($this->trip);
+        Cond::broadcast($this->cond);
     }
 
     /**
-     * @param bool $timed
-     * @param int $micros
+     * Returns the number of parties
+     *
      * @return int
-     * @throws \Exception
      */
-    public function doWait($timed, $micros)
-    {
-        Mutex::lock($this->lock);
-        try {
-
-            $generation = $this->generation;
-            if ($generation->broken()) {
-                throw new Exception\BrokenBarrierException();
-            }
-
-            $index = --$this->count;
-            if ($index == 0) { // tripped
-                $ranAction = false;
-                try {
-                    if (null !== $this->barrierCommand) {
-                        $this->barrierCommand->start();
-                    }
-                    $ranAction = true;
-                    $this->nextGeneration();
-                    Mutex::unlock($this->lock);
-                    return 0;
-                } catch (\Exception $e) {
-                    if (!$ranAction) {
-                        $this->breakBarrier();
-                    }
-                    throw $e;
-                }
-            }
-
-            // loop until tripped, broken or timed out
-            for (;;) {
-                if (!$timed) {
-                    Cond::wait($this->trip, $this->lock);
-                } else if ($micros > 0) {
-                    Cond::wait($this->trip, $this->lock, $micros);
-                }
-
-                if ($generation->broken()) {
-                    throw new Exception\BrokenBarrierException();
-                }
-
-                if ($timed) {
-                    $this->breakBarrier();
-                    throw new Exception\TimeoutException();
-                }
-            }
-        } catch (\Exception $e) {
-            Mutex::unlock($this->lock);
-            throw $e;
-        }
-        Mutex::unlock($this->lock);
-    }
-
     public function getParties()
     {
         return $this->parties;
     }
 
     /**
-     * @param int|null $timeout
+     * @param int|null $timeout (optional) timeout in microseconds
      * @return int
-     * @throws Exception\InvalidArgumentException if timeout is given without a timeunit
+     * @throws Exception\InvalidArgumentException
+     * @throws Exception\BrokenBarrierException
+     * @throws Exception\TimeoutException
+     */
+
+    /**
+     * @param null $timeout
+     * @return int
+     * @throws Exception\InvalidArgumentException
+     * @throws \Exception
      */
     public function await($timeout = null)
     {
-        if (null === $timeout) {
-            return $this->doWait(false, 0);
+        if (null !== $timeout && (!is_numeric($timeout) || $timeout < 1)) {
+            throw new Exception\InvalidArgumentException(
+                '$timeout (in microseconds) must be a positive integer or null'
+            );
         }
-        return $this->doWait(true, $timeout);
+
+        var_dump('T: ' . Thread::getCurrentThreadId() . ' locking' . PHP_EOL);
+        var_dump('T: ' . Thread::getCurrentThreadId() . var_export(Mutex::lock($this->mutex), 1 ) . PHP_EOL);
+        var_dump('T: ' . Thread::getCurrentThreadId() . ' locking ok' . PHP_EOL);
+        if ($this->generation->broken) {
+            var_dump('T: ' . Thread::getCurrentThreadId() . ' generation broken' . PHP_EOL);
+            Mutex::unlock($this->mutex);
+            throw new Exception\BrokenBarrierException();
+        } else {
+
+            var_dump('T: ' . Thread::getCurrentThreadId() . ' generation ok' . PHP_EOL);
+        }
+
+        $index = --$this->count;
+
+        var_dump('T: ' . Thread::getCurrentThreadId() . ' test index: ' . $index. PHP_EOL);
+        if ($index == 0) { // tripped
+            var_dump('T: ' . Thread::getCurrentThreadId() . ' index = 0, tripped ' . PHP_EOL);
+            $ranAction = false;
+
+            try {
+                if (null !== $this->barrierCommand) {
+                    $this->barrierCommand->start();
+                }
+                $ranAction = true;
+                var_dump('T: ' . Thread::getCurrentThreadId() . ' next generation, old: ' . var_export($this->generation, 1). PHP_EOL);
+                $this->nextGeneration();
+                var_dump('T: ' . Thread::getCurrentThreadId() . ' next generation ok, unlocking..., new: '. var_export($this->generation, 1) . PHP_EOL);
+                var_dump('T: ' . Thread::getCurrentThreadId() . ' mutex unlock: ' . var_export(Mutex::unlock($this->mutex), 1) .PHP_EOL);
+                var_dump('T: ' . Thread::getCurrentThreadId() . ' unlocking ok' . PHP_EOL);
+
+                return 0;
+            } catch (\Exception $e) {
+                if (!$ranAction) {
+                    $this->breakBarrier();
+                }
+                Mutex::unlock($this->mutex);
+                throw $e;
+            }
+        }
+
+        // loop until tripped, broken or timed out
+        for (;;) {
+            time_nanosleep(0, 100000);
+            var_dump('T: ' . Thread::getCurrentThreadId() . ' waiting....' . PHP_EOL);
+            time_nanosleep(0, 100000);
+            if (null === $timeout) {
+                Cond::wait($this->cond, $this->mutex);
+            } else {
+                @Cond::wait($this->cond, $this->mutex, $timeout);
+            }
+            time_nanosleep(0, 100000);
+
+            var_dump('T: ' . Thread::getCurrentThreadId() . ' waiting ok' . PHP_EOL);
+
+            if ($this->generation->broken) {
+                var_dump('T: ' . Thread::getCurrentThreadId() . ' generation broken' . PHP_EOL);
+                Mutex::unlock($this->mutex);
+                throw new Exception\BrokenBarrierException();
+            } else {
+                var_dump('T: ' . Thread::getCurrentThreadId() . ' generation ok' . PHP_EOL);
+            }
+
+            if ($this->generation !== $this->generation) {
+                var_dump('HUCH!!!!!!!!!!!!!!');
+                Mutex::unlock($this->mutex);
+                return $index;
+            }
+
+            if (null !== $timeout) {
+                $this->breakBarrier();
+                Mutex::unlock($this->mutex);
+                throw new Exception\TimeoutException();
+            }
+        }
     }
 
     /**
@@ -170,46 +206,40 @@ class CyclicBarrier extends StackableArray
      */
     public function isBroken()
     {
-        Mutex::lock($this->lock);
+        Mutex::lock($this->mutex);
         try {
-            $res = $this->generation->broken();
+            $res = $this->generation->broken;
         } catch (\Exception $e) {
-            Mutex::unlock($this->lock);
+            Mutex::unlock($this->mutex);
             throw $e;
         }
-        Mutex::unlock($this->lock);
+        Mutex::unlock($this->mutex);
         return $res;
     }
 
     public function reset()
     {
-        Mutex::lock($this->lock);
+        Mutex::lock($this->mutex);
         try {
             $this->breakBarrier();
             $this->nextGeneration();
         } catch (\Exception $e) {
-            Mutex::unlock($this->lock);
+            Mutex::unlock($this->mutex);
             throw $e;
         }
-        Mutex::unlock($this->lock);
+        Mutex::unlock($this->mutex);
     }
 
     public function getNumberWaiting()
     {
-        Mutex::lock($this->lock);
+        Mutex::lock($this->mutex);
         try {
             $res = $this->parties - $this->count;
         } catch (\Exception $e) {
-            Mutex::unlock($this->lock);
+            Mutex::unlock($this->mutex);
             throw $e;
         }
-        Mutex::unlock($this->lock);
+        Mutex::unlock($this->mutex);
         return $res;
-    }
-
-    public function __destruct()
-    {
-        Mutex::destroy($this->lock);
-        Cond::destroy($this->trip);
     }
 }
