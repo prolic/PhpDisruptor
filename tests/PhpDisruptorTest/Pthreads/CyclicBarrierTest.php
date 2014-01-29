@@ -112,7 +112,9 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
         );
 
         $this->atTheStartingGate = new CyclicBarrier($mutexOne, $condOne, 3, null);
+        $this->atTheStartingGate->name = 'atTheStartingGate';
         $barrier = new CyclicBarrier($mutexTwo, $condTwo, 3);
+        $barrier->name = 'barrier';
         $this->assertEquals($barrier->getParties(), 3);
         $awaiters = new AwaiterFactory($barrier, $this->atTheStartingGate);
         foreach (array(false, true) as $doReset) {
@@ -126,26 +128,16 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
 
                 time_nanosleep(0, 100000);
 
-                var_dump('Test Thread' . \Thread::getCurrentThreadId() . PHP_EOL);
-                var_dump(get_class($a1) . ': '. $a1->getThreadId() . PHP_EOL);
-                var_dump(get_class($a2) . ': ' . $a2->getThreadId() . PHP_EOL);
-
-                time_nanosleep(0, 100000);
+                var_dump(microtime(1) . ' ' . 'Test Thread' . \Thread::getCurrentThreadId() );
+                var_dump(microtime(1) . ' ' . get_class($a1) . ': '. $a1->getThreadId() );
+                var_dump(microtime(1) . ' ' . get_class($a2) . ': ' . $a2->getThreadId() );
 
                 self::toTheStartingGate($this->atTheStartingGate);
 
-                time_nanosleep(0, 100000);
-
-                $barrier->it = \Thread::getCurrentThreadId();
-                var_dump($barrier);
-                time_nanosleep(0, 100000);
-
-                var_dump(\Thread::getCurrentThreadId() . ' waiting...');
-
+                var_dump(microtime(1) . ' ' . \Thread::getCurrentThreadId() . ' waiting...');
                 $barrier->await();
-                var_dump(\Thread::getCurrentThreadId() . ' waiting ok ...');
-                time_nanosleep(0, 100000);
-                var_dump($barrier);
+                var_dump(microtime(1) . ' ' . \Thread::getCurrentThreadId() . ' waiting ok ...');
+                var_dump(microtime(1) . ' ', $barrier, $this->atTheStartingGate);
 
                 $a1->join();
 

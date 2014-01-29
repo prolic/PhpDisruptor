@@ -124,23 +124,23 @@ class CyclicBarrier extends StackableArray
             );
         }
 
-        var_dump('T: ' . Thread::getCurrentThreadId() . ' locking' . PHP_EOL);
-        var_dump('T: ' . Thread::getCurrentThreadId() . var_export(Mutex::lock($this->mutex), 1 ) . PHP_EOL);
-        var_dump('T: ' . Thread::getCurrentThreadId() . ' locking ok' . PHP_EOL);
+        var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' locking');
+        Mutex::lock($this->mutex);
+        var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' locking ok');
         if ($this->generation->broken) {
-            var_dump('T: ' . Thread::getCurrentThreadId() . ' generation broken' . PHP_EOL);
+            var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' generation broken');
             Mutex::unlock($this->mutex);
             throw new Exception\BrokenBarrierException();
         } else {
 
-            var_dump('T: ' . Thread::getCurrentThreadId() . ' generation ok' . PHP_EOL);
+            var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' generation ok');
         }
 
         $index = --$this->count;
 
-        var_dump('T: ' . Thread::getCurrentThreadId() . ' test index: ' . $index. PHP_EOL);
+        var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' test index: ' . $index);
         if ($index == 0) { // tripped
-            var_dump('T: ' . Thread::getCurrentThreadId() . ' index = 0, tripped ' . PHP_EOL);
+            var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' index = 0, tripped ');
             $ranAction = false;
 
             try {
@@ -148,12 +148,12 @@ class CyclicBarrier extends StackableArray
                     $this->barrierCommand->start();
                 }
                 $ranAction = true;
-                var_dump('T: ' . Thread::getCurrentThreadId() . ' next generation, old: ' . var_export($this->generation, 1). PHP_EOL);
+                var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' next generation, old: ' . var_export($this->generation, 1));
                 $this->nextGeneration();
-                var_dump('T: ' . Thread::getCurrentThreadId() . ' next generation ok, unlocking..., new: '. var_export($this->generation, 1) . PHP_EOL);
-                var_dump('T: ' . Thread::getCurrentThreadId() . ' mutex unlock: ' . var_export(Mutex::unlock($this->mutex), 1) .PHP_EOL);
-                var_dump('T: ' . Thread::getCurrentThreadId() . ' unlocking ok' . PHP_EOL);
-
+                var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' next generation ok, unlocking..., new: '. var_export($this->generation, 1));
+                Mutex::unlock($this->mutex);
+                var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' unlocking ok');
+                time_nanosleep(0,10000000);
                 return 0;
             } catch (\Exception $e) {
                 if (!$ranAction) {
@@ -167,7 +167,7 @@ class CyclicBarrier extends StackableArray
         // loop until tripped, broken or timed out
         for (;;) {
             time_nanosleep(0, 100000);
-            var_dump('T: ' . Thread::getCurrentThreadId() . ' waiting....' . PHP_EOL);
+            var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' waiting....');
             time_nanosleep(0, 100000);
             if (null === $timeout) {
                 Cond::wait($this->cond, $this->mutex);
@@ -176,18 +176,18 @@ class CyclicBarrier extends StackableArray
             }
             time_nanosleep(0, 100000);
 
-            var_dump('T: ' . Thread::getCurrentThreadId() . ' waiting ok' . PHP_EOL);
+            var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' waiting ok');
 
             if ($this->generation->broken) {
-                var_dump('T: ' . Thread::getCurrentThreadId() . ' generation broken' . PHP_EOL);
+                var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' generation broken');
                 Mutex::unlock($this->mutex);
                 throw new Exception\BrokenBarrierException();
             } else {
-                var_dump('T: ' . Thread::getCurrentThreadId() . ' generation ok' . PHP_EOL);
+                var_dump(microtime(1) . ' ' . $this->name . ': ' . Thread::getCurrentThreadId() . ' generation ok');
             }
 
             if ($this->generation !== $this->generation) {
-                var_dump('HUCH!!!!!!!!!!!!!!');
+                var_dump(microtime(1) . ' ' . 'HUCH!!!!!!!!!!!!!!');
                 Mutex::unlock($this->mutex);
                 return $index;
             }
