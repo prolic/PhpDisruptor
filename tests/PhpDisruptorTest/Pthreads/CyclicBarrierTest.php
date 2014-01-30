@@ -126,20 +126,16 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
                 $a1->start();
                 $a2->start();
 
-                time_nanosleep(0, 100000);
-
-                var_dump(microtime(1) . ' ' . 'Test Thread' . \Thread::getCurrentThreadId() );
-                var_dump(microtime(1) . ' ' . get_class($a1) . ': '. $a1->getThreadId() );
-                var_dump(microtime(1) . ' ' . get_class($a2) . ': ' . $a2->getThreadId() );
+                time_nanosleep(0,1000000); // NEEDED !!! WHY ???
 
                 self::toTheStartingGate($this->atTheStartingGate);
 
-                var_dump(microtime(1) . ' ' . \Thread::getCurrentThreadId() . ' waiting...');
+                time_nanosleep(0,1000000); // NEEDED !!! WHY ???
+
                 $barrier->await();
-                var_dump(microtime(1) . ' ' . \Thread::getCurrentThreadId() . ' waiting ok ...');
-                var_dump(microtime(1) . ' ', $barrier, $this->atTheStartingGate);
 
                 $a1->join();
+                $a2->join();
 
                 $this->checkResult($a1, null);
                 $this->checkResult($a2, null);
