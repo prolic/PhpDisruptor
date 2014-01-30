@@ -126,11 +126,11 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
                 $a1->start();
                 $a2->start();
 
-                time_nanosleep(0,1000000); // NEEDED !!! WHY ???
+                usleep(100000);
 
                 self::toTheStartingGate($this->atTheStartingGate);
 
-                time_nanosleep(0,1000000); // NEEDED !!! WHY ???
+                usleep(100000);
 
                 $barrier->await();
 
