@@ -21,7 +21,7 @@ class AwaiterOne extends AbstractAwaiter
 
     public function run()
     {
-        CyclicBarrierTest::toTheStartingGate($this->atTheStartingGate);
+        $this->toTheStartingGate();
         try {
             $this->barrier->await();
         } catch (\Exception $e) {

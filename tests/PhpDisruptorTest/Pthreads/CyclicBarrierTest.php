@@ -5,21 +5,19 @@ namespace PhpDisruptorTest\Pthreads;
 use Cond;
 use Mutex;
 use PhpDisruptor\Pthreads\CyclicBarrier;
+use PhpDisruptor\Pthreads\Exception\BrokenBarrierException;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptorTest\Pthreads\CyclicBarrier\TestAsset\AbstractAwaiter;
-use PhpDisruptorTest\Pthreads\CyclicBarrier\TestAsset\AwaiterFactory;
+use PhpDisruptorTest\Pthreads\CyclicBarrier\TestAsset\AwaiterIterator;
 use PhpDisruptorTest\Pthreads\CyclicBarrier\TestAsset\FunOne;
 use PhpDisruptorTest\Pthreads\CyclicBarrier\TestAsset\FunTwo;
-use PhpDisruptorTest\Pthreads\CyclicBarrier\ToTheStartingGateTrait;
 
 class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var CyclicBarrier
      */
-    protected $atTheStartingGate;
-
-    protected $registeredDestroys = array();
+    protected static $atTheStartingGate;
 
     /**
      * @param CyclicBarrier $barrier
@@ -44,11 +42,13 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
      */
     protected function checkResult(AbstractAwaiter $a, $c)
     {
-        if (null === $c) {
-            $t = $a->getResult();
-            $this->assertNull($t);
+        $t = $a->getResult();
+
+        if (! (($t === null && $c === null) || ($c !== null && $t instanceof $c))) {
+            $this->fail(
+                'Mismatch in thread ' . $a->getName() . ': ' . get_class($t) . ', ' . ($c === null ? '<null>' : $c)
+            );
         }
-        // @todo for $c !== null
     }
 
     protected function throws($exceptionClassname, StackableArray $funStack)
@@ -66,17 +66,17 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public static function toTheStartingGate(CyclicBarrier $barrier)
+    protected function toTheStartingGate()
     {
         try {
-            $barrier->await(10000000); // 10 seks
+            self::$atTheStartingGate->await(10000000); // 10 seks
         } catch (\Exception $e) {
             self::reset($barrier);
             throw $e;
         }
     }
 
-    public static function reset(CyclicBarrier $barrier)
+    protected function reset(CyclicBarrier $barrier)
     {
         $barrier->reset();
         if ($barrier->isBroken()) {
@@ -87,50 +87,37 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    //----------------------------------------------------------------
-    // Mechanism to get all victim threads into "running" mode.
-    // The fact that this also uses CyclicBarrier is entirely coincidental.
-    //----------------------------------------------------------------
+    protected function setUp()
+    {
+        //----------------------------------------------------------------
+        // Mechanism to get all victim threads into "running" mode.
+        // The fact that this also uses CyclicBarrier is entirely coincidental.
+        //----------------------------------------------------------------
+        self::$atTheStartingGate = new CyclicBarrier(3);
+
+        // name is just for debugging now
+        self::$atTheStartingGate->name = 'atTheStartingGate';
+    }
 
     public function testNormalUse()
     {
-        $mutexOne = Mutex::create(false);
-        $mutexTwo = Mutex::create(false);
-
-        $condOne = Cond::create();
-        $condTwo = Cond::create();
-
-        $this->registeredDestroys = array(
-            'Mutex' => array(
-                $mutexOne,
-                $mutexTwo
-            ),
-            'Cond' => array(
-                $condOne,
-                $condTwo
-            )
-        );
-
-        $this->atTheStartingGate = new CyclicBarrier($mutexOne, $condOne, 3, null);
-        $this->atTheStartingGate->name = 'atTheStartingGate';
-        $barrier = new CyclicBarrier($mutexTwo, $condTwo, 3);
+        $barrier = new CyclicBarrier(3);
+        // name is just for debugging now
         $barrier->name = 'barrier';
+
         $this->assertEquals($barrier->getParties(), 3);
-        $awaiters = new AwaiterFactory($barrier, $this->atTheStartingGate);
+
+        $awaiters = new AwaiterIterator($barrier, self::$atTheStartingGate);
+
         foreach (array(false, true) as $doReset) {
             for ($i = 0; $i < 4; $i++) {
 
-                $a1 = $awaiters->newInstance();
-                $a2 = $awaiters->newInstance();
-
+                $a1 = $awaiters->next();
                 $a1->start();
+                $a2 = $awaiters->next();
                 $a2->start();
 
-                usleep(100000);
-
-                self::toTheStartingGate($this->atTheStartingGate);
-
-                usleep(100000);
+                self::toTheStartingGate();
 
                 $barrier->await();
 
@@ -149,17 +136,33 @@ class CyclicBarrierTest extends \PHPUnit_Framework_TestCase
                 }
             }
         }
-        $this->destroy();
     }
 
-    public function destroy()
+    /*
+    public function testOneThreadKilled()
     {
-        foreach ($this->registeredDestroys as $destroyClass => $data)
-        {
-            foreach ($data as $int) {
-                $destroyClass::destroy($int);
-            }
+        $barrier = new CyclicBarrier(3);
+        $awaiters = new AwaiterIterator($barrier, self::$atTheStartingGate);
+        for ($i = 0; $i < 4; $i++) {
+            $a1 = $awaiters->next();
+            $a1->start();
+            $a2 = $awaiters->next();
+            $a2->start();
+
+            self::toTheStartingGate();
+
+            $a1->kill();
+
+            $a1->join();
+            $a2->join();
+
+            //$this->checkResult($a1);
+            $this->checkResult($a2, 'PhpDisruptor\Pthreads\Exception\BrokenBarrierException');
+            $this->checkBroken($barrier);
+            $this->reset($barrier);
         }
-        $this->registeredDestroys = array();
+
     }
+    */
+
 }

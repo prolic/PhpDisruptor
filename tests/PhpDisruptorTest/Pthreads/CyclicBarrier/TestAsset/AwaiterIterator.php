@@ -5,7 +5,10 @@ namespace PhpDisruptorTest\Pthreads\CyclicBarrier\TestAsset;
 use PhpDisruptor\Pthreads\CyclicBarrier;
 use PhpDisruptor\Pthreads\StackableArray;
 
-class AwaiterFactory extends StackableArray
+/**
+ * Returns an infinite lazy list of all possible awaiter pair combinations.
+ */
+class AwaiterIterator extends StackableArray
 {
     public $i;
 
@@ -20,7 +23,7 @@ class AwaiterFactory extends StackableArray
         $this->atTheStartingGate = $atTheStartingGate;
     }
 
-    public function newInstance()
+    public function next()
     {
         switch ($this->i++ & 7) {
             case 0:
@@ -29,7 +32,7 @@ class AwaiterFactory extends StackableArray
             case 5:
                 return new AwaiterOne($this->barrier, $this->atTheStartingGate);
             default:
-                return new AwaiterTwo($this->barrier, $this->atTheStartingGate, 10 * 1000 * 10);
+                return new AwaiterTwo($this->barrier, $this->atTheStartingGate, 10 * 1000 * 1000);
         }
     }
 }

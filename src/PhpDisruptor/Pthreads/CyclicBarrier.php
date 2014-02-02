@@ -25,13 +25,11 @@ class CyclicBarrier extends StackableArray
     /**
      * Constructor
      *
-     * @param int $mutex
-     * @param int $cond
      * @param int $parties
      * @param Thread|null $barrierAction
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct($mutex, $cond, $parties, Thread $barrierAction = null)
+    public function __construct($parties, Thread $barrierAction = null)
     {
         if ($parties <= 0) {
             throw new Exception\InvalidArgumentException();
@@ -39,8 +37,8 @@ class CyclicBarrier extends StackableArray
         $this->parties = $parties;
         $this->count = $parties;
         $this->barrierCommand = $barrierAction;
-        $this->mutex = $mutex;
-        $this->cond = $cond;
+        $this->mutex = Mutex::create(false);
+        $this->cond = Cond::create();
         $this->generation = new Generation();
     }
 
@@ -107,23 +105,13 @@ class CyclicBarrier extends StackableArray
      * @throws Exception\InvalidArgumentException
      * @throws Exception\BrokenBarrierException
      * @throws Exception\TimeoutException
-     */
-
-    /**
-     * @param null $timeout
-     * @return int
-     * @throws Exception\InvalidArgumentException
      * @throws \Exception
      */
     public function await($timeout = null)
     {
-        if (null !== $timeout && (!is_numeric($timeout) || $timeout < 1)) {
-            throw new Exception\InvalidArgumentException(
-                '$timeout (in microseconds) must be a positive integer or null'
-            );
-        }
+        $m = $this->mutex;
+        Mutex::lock($m);
 
-        Mutex::lock($this->mutex);
         if ($this->generation->broken) {
             Mutex::unlock($this->mutex);
             throw new Exception\BrokenBarrierException();

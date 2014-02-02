@@ -5,7 +5,7 @@ namespace PhpDisruptor\Pthreads;
 /**
  * internal class to use in CyclicBarrier implementation
  */
-class Generation extends StackableArray
+class Generation
 {
     public $broken;
 
