@@ -7,6 +7,7 @@ use Mutex;
 use Thread;
 
 require_once __DIR__ . '/Exception/BrokenBarrierException.php';
+require_once __DIR__ . '/Exception/InterruptedException.php';
 require_once __DIR__ . '/Exception/InvalidArgumentException.php';
 require_once __DIR__ . '/Exception/TimeoutException.php';
 
@@ -71,6 +72,7 @@ class CyclicBarrier extends StackableArray
      * Called only while holding lock.
      *
      * @return void
+     * @visibility private
      */
     public function nextGeneration()
     {
@@ -82,9 +84,17 @@ class CyclicBarrier extends StackableArray
         $this->generation = new Generation();
     }
 
+    /**
+     * Sets current barrier generation as broken and wakes up everyone.
+     * Called only while holding lock.
+     *
+     * @return void
+     * @visibility private
+     */
     public function breakBarrier()
     {
-        $this->generation->broken = true;
+        $g = $this->generation;
+        $b = $g->broken = true;
         $this->count = $this->parties;
         Cond::broadcast($this->cond);
     }
@@ -110,10 +120,19 @@ class CyclicBarrier extends StackableArray
     public function await($timeout = null)
     {
         $m = $this->mutex;
-        Mutex::lock($m);
+    Mutex::lock($m);
 
-        if ($this->generation->broken) {
+    $that = $this;
+    register_shutdown_function(function() use ($that) {
+        $that->breakBarrier();
+    });
+
+        $g = $this->generation;
+        if ($g->broken) {
             Mutex::unlock($this->mutex);
+            register_shutdown_function(function() {
+                exit();
+            });
             throw new Exception\BrokenBarrierException();
         }
 
@@ -129,37 +148,59 @@ class CyclicBarrier extends StackableArray
                 $ranAction = true;
                 $this->nextGeneration();
                 Mutex::unlock($this->mutex);
+                register_shutdown_function(function() {
+                    exit();
+                });
                 return 0;
             } catch (\Exception $e) {
                 if (!$ranAction) {
                     $this->breakBarrier();
                 }
                 Mutex::unlock($this->mutex);
+                register_shutdown_function(function() {
+                    exit();
+                });
                 throw $e;
             }
         }
 
         // loop until tripped, broken or timed out
         for (;;) {
+            $newG = $this->generation;
+            register_shutdown_function(function() use ($that, $g, $newG) {
+               if ($g === $newG && !$g->broken) {
+                   $that->breakBarrier();
+               }
+            });
+
             if (null === $timeout) {
                 Cond::wait($this->cond, $this->mutex);
             } else {
                 @Cond::wait($this->cond, $this->mutex, $timeout);
             }
 
-            if ($this->generation->broken) {
+            if ($g->broken) {
                 Mutex::unlock($this->mutex);
+                register_shutdown_function(function() {
+                    exit();
+                });
                 throw new Exception\BrokenBarrierException();
             }
 
-            if ($this->generation !== $this->generation) {
+            if ($g !== $this->generation) {
                 Mutex::unlock($this->mutex);
+                register_shutdown_function(function() {
+                    exit();
+                });
                 return $index;
             }
 
             if (null !== $timeout) {
                 $this->breakBarrier();
                 Mutex::unlock($this->mutex);
+                register_shutdown_function(function() {
+                    exit();
+                });
                 throw new Exception\TimeoutException();
             }
         }
