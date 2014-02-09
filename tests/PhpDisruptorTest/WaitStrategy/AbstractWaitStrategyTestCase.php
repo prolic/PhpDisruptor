@@ -19,6 +19,6 @@ abstract class AbstractWaitStrategyTestCase extends \PHPUnit_Framework_TestCase
         $barrier = new DummySequenceBarrier();
         $sequence = $waitStrategy->waitFor(0, $cursor, $s, $barrier);
 
-        $this->assertEquals(0, $sequence);
+        $this->assertSame(0, $sequence);
     }
 }

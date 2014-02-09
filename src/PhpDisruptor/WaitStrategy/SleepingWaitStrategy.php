@@ -40,6 +40,8 @@ final class SleepingWaitStrategy extends StackableArray implements WaitStrategyI
                 time_nanosleep(0, 1);
             }
         }
+
+        return $availableSequence;
     }
 
     public function signalAllWhenBlocking()
