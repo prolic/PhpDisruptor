@@ -1,7 +1,14 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sasa
- * Date: 09.02.14
- * Time: 18:21
- */ 
+
+namespace PhpDisruptorTest\WaitStrategy;
+
+use PhpDisruptor\WaitStrategy\SleepingWaitStrategy;
+
+class SleepingWaitStrategyTest extends AbstractWaitStrategyTestCase
+{
+    public function testShouldWaitForValue()
+    {
+        $strategy = new SleepingWaitStrategy();
+        $this->assertWaitForWithDelayOf(50000, $strategy);
+    }
+}
