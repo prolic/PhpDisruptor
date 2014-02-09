@@ -120,12 +120,12 @@ class CyclicBarrier extends StackableArray
     public function await($timeout = null)
     {
         $m = $this->mutex;
-    Mutex::lock($m);
+        Mutex::lock($m);
 
-    $that = $this;
-    register_shutdown_function(function() use ($that) {
-        $that->breakBarrier();
-    });
+        $that = $this;
+        register_shutdown_function(function() use ($that) {
+            $that->breakBarrier();
+        });
 
         $g = $this->generation;
         if ($g->broken) {

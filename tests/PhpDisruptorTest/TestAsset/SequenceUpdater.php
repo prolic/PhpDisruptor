@@ -38,4 +38,9 @@ class SequenceUpdater extends \Thread
     {
         $this->barrier->await();
     }
+
+    public function getSequence()
+    {
+        return $this->sequence;
+    }
 }
