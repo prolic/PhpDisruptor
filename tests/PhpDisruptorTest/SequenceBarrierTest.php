@@ -102,9 +102,6 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
     }
 
-    /**
-     * @todo context checking happens to early, this test is currently not working as expected
-     */
     public function testShouldInterruptDuringBusySpin()
     {
         $expectedNumberMessages = 10;
