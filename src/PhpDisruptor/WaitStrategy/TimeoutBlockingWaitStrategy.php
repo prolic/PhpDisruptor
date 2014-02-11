@@ -10,7 +10,7 @@ use PhpDisruptor\Pthreads\TimeUnit;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 
-class TimeoutBlockingWaitStrategy extends StackableArray implements WaitStrategyInterface
+final class TimeoutBlockingWaitStrategy extends StackableArray implements WaitStrategyInterface
 {
     /**
      * @var int
