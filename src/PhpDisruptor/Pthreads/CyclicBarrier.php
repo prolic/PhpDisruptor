@@ -176,7 +176,7 @@ class CyclicBarrier extends StackableArray
             if (null === $timeout) {
                 Cond::wait($this->cond, $this->mutex);
             } else {
-                @Cond::wait($this->cond, $this->mutex, $timeout);
+                Cond::wait($this->cond, $this->mutex, $timeout);
             }
 
             if ($g->broken) {
