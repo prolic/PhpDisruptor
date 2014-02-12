@@ -27,7 +27,7 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->eventHandlerOne = new EventHandler('stdClass', 1);
+        $this->eventHandlerOne = new EventHandler('stdClass');
         $this->eventHandlerTwo = new EventHandler('stdClass', 2);
         $this->eventHandlerThree = new EventHandler('stdClass', 3);
     }
