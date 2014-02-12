@@ -7,8 +7,8 @@ use PhpDisruptor\Pthreads\CountDownLatch;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\SequenceBarrierInterface;
-use PhpDisruptorTest\TestAsset\EventHandler;
-use PhpDisruptorTest\TestAsset\ExEventHandler;
+use PhpDisruptorTest\BatchEventProcessor\TestAsset\EventHandler;
+use PhpDisruptorTest\BatchEventProcessor\TestAsset\ExEventHandler;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 use PhpDisruptorTest\TestAsset\TestExceptionHandler;
 
