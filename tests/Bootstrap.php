@@ -16,8 +16,6 @@
  * and is licensed under the MIT license.
  */
 
-use PhpDisruptorTest\ServiceManagerTestCase;
-
 ini_set('error_reporting', E_ALL);
 
 $files = array(__DIR__ . '/../vendor/autoload.php', __DIR__ . '/../../../autoload.php');

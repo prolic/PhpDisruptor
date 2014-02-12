@@ -2,8 +2,6 @@
 
 namespace PhpDisruptor\Dsl;
 
-use ArrayIterator;
-use IteratorAggregate;
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventHandlerInterface;
@@ -14,7 +12,6 @@ use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkerPool;
-use SplObjectStorage;
 use Stackable;
 
 /**

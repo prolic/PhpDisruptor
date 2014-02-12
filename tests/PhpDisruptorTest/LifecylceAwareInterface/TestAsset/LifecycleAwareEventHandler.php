@@ -1,9 +1,8 @@
 <?php
 
-namespace PhpDisruptorTest\TestAsset;
+namespace PhpDisruptorTest\LifecycleAwareInterface\TestAsset;
 
 use PhpDisruptor\EventHandlerInterface;
-use PhpDisruptor\Exception;
 use PhpDisruptor\LifecycleAwareInterface;
 use PhpDisruptor\Pthreads\CountDownLatch;
 use PhpDisruptor\Pthreads\StackableArray;
@@ -18,6 +17,12 @@ class LifecycleAwareEventHandler extends StackableArray implements EventHandlerI
 
     public $shutdownLatch;
 
+    /**
+     * Constructor
+     *
+     * @param CountDownLatch $startLatch
+     * @param CountDownLatch $shutdownLatch
+     */
     public function __construct(CountDownLatch $startLatch, CountDownLatch $shutdownLatch)
     {
         $this->startCounter = 0;
@@ -29,7 +34,7 @@ class LifecycleAwareEventHandler extends StackableArray implements EventHandlerI
 
     public function getEventClass()
     {
-        return __NAMESPACE__ . '\StubEvent';
+        return 'PhpDisruptorTest\TestAsset\StubEvent';
     }
 
     public function onEvent($event, $sequence, $endOfBatch)
