@@ -20,7 +20,7 @@ class LifecycleAwareInterfaceTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 16);
         $sequenceBarrier = $ringBuffer->newBarrier();
 
-        //$handler = new LifecycleAwareEventHandler($startLatch, $shutdownLatch);
+        $handler = new LifecycleAwareEventHandler($startLatch, $shutdownLatch);
 
         $batchEventProcessor = new BatchEventProcessor(
             $eventFactory->getEventClass(),
