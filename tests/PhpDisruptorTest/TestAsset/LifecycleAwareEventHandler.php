@@ -7,7 +7,6 @@ use PhpDisruptor\Exception;
 use PhpDisruptor\LifecycleAwareInterface;
 use PhpDisruptor\Pthreads\CountDownLatch;
 use PhpDisruptor\Pthreads\StackableArray;
-use PhpDisruptor\Pthreads\UuidStackable;
 
 class LifecycleAwareEventHandler extends StackableArray implements EventHandlerInterface, LifecycleAwareInterface
 {
