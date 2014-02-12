@@ -16,14 +16,11 @@ class ExEventHandler extends EventHandler
      * @param int $sequence of the event being processed
      * @param bool $endOfBatch flag to indicate if this is the last event in a batch from the RingBuffer
      * @return void
-     * @throws Exception\ExceptionInterface if the EventHandler would like the exception handled further up the chain.
+     * @throws \Exception if the EventHandler would like the exception handled further up the chain.
      */
     public function onEvent($event, $sequence, $endOfBatch)
     {
-        if (null !== $this->output) {
-            echo $this->output;
-        } else {
-            throw new \Exception('Throws exception');
-        }
+        $this->latch->countDown();
+        throw new \Exception('Throws exception');
     }
 }

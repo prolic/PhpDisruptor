@@ -4,9 +4,23 @@ namespace PhpDisruptorTest\TestAsset;
 
 use Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
+use PhpDisruptor\Pthreads\StackableArray;
 
-class TestExceptionHandler extends \Stackable implements ExceptionHandlerInterface
+class TestExceptionHandler extends StackableArray implements ExceptionHandlerInterface
 {
+    /**
+     * @var StackableArray
+     */
+    public $result;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->result = new StackableArray();
+    }
+
     /**
      * Strategy for handling uncaught exceptions when processing an event.
      *
@@ -20,7 +34,7 @@ class TestExceptionHandler extends \Stackable implements ExceptionHandlerInterfa
      */
     public function handleEventException(Exception $ex, $sequence, $event)
     {
-        $this->_log(__METHOD__ . get_class($ex) . '-' . $sequence . '-' . get_class($event));
+        $this->result[] = __METHOD__ . get_class($ex) . '-' . $sequence . '-' . get_class($event);
     }
 
     /**
@@ -31,7 +45,7 @@ class TestExceptionHandler extends \Stackable implements ExceptionHandlerInterfa
      */
     public function handleOnStartException(Exception $ex)
     {
-        $this->_log(__METHOD__ . get_class($ex));
+        $this->result[] = __METHOD__ . get_class($ex);
     }
 
     /**
@@ -41,17 +55,14 @@ class TestExceptionHandler extends \Stackable implements ExceptionHandlerInterfa
      */
     public function handleOnShutdownException(Exception $ex)
     {
-        $this->_log(__METHOD__ . get_class($ex));
+        $this->result[] = __METHOD__ . get_class($ex);
     }
 
-    public function run()
+    /**
+     * @return StackableArray
+     */
+    public function getResult()
     {
-    }
-
-    public function _log($text)
-    {
-        $f = fopen(sys_get_temp_dir() . '/testresult', 'a+b');
-        fwrite($f, $text);
-        fclose($f);
+        return $this->result;
     }
 }

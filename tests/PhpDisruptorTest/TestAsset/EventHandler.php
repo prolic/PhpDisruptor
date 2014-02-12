@@ -5,21 +5,37 @@ namespace PhpDisruptorTest\TestAsset;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\LifecycleAwareInterface;
-use PhpDisruptor\Pthreads\UuidStackable;
+use PhpDisruptor\Pthreads\CountDownLatch;
+use PhpDisruptor\Pthreads\StackableArray;
 
-class EventHandler extends UuidStackable implements EventHandlerInterface, LifecycleAwareInterface
+class EventHandler extends StackableArray implements EventHandlerInterface, LifecycleAwareInterface
 {
+    /**
+     * @var string
+     */
     public $eventClass;
 
-    public $output;
+    /**
+     * @var array
+     */
+    public $result;
 
-    public function __construct($eventClass, $output = null)
+    /**
+     * @var CountDownLatch
+     */
+    public $latch;
+
+    /**
+     * Constructor
+     *
+     * @param string $eventClass
+     * @param CountDownLatch $latch
+     */
+    public function __construct($eventClass, CountDownLatch $latch)
     {
-        parent::__construct();
         $this->eventClass = $eventClass;
-        if (null !== $output) {
-            $this->output = $output;
-        }
+        $this->result = new StackableArray();
+        $this->latch = $latch;
     }
 
     /**
@@ -43,13 +59,8 @@ class EventHandler extends UuidStackable implements EventHandlerInterface, Lifec
      */
     public function onEvent($event, $sequence, $endOfBatch)
     {
-        if (null !== $this->output) {
-            echo $this->output;
-        } else {
-            $f = fopen(sys_get_temp_dir() . '/testresult', 'a+b');
-            fwrite($f, get_class($event) . '-' . $sequence . '-' . (string) (int) $endOfBatch);
-            fclose($f);
-        }
+        $this->result[] = get_class($event) . '-' . $sequence . '-' . (string) (int) $endOfBatch;
+        $this->latch->countDown();
     }
 
     /**
@@ -59,7 +70,7 @@ class EventHandler extends UuidStackable implements EventHandlerInterface, Lifec
      */
     public function onStart()
     {
-        echo $this->output;
+        $this->result[] = 'onStart';
     }
 
     /**
@@ -72,6 +83,14 @@ class EventHandler extends UuidStackable implements EventHandlerInterface, Lifec
      */
     public function onShutdown()
     {
-        echo $this->output;
+        $this->result[] = 'onShutdown';
+    }
+
+    /**
+     * @return array
+     */
+    public function getResult()
+    {
+        return $this->result;
     }
 }
