@@ -11,6 +11,7 @@ use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\LifecycleAwareInterface;
 use PhpDisruptor\Sequence;
+use PhpDisruptor\SequenceReportingEventHandlerInterface;
 use PhpDisruptor\SequencerInterface;
 use PhpDisruptor\TimeoutHandlerInterface;
 
@@ -100,7 +101,12 @@ final class BatchEventProcessor extends AbstractEventProcessor
         $this->dataProvider = $dataProvider;
         $this->sequencerBarrier = $sequenceBarrier;
         $this->sequence = new Sequence(SequencerInterface::INITIAL_CURSOR_VALUE);
+
+        if ($eventHandler instanceof SequenceReportingEventHandlerInterface) {
+            $eventHandler->setSequenceCallback($this->sequence);
+        }
         $this->eventHandler = $eventHandler;
+
         $this->exceptionHandler = new FatalExceptionHandler('/tmp/disruptor-batchevents');
         $this->timeoutHandler = ($eventHandler instanceof TimeoutHandlerInterface) ? $eventHandler : null;
         $this->running = false;

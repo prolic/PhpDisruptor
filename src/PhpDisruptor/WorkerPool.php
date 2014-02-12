@@ -134,11 +134,10 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
     /**
      * Start the worker pool processing events in sequence
      *
-     * @param ExecutorInterface $executor
      * @return RingBuffer
      * @throws Exception\InvalidArgumentException
      */
-    public function start(ExecutorInterface $executor) // @todo: refactor !!! we have no executor interface !!
+    public function start()
     {
         if (!$this->casMember('started', false, true)) {
             throw new Exception\InvalidArgumentException(
@@ -151,7 +150,7 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
 
         foreach ($this->workProcessors as $workProcessor) {
             $workProcessor->getSequence()->set($cursor);
-            $executor->execute($workProcessor);
+            $workProcessor-start();
         }
 
         return $this->ringBuffer;

@@ -3,9 +3,9 @@
 namespace PhpDisruptor\ExceptionHandler;
 
 use PhpDisruptor\Exception;
-use Stackable;
+use PhpDisruptor\Pthreads\StackableArray;
 
-abstract class AbstractExceptionHandler extends Stackable implements ExceptionHandlerInterface
+abstract class AbstractExceptionHandler extends StackableArray implements ExceptionHandlerInterface
 {
     /**
      * @var resource
@@ -29,7 +29,8 @@ abstract class AbstractExceptionHandler extends Stackable implements ExceptionHa
         $this->fh = fopen($file, 'a+b');
     }
 
-    public function run()
+    public function __destruct()
     {
+        fclose($this->fh);
     }
 }

@@ -46,7 +46,7 @@ final class BlockingWaitStrategy extends StackableArray implements WaitStrategyI
             try {
                 while (($availableSequence = $cursor->get()) < $sequence) {
                     $barrier->checkAlert();
-                    Cond::wait($this->mutex, $this->cond);
+                    Cond::wait($this->cond, $this->mutex);
                 }
             } catch (\Exception $e) {
                 Mutex::unlock($this->mutex);
@@ -67,11 +67,7 @@ final class BlockingWaitStrategy extends StackableArray implements WaitStrategyI
     public function signalAllWhenBlocking()
     {
         Mutex::lock($this->mutex);
-        try {
-            Cond::signal($this->cond);
-        } catch (\Exception $e) {
-            Mutex::unlock($this->mutex);
-        }
+        Cond::broadcast($this->cond);
         Mutex::unlock($this->mutex);
     }
 
@@ -80,6 +76,7 @@ final class BlockingWaitStrategy extends StackableArray implements WaitStrategyI
      */
     public function __destruct()
     {
+        Cond::destroy($this->cond);
         Mutex::destroy($this->mutex);
     }
 }

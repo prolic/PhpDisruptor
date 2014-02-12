@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpDisruptorTest\TestAsset;
+namespace PhpDisruptorTest\Dsl\ConsumerRepository\TestAsset;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
@@ -9,8 +9,6 @@ use PhpDisruptor\Pthreads\UuidStackable;
 class SleepingEventHandler extends UuidStackable implements EventHandlerInterface
 {
     public $eventClass;
-
-    public $hash;
 
     public function __construct($eventClass)
     {

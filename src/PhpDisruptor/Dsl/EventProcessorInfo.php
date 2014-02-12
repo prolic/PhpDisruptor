@@ -5,7 +5,6 @@ namespace PhpDisruptor\Dsl;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use Stackable;

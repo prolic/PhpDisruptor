@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpDisruptorTest;
+namespace PhpDisruptorTest\AggregateEventHandler;
 
 use PhpDisruptor\AggregateEventHandler;
 use PhpDisruptor\Lists\EventHandlerList;
-use PhpDisruptor\Pthreads\StackableArray;
-use PhpDisruptorTest\TestAsset\EventHandler;
+use PhpDisruptorTest\AggregateEventHandler\TestAsset\EventHandler;
+use PhpDisruptorTest\AggregateEventHandler\TestAsset\ResultCounter;
 use PHPUnit_Framework_MockObject_MockObject;
 
 class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
@@ -13,23 +13,29 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
     /**
      * @var PHPUnit_Framework_MockObject_MockObject
      */
-    protected $eventHandlerOne;
+    private $eventHandlerOne;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject
      */
-    protected $eventHandlerTwo;
+    private $eventHandlerTwo;
 
     /**
      * @var PHPUnit_Framework_MockObject_MockObject
      */
-    protected $eventHandlerThree;
+    private $eventHandlerThree;
+
+    /**
+     * @var ResultCounter
+     */
+    private $result;
 
     protected function setUp()
     {
-        $this->eventHandlerOne = new EventHandler('stdClass', 1);
-        $this->eventHandlerTwo = new EventHandler('stdClass', 2);
-        $this->eventHandlerThree = new EventHandler('stdClass', 3);
+        $this->result = $result = new ResultCounter();
+        $this->eventHandlerOne = new EventHandler('stdClass', $result);
+        $this->eventHandlerTwo = new EventHandler('stdClass', $result);
+        $this->eventHandlerThree = new EventHandler('stdClass', $result);
     }
 
     public function testShouldCallOnEventInSequence()
@@ -39,19 +45,19 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
         $endOfBatch = true;
 
         $aggregateEventHandler = $this->prepareAggregateEventHandler();
-        ob_start();
+
         $aggregateEventHandler->onEvent($event, $sequence, $endOfBatch);
-        $result = ob_get_clean();
-        $this->assertEquals('123', $result);
+
+        $this->assertEquals('123', $this->result->getResult());
     }
 
     public function testShouldCallOnStartInSequence()
     {
         $aggregateEventHandler = $this->prepareAggregateEventHandler();
-        ob_start();
+
         $aggregateEventHandler->onShutdown();
-        $result = ob_get_clean();
-        $this->assertEquals('123', $result);
+
+        $this->assertEquals('123', $this->result->getResult());
     }
 
     public function testShouldHandleEmptyListOfEventHandlers()
@@ -64,7 +70,7 @@ class AggregateEventHandlerTest extends \PHPUnit_Framework_TestCase
         $aggregateEventHandler->onShutdown();
     }
 
-    public function prepareAggregateEventHandler()
+    private function prepareAggregateEventHandler()
     {
         $handlers = new EventHandlerList(array(
             $this->eventHandlerOne,

@@ -1,16 +1,15 @@
 <?php
 
-namespace PhpDisruptorTest\Dsl;
+namespace PhpDisruptorTest\Dsl\ConsumerRepository;
 
 use PhpDisruptor\Dsl\ConsumerRepository;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
-use PhpDisruptor\ProcessingSequenceBarrier;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
-use PhpDisruptorTest\TestAsset\SleepingEventHandler;
+use PhpDisruptorTest\Dsl\ConsumerRepository\TestAsset\SleepingEventHandler;
 use PhpDisruptorTest\TestAsset\TestEventFactory;
 use PhpDisruptorTest\TestAsset\TestEventProcessor;
 
