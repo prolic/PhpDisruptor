@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpDisruptorTest\TestAsset;
+namespace PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset;
 
 use Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;

@@ -7,10 +7,10 @@ use PhpDisruptor\Pthreads\CountDownLatch;
 use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\SequenceBarrierInterface;
-use PhpDisruptorTest\BatchEventProcessor\TestAsset\EventHandler;
-use PhpDisruptorTest\BatchEventProcessor\TestAsset\ExEventHandler;
+use PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset\EventHandler;
+use PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset\ExEventHandler;
+use PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset\TestExceptionHandler;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
-use PhpDisruptorTest\TestAsset\TestExceptionHandler;
 
 class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
 {
@@ -124,7 +124,8 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedResult, $eventHandler->getResult());
 
         $expectedException = new StackableArray();
-        $expectedException[] = 'PhpDisruptorTest\TestAsset\TestExceptionHandler::handleEventExceptionException-0-PhpDisruptorTest\TestAsset\StubEvent';
+        $expectedException[] = 'PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset\TestExceptionHandler'
+            . '::handleEventExceptionException-0-PhpDisruptorTest\TestAsset\StubEvent';
 
         $this->assertEquals($expectedException, $exceptionHandler->getResult());
     }

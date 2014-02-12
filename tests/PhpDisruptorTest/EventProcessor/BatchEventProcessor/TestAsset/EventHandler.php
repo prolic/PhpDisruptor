@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpDisruptorTest\BatchEventProcessor\TestAsset;
+namespace PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
@@ -55,7 +55,7 @@ class EventHandler extends StackableArray implements EventHandlerInterface, Life
      * @param int $sequence of the event being processed
      * @param bool $endOfBatch flag to indicate if this is the last event in a batch from the RingBuffer
      * @return void
-     * @throws Exception\ExceptionInterface if the EventHandler would like the exception handled further up the chain.
+     * @throws \Exception if the EventHandler would like the exception handled further up the chain.
      */
     public function onEvent($event, $sequence, $endOfBatch)
     {
