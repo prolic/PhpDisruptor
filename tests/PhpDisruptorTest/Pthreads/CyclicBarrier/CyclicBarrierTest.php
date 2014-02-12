@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpDisruptorTest\Pthreads;
+namespace PhpDisruptorTest\Pthreads\CyclicBarrier;
 
 use Cond;
 use Mutex;

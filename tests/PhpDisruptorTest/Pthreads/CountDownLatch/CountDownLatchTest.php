@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpDisruptorTest\Pthreads;
+namespace PhpDisruptorTest\Pthreads\CountDownLatch;
 
 use PhpDisruptor\Pthreads\CountDownLatch;
 use PhpDisruptorTest\Pthreads\CountDownLatch\TestAsset;
