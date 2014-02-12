@@ -2,7 +2,6 @@ PHP Disruptor
 =========================
 
 [![Build Status](https://travis-ci.org/prolic/PhpDisruptor.png?branch=master)](https://travis-ci.org/prolic/PhpDisruptor)
-[![Coverage Status](https://coveralls.io/repos/prolic/PhpDisruptor/badge.png)](https://coveralls.io/r/prolic/PhpDisruptor)
 [![Total Downloads](https://poser.pugx.org/prolic/php-disruptor/downloads.png)](https://packagist.org/packages/prolic/php-disruptor)
 [![Latest Stable Version](https://poser.pugx.org/prolic/php-disruptor/v/stable.png)](https://packagist.org/packages/prolic/php-disruptor)
 [![Latest Unstable Version](https://poser.pugx.org/prolic/php-disruptor/v/unstable.png)](https://packagist.org/packages/prolic/php-disruptor)
