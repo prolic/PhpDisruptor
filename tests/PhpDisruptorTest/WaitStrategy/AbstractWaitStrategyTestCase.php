@@ -4,8 +4,8 @@ namespace PhpDisruptorTest\WaitStrategy;
 
 use PhpDisruptor\Sequence;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
-use PhpDisruptorTest\TestAsset\DummySequenceBarrier;
-use PhpDisruptorTest\TestAsset\SequenceUpdater;
+use PhpDisruptorTest\WaitStrategy\TestAsset\DummySequenceBarrier;
+use PhpDisruptorTest\WaitStrategy\TestAsset\SequenceUpdater;
 
 abstract class AbstractWaitStrategyTestCase extends \PHPUnit_Framework_TestCase
 {

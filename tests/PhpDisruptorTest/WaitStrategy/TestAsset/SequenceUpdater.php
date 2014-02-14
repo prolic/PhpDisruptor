@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpDisruptorTest\TestAsset;
+namespace PhpDisruptorTest\WaitStrategy\TestAsset;
 
 use PhpDisruptor\Pthreads\CyclicBarrier;
 use PhpDisruptor\Sequence;
