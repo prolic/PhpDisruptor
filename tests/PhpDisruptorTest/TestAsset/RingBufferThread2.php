@@ -3,8 +3,8 @@
 namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\Lists\EventProcessorList;
-use PhpDisruptor\Pthreads\CountDownLatch;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\CountDownLatch;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\RingBuffer;
 
 class RingBufferThread2 extends \Thread
@@ -15,7 +15,7 @@ class RingBufferThread2 extends \Thread
 
     public $publisherComplete;
 
-    public function __construct(RingBuffer $ringBuffer, CountDownLatch $latch, StackableArray $publisherComplete)
+    public function __construct(RingBuffer $ringBuffer, CountDownLatch $latch, NoOpStackable $publisherComplete)
     {
         $this->ringBuffer = $ringBuffer;
         $this->latch = $latch;

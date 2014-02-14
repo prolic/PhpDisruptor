@@ -3,7 +3,7 @@
 namespace PhpDisruptorTest\Util;
 
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\Util\Util;
 use PHPUnit_Framework_TestCase as TestCase;

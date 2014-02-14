@@ -4,10 +4,10 @@ namespace PhpDisruptorTest\LifecycleAwareInterface\TestAsset;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\LifecycleAwareInterface;
-use PhpDisruptor\Pthreads\CountDownLatch;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\CountDownLatch;
+use ConcurrentPhpUtils\NoOpStackable;
 
-class LifecycleAwareEventHandler extends StackableArray implements EventHandlerInterface, LifecycleAwareInterface
+class LifecycleAwareEventHandler extends NoOpStackable implements EventHandlerInterface, LifecycleAwareInterface
 {
     public $startCounter;
 

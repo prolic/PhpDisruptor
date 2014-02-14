@@ -4,9 +4,9 @@ namespace PhpDisruptorTest\Dsl\ConsumerRepository\TestAsset;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
-use PhpDisruptor\Pthreads\UuidStackable;
+use ConcurrentPhpUtils\UuidNoOpStackable;
 
-class SleepingEventHandler extends UuidStackable implements EventHandlerInterface
+class SleepingEventHandler extends UuidNoOpStackable implements EventHandlerInterface
 {
     public $eventClass;
 

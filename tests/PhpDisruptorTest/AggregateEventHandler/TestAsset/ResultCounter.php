@@ -2,9 +2,9 @@
 
 namespace PhpDisruptorTest\AggregateEventHandler\TestAsset;
 
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 
-class ResultCounter extends StackableArray
+class ResultCounter extends NoOpStackable
 {
     /**
      * @var int

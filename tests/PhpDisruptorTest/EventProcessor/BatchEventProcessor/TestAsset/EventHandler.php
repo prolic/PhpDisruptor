@@ -5,10 +5,10 @@ namespace PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\LifecycleAwareInterface;
-use PhpDisruptor\Pthreads\CountDownLatch;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\CountDownLatch;
+use ConcurrentPhpUtils\NoOpStackable;
 
-class EventHandler extends StackableArray implements EventHandlerInterface, LifecycleAwareInterface
+class EventHandler extends NoOpStackable implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**
      * @var string
@@ -34,7 +34,7 @@ class EventHandler extends StackableArray implements EventHandlerInterface, Life
     public function __construct($eventClass, CountDownLatch $latch)
     {
         $this->eventClass = $eventClass;
-        $this->result = new StackableArray();
+        $this->result = new NoOpStackable();
         $this->latch = $latch;
     }
 

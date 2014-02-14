@@ -2,7 +2,7 @@
 
 namespace PhpDisruptorTest\TestAsset;
 
-use PhpDisruptor\Pthreads\CountDownLatch;
+use ConcurrentPhpUtils\CountDownLatch;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceReportingEventHandlerInterface;
 

@@ -2,7 +2,7 @@
 
 namespace PhpDisruptorTest;
 
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceGroup;

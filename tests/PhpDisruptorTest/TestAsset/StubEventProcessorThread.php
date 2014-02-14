@@ -2,14 +2,14 @@
 
 namespace PhpDisruptorTest\TestAsset;
 
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\RingBuffer;
 
 class StubEventProcessorThread extends \Thread
 {
     public $eventProcessors;
 
-    public function __construct(StackableArray $eventProcessors)
+    public function __construct(NoOpStackable $eventProcessors)
     {
         $this->eventProcessors = $eventProcessors;
     }

@@ -6,7 +6,7 @@ use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\EventTranslatorInterface;
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptorTest\TestAsset\LongEventFactory;
@@ -77,10 +77,10 @@ class EventPublisherTest extends \PHPUnit_Framework_TestCase implements EventTra
      *
      * @param object $event into which the data should be translated.
      * @param int $sequence that is assigned to event.
-     * @param StackableArray $args
+     * @param NoOpStackable $args
      * @return void
      */
-    public function translateTo($event, $sequence, StackableArray $args = null)
+    public function translateTo($event, $sequence, NoOpStackable $args = null)
     {
         $event->set($sequence + 29);
     }

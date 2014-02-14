@@ -2,7 +2,7 @@
 
 namespace PhpDisruptorTest\WaitStrategy\TestAsset;
 
-use PhpDisruptor\Pthreads\CyclicBarrier;
+use ConcurrentPhpUtils\CyclicBarrier;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 

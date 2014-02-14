@@ -3,7 +3,7 @@
 namespace PhpDisruptorTest\LifecycleAwareInterface;
 
 use PhpDisruptor\EventProcessor\BatchEventProcessor;
-use PhpDisruptor\Pthreads\CountDownLatch;
+use ConcurrentPhpUtils\CountDownLatch;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptorTest\LifecycleAwareInterface\TestAsset\LifecycleAwareEventHandler;
 use PhpDisruptorTest\TestAsset\StubEventFactory;

@@ -4,7 +4,7 @@ namespace PhpDisruptorTest;
 
 use PhpDisruptor\EventProcessor\BatchEventProcessor;
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\CountDownLatch;
+use ConcurrentPhpUtils\CountDownLatch;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
 use PhpDisruptorTest\TestAsset\TestSequenceReportingEventHandler;

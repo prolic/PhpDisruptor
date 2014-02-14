@@ -8,8 +8,8 @@ use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\Exception\InsufficientCapacityException;
 use PhpDisruptor\Lists\EventTranslatorList;
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\CountDownLatch;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\CountDownLatch;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
@@ -56,7 +56,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
 
         $eventTranslator = new StubEventTranslator();
         $expectedEvent = new StubEvent(2701);
-        $args = new StackableArray();
+        $args = new NoOpStackable();
         $args[] = $expectedEvent->getValue();
         $args[] = $expectedEvent->getTestString();
         $this->ringBuffer->publishEvent($eventTranslator, $args);
@@ -80,7 +80,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $eventTranslator = new StubEventTranslator();
         $numMessages = $this->ringBuffer->getBufferSize();
         for ($i = 0; $i < $numMessages; $i++) {
-            $args = new StackableArray();
+            $args = new NoOpStackable();
             $args[] = $i;
             $args[] = '';
             $this->ringBuffer->publishEvent($eventTranslator, $args);
@@ -102,7 +102,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $offset = 1000;
 
         for ($i = 0; $i < $numMessages + $offset; $i++) {
-            $args = new StackableArray();
+            $args = new NoOpStackable();
             $args[0] = $i;
             $args[1] = '';
             $this->ringBuffer->publishEvent($eventTranslator, $args);
@@ -128,19 +128,19 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createMultiProducer($eventFactory, 4);
         $ringBuffer->addGatingSequences($sequences);
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 0;
         $arg0[] = 0;
         $ringBuffer->publishEvent($eventTranslator, $arg0);
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 1;
         $arg1[] = 1;
         $ringBuffer->publishEvent($eventTranslator, $arg1);
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 2;
         $arg2[] = 2;
         $ringBuffer->publishEvent($eventTranslator, $arg2);
-        $arg3 = new StackableArray();
+        $arg3 = new NoOpStackable();
         $arg3[] = 3;
         $arg3[] = 3;
         $ringBuffer->publishEvent($eventTranslator, $arg3);
@@ -173,7 +173,7 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
     {
         $ringBufferSize = 4;
         $latch = new CountDownLatch($ringBufferSize);
-        $publisherComplete = new StackableArray();
+        $publisherComplete = new NoOpStackable();
         $publisherComplete[0] = false;
 
         $eventFactory = new StubEventFactory();
@@ -310,15 +310,15 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo';
         $arg0[] = 'Bar';
         $arg0[] = 'Baz';
         $arg0[] = 'Bam';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo';
         $arg1[] = 'Bar';
         $arg1[] = 'Baz';
@@ -346,36 +346,36 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $arrayFactory = new ArrayFactory(1);
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
-        $translators = new StackableArray();
+        $translators = new NoOpStackable();
         $translators[] = $translator;
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo';
         $arg0[] = 'Bar';
         $arg0[] = 'Baz';
         $arg0[] = 'Bam';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo';
         $arg1[] = 'Bar';
         $arg1[] = 'Baz';
         $arg1[] = 'Bam';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo';
         $arg2[] = 'Bar';
         $arg2[] = 'Baz';
         $arg2[] = 'Bam';
 
-        $arg3 = new StackableArray();
+        $arg3 = new NoOpStackable();
         $arg3[] = 'Foo';
         $arg3[] = 'Bar';
         $arg3[] = 'Baz';
         $arg3[] = 'Bam';
 
-        $arg4 = new StackableArray();
+        $arg4 = new NoOpStackable();
         $arg4[] = 'Foo';
         $arg4[] = 'Bar';
         $arg4[] = 'Baz';
@@ -401,15 +401,15 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo';
         $arg0[] = 'Bar';
         $arg0[] = 'Baz';
         $arg0[] = 'Bam';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo';
         $arg1[] = 'Bar';
         $arg1[] = 'Baz';
@@ -430,21 +430,21 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo0';
         $arg0[] = 'Bar0';
         $arg0[] = 'Baz0';
         $arg0[] = 'Bam0';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo1';
         $arg1[] = 'Bar1';
         $arg1[] = 'Baz1';
         $arg1[] = 'Bam1';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo2';
         $arg2[] = 'Bar2';
         $arg2[] = 'Baz2';
@@ -456,21 +456,21 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
 
         $ringBuffer->publishEvents($translator, 1, 2, $args);
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo3';
         $arg0[] = 'Bar3';
         $arg0[] = 'Baz3';
         $arg0[] = 'Bam3';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo4';
         $arg1[] = 'Bar4';
         $arg1[] = 'Baz4';
         $arg1[] = 'Bam4';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo5';
         $arg2[] = 'Bar5';
         $arg2[] = 'Baz5';
@@ -634,21 +634,21 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo0';
         $arg0[] = 'Bar0';
         $arg0[] = 'Baz0';
         $arg0[] = 'Bam0';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo1';
         $arg1[] = 'Bar1';
         $arg1[] = 'Baz1';
         $arg1[] = 'Bam1';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo2';
         $arg2[] = 'Bar2';
         $arg2[] = 'Baz2';
@@ -675,21 +675,21 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo0';
         $arg0[] = 'Bar0';
         $arg0[] = 'Baz0';
         $arg0[] = 'Bam0';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo1';
         $arg1[] = 'Bar1';
         $arg1[] = 'Baz1';
         $arg1[] = 'Bam1';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo2';
         $arg2[] = 'Bar2';
         $arg2[] = 'Baz2';
@@ -716,21 +716,21 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo0';
         $arg0[] = 'Bar0';
         $arg0[] = 'Baz0';
         $arg0[] = 'Bam0';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo1';
         $arg1[] = 'Bar1';
         $arg1[] = 'Baz1';
         $arg1[] = 'Bam1';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo2';
         $arg2[] = 'Bar2';
         $arg2[] = 'Baz2';
@@ -757,21 +757,21 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo0';
         $arg0[] = 'Bar0';
         $arg0[] = 'Baz0';
         $arg0[] = 'Bam0';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo1';
         $arg1[] = 'Bar1';
         $arg1[] = 'Baz1';
         $arg1[] = 'Bam1';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo2';
         $arg2[] = 'Bar2';
         $arg2[] = 'Baz2';
@@ -799,21 +799,21 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo0';
         $arg0[] = 'Bar0';
         $arg0[] = 'Baz0';
         $arg0[] = 'Bam0';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo1';
         $arg1[] = 'Bar1';
         $arg1[] = 'Baz1';
         $arg1[] = 'Bam1';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo2';
         $arg2[] = 'Bar2';
         $arg2[] = 'Baz2';
@@ -841,21 +841,21 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo0';
         $arg0[] = 'Bar0';
         $arg0[] = 'Baz0';
         $arg0[] = 'Bam0';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo1';
         $arg1[] = 'Bar1';
         $arg1[] = 'Baz1';
         $arg1[] = 'Bam1';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo2';
         $arg2[] = 'Bar2';
         $arg2[] = 'Baz2';
@@ -882,21 +882,21 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
         $ringBuffer = RingBuffer::createSingleProducer($arrayFactory, 4);
         $translator = new EventTranslator();
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
 
-        $arg0 = new StackableArray();
+        $arg0 = new NoOpStackable();
         $arg0[] = 'Foo0';
         $arg0[] = 'Bar0';
         $arg0[] = 'Baz0';
         $arg0[] = 'Bam0';
 
-        $arg1 = new StackableArray();
+        $arg1 = new NoOpStackable();
         $arg1[] = 'Foo1';
         $arg1[] = 'Bar1';
         $arg1[] = 'Baz1';
         $arg1[] = 'Bam1';
 
-        $arg2 = new StackableArray();
+        $arg2 = new NoOpStackable();
         $arg2[] = 'Foo2';
         $arg2[] = 'Bar2';
         $arg2[] = 'Baz2';
@@ -994,23 +994,23 @@ class RingBufferTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return StackableArray
+     * @return NoOpStackable
      */
     private function prepareArgs()
     {
-        $foo0 = new StackableArray();
+        $foo0 = new NoOpStackable();
         $foo0[] = 'Foo0';
 
-        $foo1 = new StackableArray();
+        $foo1 = new NoOpStackable();
         $foo1[] = 'Foo1';
 
-        $foo2 = new StackableArray();
+        $foo2 = new NoOpStackable();
         $foo2[] = 'Foo2';
 
-        $foo3 = new StackableArray();
+        $foo3 = new NoOpStackable();
         $foo3[] = 'Foo3';
 
-        $args = new StackableArray();
+        $args = new NoOpStackable();
         $args[] = $foo0;
         $args[] = $foo1;
         $args[] = $foo2;

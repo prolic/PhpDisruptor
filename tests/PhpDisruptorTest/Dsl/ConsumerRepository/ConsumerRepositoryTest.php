@@ -5,7 +5,7 @@ namespace PhpDisruptorTest\Dsl\ConsumerRepository;
 use PhpDisruptor\Dsl\ConsumerRepository;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
@@ -90,7 +90,7 @@ class ConsumerRepositoryTest extends \PHPUnit_Framework_TestCase
         $this->consumerRepository->addEventProcessor($this->eventProcessor1, $this->handler1, $this->barrier1);
         $this->consumerRepository->addEventProcessor($this->eventProcessor2, $this->handler2, $this->barrier2);
 
-        $data = new StackableArray();
+        $data = new NoOpStackable();
         $data[] = $this->eventProcessor2->getSequence();
         $this->consumerRepository->unMarkEventProcessorsAsEndOfChain($data);
 

@@ -3,7 +3,7 @@
 namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\EventTranslatorInterface;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use Stackable;
 
 class ExampleEventTranslator extends Stackable implements EventTranslatorInterface
@@ -30,10 +30,10 @@ class ExampleEventTranslator extends Stackable implements EventTranslatorInterfa
      *
      * @param object $event into which the data should be translated.
      * @param int $sequence that is assigned to event.
-     * @param StackableArray|null $args
+     * @param NoOpStackable|null $args
      * @return void
      */
-    public function translateTo($event, $sequence, StackableArray $args = null)
+    public function translateTo($event, $sequence, NoOpStackable $args = null)
     {
         $event->setTestString($this->value);
     }

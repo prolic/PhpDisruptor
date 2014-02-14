@@ -3,7 +3,7 @@
 namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\EventTranslatorInterface;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use Stackable;
 
 class ArrayEventTranslator extends Stackable implements EventTranslatorInterface
@@ -15,7 +15,7 @@ class ArrayEventTranslator extends Stackable implements EventTranslatorInterface
      */
     public function getEventClass()
     {
-        return 'PhpDisruptor\Pthreads\StackableArray';
+        return 'ConcurrentPhpUtils\NoOpStackable';
     }
 
     public function run()
@@ -27,10 +27,10 @@ class ArrayEventTranslator extends Stackable implements EventTranslatorInterface
      *
      * @param object $event into which the data should be translated.
      * @param int $sequence that is assigned to event.
-     * @param StackableArray|null $args
+     * @param NoOpStackable|null $args
      * @return void
      */
-    public function translateTo($event, $sequence, StackableArray $args = null)
+    public function translateTo($event, $sequence, NoOpStackable $args = null)
     {
         $event[0] = (string) $args[0] . $args[1] . $args[2] . $args[3] . '-' . $sequence;
     }

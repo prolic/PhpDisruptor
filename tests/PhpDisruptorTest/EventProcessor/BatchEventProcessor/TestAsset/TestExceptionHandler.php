@@ -4,12 +4,12 @@ namespace PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset;
 
 use Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 
-class TestExceptionHandler extends StackableArray implements ExceptionHandlerInterface
+class TestExceptionHandler extends NoOpStackable implements ExceptionHandlerInterface
 {
     /**
-     * @var StackableArray
+     * @var NoOpStackable
      */
     public $result;
 
@@ -18,7 +18,7 @@ class TestExceptionHandler extends StackableArray implements ExceptionHandlerInt
      */
     public function __construct()
     {
-        $this->result = new StackableArray();
+        $this->result = new NoOpStackable();
     }
 
     /**
@@ -59,7 +59,7 @@ class TestExceptionHandler extends StackableArray implements ExceptionHandlerInt
     }
 
     /**
-     * @return StackableArray
+     * @return NoOpStackable
      */
     public function getResult()
     {
