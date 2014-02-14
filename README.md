@@ -18,6 +18,7 @@ Requirements
 - PHP 5.4 ZTS
 - ext-pthreads 0.0.45
 - ext-uuid 1.0.3
+- Concurrent-PHP-Utils
 - MabeEnum
 
 Under construction...
