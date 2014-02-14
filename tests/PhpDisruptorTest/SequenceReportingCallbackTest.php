@@ -11,13 +11,6 @@ use PhpDisruptorTest\TestAsset\TestSequenceReportingEventHandler;
 
 class SequenceReportingCallbackTest extends \PHPUnit_Framework_TestCase
 {
-    private $callbackLatch;
-
-    /**
-     * @var CountDownLatch
-     */
-    private $onEndOfBatchLatch;
-
     public function testShouldReportProgressByUpdatingSequenceViaCallback()
     {
         $callbackLatch = new CountDownLatch(1);
