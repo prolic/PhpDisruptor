@@ -56,7 +56,9 @@ class CountDownLatch extends StackableArray
      */
     public function countDown()
     {
-        --$this->count;
+        if ($this->count > 0) {
+            --$this->count;
+        }
     }
 
     /**
