@@ -14,7 +14,7 @@ use PhpDisruptor\Lists\EventHandlerList;
 use PhpDisruptor\Lists\EventProcessorList;
 use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Lists\WorkHandlerList;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
@@ -200,9 +200,9 @@ class Disruptor extends Worker implements EventClassCapableInterface
      * @param EventHandlerInterface[] $handlers the event handlers
      * @return EventHandlerGroup that can be used to setup a dependency barrier over the specified event handlers
      */
-    public function afterEventHandlers(StackableArray $handlers)
+    public function afterEventHandlers(NoOpStackable $handlers)
     {
-        $sequences = new StackableArray();
+        $sequences = new NoOpStackable();
         foreach ($handlers as $handler) {
             $sequences[] = $this->consumerRepository->getSequenceFor($handler);
         }
@@ -228,10 +228,10 @@ class Disruptor extends Worker implements EventClassCapableInterface
      * Publish an event to the ring buffer
      *
      * @param EventTranslatorInterface $eventTranslator
-     * @param StackableArray $args
+     * @param NoOpStackable $args
      * @return void
      */
-    public function publishEvent(EventTranslatorInterface $eventTranslator, StackableArray $args)
+    public function publishEvent(EventTranslatorInterface $eventTranslator, NoOpStackable $args)
     {
         $this->ringBuffer->publishEvent($eventTranslator, $args);
     }

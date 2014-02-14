@@ -3,9 +3,9 @@
 namespace PhpDisruptor\ExceptionHandler;
 
 use PhpDisruptor\Exception;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 
-abstract class AbstractExceptionHandler extends StackableArray implements ExceptionHandlerInterface
+abstract class AbstractExceptionHandler extends NoOpStackable implements ExceptionHandlerInterface
 {
     /**
      * @var resource

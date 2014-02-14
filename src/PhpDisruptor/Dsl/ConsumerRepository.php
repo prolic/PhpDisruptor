@@ -2,22 +2,21 @@
 
 namespace PhpDisruptor\Dsl;
 
+use ConcurrentPhpUtils\ObjectStorage;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
-use PhpDisruptor\Pthreads\ObjectStorage;
-use PhpDisruptor\Pthreads\StackableArray;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkerPool;
-use Stackable;
 
 /**
 * Provides a repository mechanism to associate EventHandlers with EventProcessors
 */
-class ConsumerRepository extends Stackable implements EventClassCapableInterface
+class ConsumerRepository extends NoOpStackable implements EventClassCapableInterface
 {
     /**
      * @var ObjectStorage
@@ -49,11 +48,7 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
         $this->eventClass = $eventFactory->getEventClass();
         $this->eventProcessorInfoByEventHandler = new ObjectStorage();
         $this->eventProcessorInfoBySequence = new ObjectStorage();
-        $this->consumerInfos = new StackableArray();
-    }
-
-    public function run()
-    {
+        $this->consumerInfos = new NoOpStackable();
     }
 
     /**
@@ -132,7 +127,7 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
     public function getLastSequenceInChain($includeStopped)
     {
         $includeStopped = (bool) $includeStopped;
-        $lastSequences = new StackableArray();
+        $lastSequences = new NoOpStackable();
         foreach ($this->consumerInfos as $consumerInfo) {
             if (($includeStopped || $consumerInfo->isRunning()) && $consumerInfo->isEndOfChain()) {
                 $sequences = $consumerInfo->getSequences();
@@ -179,12 +174,12 @@ class ConsumerRepository extends Stackable implements EventClassCapableInterface
      * @param Sequence[] $barrierEventProcessors
      * @throws Exception\InvalidArgumentException
      */
-    public function unMarkEventProcessorsAsEndOfChain(StackableArray $barrierEventProcessors)
+    public function unMarkEventProcessorsAsEndOfChain(NoOpStackable $barrierEventProcessors)
     {
         foreach ($barrierEventProcessors as $barrierEventProcessor) {
             if (!$barrierEventProcessor instanceof Sequence) {
                 throw new Exception\InvalidArgumentException(
-                    '$barrierEventProcessors must be an StackableArray of Sequence'
+                    '$barrierEventProcessors must be an NoOpStackable of Sequence'
                 );
             }
             $this->_getEventProcessorInfoBySequence($barrierEventProcessor)->markAsUsedInBarrier();

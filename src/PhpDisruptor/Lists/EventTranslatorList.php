@@ -4,10 +4,10 @@ namespace PhpDisruptor\Lists;
 
 use PhpDisruptor\EventTranslatorInterface;
 use PhpDisruptor\Exception;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use Traversable;
 
-class EventTranslatorList extends StackableArray
+class EventTranslatorList extends NoOpStackable
 {
     /**
      * Constructor

@@ -6,7 +6,7 @@ use PhpDisruptor\DataProviderInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\ExceptionHandler\FatalExceptionHandler;
-use PhpDisruptor\Pthreads\AtomicStackableTrait;
+use ConcurrentPhpUtils\AtomicStackableTrait;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\LifecycleAwareInterface;

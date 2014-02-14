@@ -3,13 +3,12 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\AtomicStackableTrait;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\AtomicStackableTrait;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\Util\Util;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
-use Stackable;
 
-abstract class AbstractSequencer extends Stackable implements SequencerInterface
+abstract class AbstractSequencer extends NoOpStackable implements SequencerInterface
 {
     use AtomicStackableTrait;
 

@@ -2,10 +2,10 @@
 
 namespace PhpDisruptor;
 
-use PhpDisruptor\Pthreads\AtomicStackableTrait;
-use PhpDisruptor\Pthreads\UuidStackable;
+use ConcurrentPhpUtils\AtomicStackableTrait;
+use ConcurrentPhpUtils\UuidNoOpStackable;
 
-class Sequence extends UuidStackable
+class Sequence extends UuidNoOpStackable
 {
 
     use AtomicStackableTrait;

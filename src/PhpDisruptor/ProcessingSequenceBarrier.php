@@ -4,10 +4,10 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\Exception;
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\UuidStackable;
+use ConcurrentPhpUtils\UuidNoOpStackable;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 
-final class ProcessingSequenceBarrier extends UuidStackable implements SequenceBarrierInterface
+final class ProcessingSequenceBarrier extends UuidNoOpStackable implements SequenceBarrierInterface
 {
     /**
      * @var WaitStrategyInterface

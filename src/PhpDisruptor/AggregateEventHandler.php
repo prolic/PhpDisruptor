@@ -3,10 +3,10 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Lists\EventHandlerList;
-use PhpDisruptor\Pthreads\StackableArray;
-use PhpDisruptor\Pthreads\UuidStackable;
+use ConcurrentPhpUtils\NoOpStackable;
+use ConcurrentPhpUtils\UuidNoOpStackable;
 
-final class AggregateEventHandler extends UuidStackable implements EventHandlerInterface, LifecycleAwareInterface
+final class AggregateEventHandler extends UuidNoOpStackable implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**
      * @var string

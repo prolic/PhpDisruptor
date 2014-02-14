@@ -4,7 +4,7 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\Exception\InsufficientCapacityException;
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\Util\Util;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 
@@ -42,7 +42,7 @@ final class MultiProducerSequencer extends AbstractSequencer
         $this->indexMask = $bufferSize - 1;
         $this->indexShift = Util::log2($bufferSize);
 
-        $this->availableBuffer = new StackableArray();
+        $this->availableBuffer = new NoOpStackable();
         for ($i = 0; $i < $bufferSize; $i++) {
             $this->availableBuffer[$i] = -1;
         }
@@ -202,7 +202,7 @@ final class MultiProducerSequencer extends AbstractSequencer
     {
         do {
             $oldAvailableBuffer = $this->availableBuffer;
-            $newAvailableBuffer = new StackableArray();
+            $newAvailableBuffer = new NoOpStackable();
             $newAvailableBuffer->merge($oldAvailableBuffer);
             $newAvailableBuffer[$index] = $flag;
         } while (!$this->casMember('availableBuffer', $oldAvailableBuffer, $newAvailableBuffer));

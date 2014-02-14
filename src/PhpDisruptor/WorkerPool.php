@@ -6,8 +6,8 @@ use PhpDisruptor\EventProcessor\WorkProcessor;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Lists\WorkHandlerList;
-use PhpDisruptor\Pthreads\AtomicStackableTrait;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\AtomicStackableTrait;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\Util\Util;
 use Stackable;
 
@@ -58,7 +58,7 @@ final class WorkerPool extends Stackable implements EventClassCapableInterface
         $this->workSequence = new Sequence(SequencerInterface::INITIAL_CURSOR_VALUE);
         $this->ringBuffer = $ringBuffer;
         $this->eventClass = $ringBuffer->getEventClass();
-        $this->workProcessors = new StackableArray();
+        $this->workProcessors = new NoOpStackable();
         foreach ($workHandlers as $workHandler) {
             $this->workProcessors[] = new WorkProcessor(
                 $ringBuffer,

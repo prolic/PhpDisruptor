@@ -3,7 +3,7 @@
 namespace PhpDisruptor\WaitStrategy;
 
 use PhpDisruptor\Exception;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 
@@ -13,7 +13,7 @@ use PhpDisruptor\SequenceBarrierInterface;
  *
  * This strategy is a good compromise between performance and CPU resource without incurring significant latency spikes.
  */
-final class YieldingWaitStrategy extends StackableArray implements WaitStrategyInterface
+final class YieldingWaitStrategy extends NoOpStackable implements WaitStrategyInterface
 {
     /**
      * @var int

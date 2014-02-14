@@ -5,7 +5,7 @@ namespace PhpDisruptor;
 use PhpDisruptor\Dsl\ProducerType;
 use PhpDisruptor\Lists\EventTranslatorList;
 use PhpDisruptor\Lists\SequenceList;
-use PhpDisruptor\Pthreads\StackableArray;
+use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\WaitStrategy\BusySpinWaitStrategy;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use Stackable;
@@ -63,7 +63,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $this->eventClass = $eventFactory->getEventClass();
 
 
-        $this->entries = new StackableArray();
+        $this->entries = new NoOpStackable();
         for ($i = 0; $i < $bufferSize; $i++) {
             $this->entries[$i] = $this->eventFactory->newInstance();
         }
@@ -391,11 +391,11 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * after translation.
      *
      * @param EventTranslatorInterface $translator The user specified translation for the event
-     * @param StackableArray $args
+     * @param NoOpStackable $args
      * @return void
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function publishEvent(EventTranslatorInterface $translator, StackableArray $args = null)
+    public function publishEvent(EventTranslatorInterface $translator, NoOpStackable $args = null)
     {
         $this->_checkTranslator($translator);
         $this->_translateAndPublish($translator, $this->sequencer->next(), $args);
@@ -409,12 +409,12 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * was not available.
      *
      * @param EventTranslatorInterface $translator The user specified translation for the event
-     * @param StackableArray|null $args
+     * @param NoOpStackable|null $args
      * @return bool true if the value was published, false if there was insufficient
      * capacity.
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
-    public function tryPublishEvent(EventTranslatorInterface $translator, StackableArray $args = null)
+    public function tryPublishEvent(EventTranslatorInterface $translator, NoOpStackable $args = null)
     {
         $this->_checkTranslator($translator);
         try {
@@ -435,7 +435,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param EventTranslatorInterface|EventTranslatorList $translators The user specified translation for each event
      * @param int $batchStartsAt
      * @param int $batchSize
-     * @param StackableArray|null $args
+     * @param NoOpStackable|null $args
      * @return void
      * @throws Exception\InvalidArgumentException if event translator does not match event class
      */
@@ -443,7 +443,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $translators,
         $batchStartsAt = 0,
         $batchSize = null,
-        StackableArray $args = null
+        NoOpStackable $args = null
     ) {
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
@@ -460,10 +460,10 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
     /**
      * @param int $batchSize
      * @param EventTranslatorList|EventTranslatorInterface $translators The user specified translation for each event
-     * @param StackableArray $args
+     * @param NoOpStackable $args
      * @return int
      */
-    public function _calcBatchSize($batchSize, $translators, StackableArray $args = null) // private !! only public for pthreads reasons
+    public function _calcBatchSize($batchSize, $translators, NoOpStackable $args = null) // private !! only public for pthreads reasons
     {
         if (0 != $batchSize) {
             return $batchSize;
@@ -494,7 +494,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param EventTranslatorList|EventTranslatorInterface $translators The user specified translation for each event
      * @param int $batchStartsAt
      * @param int|null $batchSize
-     * @param StackableArray|null $args
+     * @param NoOpStackable|null $args
      * @return bool true if the value was published, false if there was insufficient
      *         capacity.
      * @throws Exception\InvalidArgumentException if event translator does not match event class
@@ -503,7 +503,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $translators,
         $batchStartsAt = 0,
         $batchSize = null,
-        StackableArray $args = null
+        NoOpStackable $args = null
     ) {
         $this->_checkTranslators($translators);
         $batchSize = $this->_calcBatchSize($batchSize, $translators, $args);
@@ -605,11 +605,11 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      *
      * @param EventTranslatorInterface $translator
      * @param int $sequence
-     * @param StackableArray|null $args
+     * @param NoOpStackable|null $args
      * @return void
      * @throws \Exception
      */
-    public function _translateAndPublish(EventTranslatorInterface $translator, $sequence, StackableArray $args = null) // private !! only public for pthreads reasons
+    public function _translateAndPublish(EventTranslatorInterface $translator, $sequence, NoOpStackable $args = null) // private !! only public for pthreads reasons
     {
         try {
             $translator->translateTo($this->get($sequence), $sequence, $args);
@@ -627,7 +627,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
      * @param int $batchStartsAt
      * @param int $batchSize
      * @param int $finalSequence
-     * @param StackableArray|null $args
+     * @param NoOpStackable|null $args
      * @return void
      * @throws Exception\InvalidArgumentException
      * @throws \Exception
@@ -637,7 +637,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
         $batchStartsAt,
         $batchSize,
         $finalSequence,
-        StackableArray $args = null
+        NoOpStackable $args = null
     ) {
         $initialSequence = $finalSequence - ($batchSize - 1);
         try {
@@ -649,7 +649,7 @@ final class RingBuffer extends Stackable implements CursoredInterface, DataProvi
                 if (null === $args) {
                     $translateArgs = null;
                 } else {
-                    $translateArgs = new StackableArray();
+                    $translateArgs = new NoOpStackable();
                     $translateArgs[] = $args[$i];
                 }
 

@@ -5,12 +5,12 @@ namespace PhpDisruptor\WaitStrategy;
 use Cond;
 use Mutex;
 use PhpDisruptor\Exception;
-use PhpDisruptor\Pthreads\StackableArray;
-use PhpDisruptor\Pthreads\TimeUnit;
+use ConcurrentPhpUtils\NoOpStackable;
+use ConcurrentPhpUtils\TimeUnit;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 
-final class TimeoutBlockingWaitStrategy extends StackableArray implements WaitStrategyInterface
+final class TimeoutBlockingWaitStrategy extends NoOpStackable implements WaitStrategyInterface
 {
     /**
      * @var int
