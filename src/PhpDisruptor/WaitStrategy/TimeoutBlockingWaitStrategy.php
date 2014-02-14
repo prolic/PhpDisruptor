@@ -62,8 +62,7 @@ final class TimeoutBlockingWaitStrategy extends NoOpStackable implements WaitStr
         Sequence $cursor,
         Sequence $dependentSequence,
         SequenceBarrierInterface $barrier
-    )
-    {
+    ) {
         $micros = $this->timeoutMicros;
 
         if (($availableSequence = $cursor->get()) < $sequence) {
