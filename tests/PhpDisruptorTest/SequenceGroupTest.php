@@ -2,7 +2,7 @@
 
 namespace PhpDisruptorTest;
 
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceGroup;
@@ -125,11 +125,9 @@ class SequenceGroupTest extends TestCase
         $sequences = $sequenceGroup->getSequences();
         $groupSequence = $sequences[0];
 
-        $this->assertNotEquals(spl_object_hash($sequence), spl_object_hash($groupSequence));
-        $this->assertNotSame($sequence, $groupSequence);
-        $this->assertFalse($sequence->equals($sequenceGroup));
-        $this->assertTrue($sequence->equals($groupSequence));
-        $this->assertTrue($groupSequence->equals($sequence));
+        $this->assertSame($sequence, $groupSequence);
+        $this->assertNotSame($sequence, $sequenceGroup);
+        $this->assertSame($sequence, $groupSequence);
     }
 
 
