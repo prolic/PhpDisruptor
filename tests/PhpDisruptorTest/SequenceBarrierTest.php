@@ -94,11 +94,13 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $sequenceBarrier = $this->ringBuffer->newBarrier(Util::getSequencesFor($workers));
         $thread = new RingBufferThread($this->ringBuffer, $workers);
         $thread->start();
-        $thread->join();
+
 
         $expectedWorkSequence = $expectedNumberMessages;
         $completedWorkSequence = $sequenceBarrier->waitFor($expectedNumberMessages);
         $this->assertTrue($completedWorkSequence >= $expectedWorkSequence);
+
+        $thread->join();
     }
 
     public function testShouldInterruptDuringBusySpin()
