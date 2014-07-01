@@ -4,10 +4,10 @@ namespace PhpDisruptor\Lists;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 use Traversable;
 
-class EventHandlerList extends NoOpStackable
+class EventHandlerList extends Threaded
 {
     /**
      * Constructor

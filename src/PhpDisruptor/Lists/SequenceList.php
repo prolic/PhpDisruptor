@@ -3,11 +3,11 @@
 namespace PhpDisruptor\Lists;
 
 use PhpDisruptor\Exception;
-use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\Sequence;
+use Threaded;
 use Traversable;
 
-class SequenceList extends NoOpStackable
+class SequenceList extends Threaded
 {
     /**
      * Constructor

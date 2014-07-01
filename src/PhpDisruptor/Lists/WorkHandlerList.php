@@ -3,11 +3,11 @@
 namespace PhpDisruptor\Lists;
 
 use PhpDisruptor\Exception;
-use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\WorkHandlerInterface;
+use Threaded;
 use Traversable;
 
-class WorkHandlerList extends NoOpStackable
+class WorkHandlerList extends Threaded
 {
     /**
      * Constructor
