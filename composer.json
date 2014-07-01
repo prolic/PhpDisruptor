@@ -13,14 +13,12 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "ext-uuid": ">=1.0.3",
-        "ext-pthreads": "*",
-        "marc-mabe/php-enum": "1.0.*",
+        "ext-pthreads": ">=2.0.8",
+        "marc-mabe/php-enum": "1.2.*",
         "prolic/concurrent-php-utils": "dev-master"
     },
     "require-dev": {
-        "phpunit/phpunit": ">=3.7",
-        "phpmd/phpmd": "1.5.*"
+        "phpunit/phpunit": ">=3.7"
     },
     "autoload": {
         "psr-0": {
