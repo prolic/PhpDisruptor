@@ -9,24 +9,9 @@ class TestEventProcessor extends AbstractEventProcessor
 {
     public $sequence;
 
-    public $hash;
-
     public function __construct(Sequence $sequence)
     {
         $this->sequence = $sequence;
-        $this->hash = uuid_create();
-    }
-
-    /**
-     * check if two stackables are the same
-     *
-     * @param TestEventProcessor $other
-     * @return bool
-     */
-    public function equals(self $other)
-    {
-        $result = (int) uuid_compare($this->hash, $other->hash);
-        return 0 == $result;
     }
 
     /**
