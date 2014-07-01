@@ -4,11 +4,7 @@ php:
   - 5.4
   - 5.5
 
-install:
-  - sudo apt-get install uuid-dev -y
-
 before_script:
-  - printf "\n" | pecl install uuid
   - git clone https://github.com/krakjoe/pthreads lib-pthreads
   - cd lib-pthreads
   - phpize
