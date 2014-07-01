@@ -2,17 +2,16 @@
 
 namespace PhpDisruptor\Dsl;
 
+use Threaded;
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Lists\EventHandlerList;
 use PhpDisruptor\Lists\EventProcessorList;
 use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Lists\WorkHandlerList;
-use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
-use Stackable;
 
-class EventHandlerGroup extends Stackable implements EventClassCapableInterface
+class EventHandlerGroup extends Threaded implements EventClassCapableInterface
 {
     /**
      * @var string

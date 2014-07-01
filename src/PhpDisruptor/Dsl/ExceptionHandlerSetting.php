@@ -6,9 +6,9 @@ use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
-use Stackable;
+use Threaded;
 
-class ExceptionHandlerSetting extends Stackable implements EventClassCapableInterface
+class ExceptionHandlerSetting extends Threaded implements EventClassCapableInterface
 {
     /**
      * @var string
@@ -43,10 +43,6 @@ class ExceptionHandlerSetting extends Stackable implements EventClassCapableInte
         $this->eventClass = $eventHandler->getEventClass();
         $this->eventHandler = $eventHandler;
         $this->consumerRepository = $consumerRepository;
-    }
-
-    public function run()
-    {
     }
 
     /**

@@ -2,14 +2,14 @@
 
 namespace PhpDisruptor\Dsl;
 
+use Threaded;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
-use Stackable;
 
-class EventProcessorInfo extends Stackable implements ConsumerInfoInterface
+class EventProcessorInfo extends Threaded implements ConsumerInfoInterface
 {
     /**
      * @var AbstractEventProcessor
@@ -91,7 +91,7 @@ class EventProcessorInfo extends Stackable implements ConsumerInfoInterface
         return $this->endOfChain;
     }
 
-    public function run()
+    public function start()
     {
         $this->eventProcessor->start();
     }

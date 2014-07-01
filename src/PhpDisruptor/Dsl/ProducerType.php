@@ -2,7 +2,7 @@
 
 namespace PhpDisruptor\Dsl;
 
-use MabeEnum_Enum as Enum;
+use MabeEnum\Enum;
 
 final class ProducerType extends Enum
 {

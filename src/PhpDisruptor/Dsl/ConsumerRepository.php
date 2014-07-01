@@ -3,20 +3,21 @@
 namespace PhpDisruptor\Dsl;
 
 use ConcurrentPhpUtils\ObjectStorage;
-use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
+use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkerPool;
+use Threaded;
 
 /**
 * Provides a repository mechanism to associate EventHandlers with EventProcessors
 */
-class ConsumerRepository extends NoOpStackable implements EventClassCapableInterface
+class ConsumerRepository extends Threaded implements EventClassCapableInterface
 {
     /**
      * @var ObjectStorage
@@ -48,7 +49,7 @@ class ConsumerRepository extends NoOpStackable implements EventClassCapableInter
         $this->eventClass = $eventFactory->getEventClass();
         $this->eventProcessorInfoByEventHandler = new ObjectStorage();
         $this->eventProcessorInfoBySequence = new ObjectStorage();
-        $this->consumerInfos = new NoOpStackable();
+        $this->consumerInfos = new Threaded();
     }
 
     /**
@@ -127,7 +128,7 @@ class ConsumerRepository extends NoOpStackable implements EventClassCapableInter
     public function getLastSequenceInChain($includeStopped)
     {
         $includeStopped = (bool) $includeStopped;
-        $lastSequences = new NoOpStackable();
+        $lastSequences = new SequenceList();
         foreach ($this->consumerInfos as $consumerInfo) {
             if (($includeStopped || $consumerInfo->isRunning()) && $consumerInfo->isEndOfChain()) {
                 $sequences = $consumerInfo->getSequences();
@@ -174,14 +175,12 @@ class ConsumerRepository extends NoOpStackable implements EventClassCapableInter
      * @param Sequence[] $barrierEventProcessors
      * @throws Exception\InvalidArgumentException
      */
-    public function unMarkEventProcessorsAsEndOfChain(NoOpStackable $barrierEventProcessors)
+    public function unMarkEventProcessorsAsEndOfChain(SequenceList $barrierEventProcessors = null)
     {
+        if ($barrierEventProcessors === null) {
+            return;
+        }
         foreach ($barrierEventProcessors as $barrierEventProcessor) {
-            if (!$barrierEventProcessor instanceof Sequence) {
-                throw new Exception\InvalidArgumentException(
-                    '$barrierEventProcessors must be an NoOpStackable of Sequence'
-                );
-            }
             $this->_getEventProcessorInfoBySequence($barrierEventProcessor)->markAsUsedInBarrier();
         }
     }
@@ -210,7 +209,7 @@ class ConsumerRepository extends NoOpStackable implements EventClassCapableInter
     public function _getEventProcessorInfo(EventHandlerInterface $handler) // public for pthreads reasons
     {
         foreach ($this->eventProcessorInfoByEventHandler->data as $key => $value) {
-            if ($handler->equals($value)) {
+            if ($handler === $value) {
                 return $this->eventProcessorInfoByEventHandler->info[$key];
             }
         }
@@ -225,7 +224,7 @@ class ConsumerRepository extends NoOpStackable implements EventClassCapableInter
     public function _getEventProcessorInfoBySequence(Sequence $barrierEventProcessor) // public for pthreads reasons
     {
         foreach ($this->eventProcessorInfoBySequence->data as $key => $value) {
-            if ($barrierEventProcessor->equals($value)) {
+            if ($barrierEventProcessor === $value) {
                 return $this->eventProcessorInfoBySequence->info[$key];
             }
         }

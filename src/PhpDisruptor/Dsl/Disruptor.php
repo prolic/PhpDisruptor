@@ -6,7 +6,6 @@ use PhpDisruptor\EventFactoryInterface;
 use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\EventProcessor\BatchEventProcessor;
-use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\EventTranslatorInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
@@ -14,31 +13,22 @@ use PhpDisruptor\Lists\EventHandlerList;
 use PhpDisruptor\Lists\EventProcessorList;
 use PhpDisruptor\Lists\SequenceList;
 use PhpDisruptor\Lists\WorkHandlerList;
-use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\RingBuffer;
-use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 use PhpDisruptor\WorkerPool;
-use PhpDisruptor\WorkHandlerInterface;
 use PhpDisruptor\Util\Util;
-use Stackable;
-use Worker;
+use Threaded;
 
 /**
  * A DSL-style API for setting up the disruptor pattern around a ring buffer (aka the Builder pattern).
  */
-class Disruptor extends Worker implements EventClassCapableInterface
+class Disruptor implements EventClassCapableInterface
 {
     /**
      * @var RingBuffer
      */
     public $ringBuffer;
-
-    /**
-     * @var Worker
-     */
-    public $worker;
 
     /**
      * @var ConsumerRepository
@@ -58,58 +48,54 @@ class Disruptor extends Worker implements EventClassCapableInterface
     /**
      * Constructor
      *
-     * @param RingBuffer $ringBuffer
-     * @param $worker
+     * @param EventFactoryInterface $eventFactory
+     * @param int $ringBufferSize
+     * @param ProducerType|null $producerType
+     * @param WaitStrategyInterface|null $waitStrategy
      */
-    protected function __construct(RingBuffer $ringBuffer, Worker $worker)
-    {
-        $this->ringBuffer = $ringBuffer;
-        $this->worker = $worker;
+    public function __construct(
+        EventFactoryInterface $eventFactory,
+        $ringBufferSize,
+        ProducerType $producerType = null,
+        WaitStrategyInterface $waitStrategy = null
+    ) {
         $this->started = false;
-    }
-
-    public function run()
-    {
-        $gaitingSequences = $this->consumerRepository->getLastSequenceInChain(true);
-        $this->ringBuffer->addGatingSequences($gaitingSequences);
-
-        $this->_checkOnlyStartedOnce();
-
-        foreach ($this->consumerRepository as $consumerInfo) {
-            /* @var ConsumerInfoInterface $consumerInfo*/
-            $consumerInfo->start($this->worker);
+        $this->consumerRepository = new ConsumerRepository($eventFactory);
+        if ($producerType instanceof ProducerType) {
+            $this->ringBuffer = RingBuffer::create($producerType, $eventFactory, $ringBufferSize, $waitStrategy);
+        } else {
+            $this->ringBuffer = RingBuffer::createMultiProducer($eventFactory, $ringBufferSize, $waitStrategy);
         }
     }
 
     /**
-     * Create disruptor instance
+     * Start
      *
-     * @param EventFactoryInterface $eventFactory
-     * @param $ringBufferSize
-     * @param Worker $worker
-     * @param ProducerType $producerType
-     * @param WaitStrategyInterface|null $waitStrategy
-     * @return Disruptor
+     * @return RingBuffer
+     * @throws Exception\InvalidArgumentException
      */
-    public static function create(
-        EventFactoryInterface $eventFactory,
-        $ringBufferSize,
-        Worker $worker,
-        ProducerType $producerType,
-        WaitStrategyInterface $waitStrategy = null
-    ) {
-        $ringBuffer = RingBuffer::create($producerType, $eventFactory, $ringBufferSize, $waitStrategy);
-        return static::createFromRingBuffer($ringBuffer, $worker);
-    }
-
-    /**
-     * @param RingBuffer $ringBuffer
-     * @param Worker $worker
-     * @return Disruptor
-     */
-    public static function createFromRingBuffer(RingBuffer $ringBuffer, Worker $worker)
+    public function start()
     {
-        return new static($ringBuffer, $worker);
+        $gaitingSequences = $this->consumerRepository->getLastSequenceInChain(true);
+        $this->ringBuffer->addGatingSequences($gaitingSequences);
+
+        if (true === $this->started) {
+            throw new Exception\InvalidArgumentException(
+                'Disruptor::start() must only be called once'
+            );
+        } else {
+            $this->started = true;
+        }
+
+        foreach ($this->consumerRepository->getConsumerInfos() as $consumerInfo) {
+            /* @var ConsumerInfoInterface $consumerInfo*/
+            $consumerInfo->start();
+
+            //$consumerInfo->getEventProcessor()->start();
+            // start the event processors
+        }
+
+        return $this->ringBuffer;
     }
 
     /**
@@ -200,9 +186,9 @@ class Disruptor extends Worker implements EventClassCapableInterface
      * @param EventHandlerInterface[] $handlers the event handlers
      * @return EventHandlerGroup that can be used to setup a dependency barrier over the specified event handlers
      */
-    public function afterEventHandlers(NoOpStackable $handlers)
+    public function afterEventHandlers(Threaded $handlers)
     {
-        $sequences = new NoOpStackable();
+        $sequences = new Threaded();
         foreach ($handlers as $handler) {
             $sequences[] = $this->consumerRepository->getSequenceFor($handler);
         }
@@ -228,10 +214,10 @@ class Disruptor extends Worker implements EventClassCapableInterface
      * Publish an event to the ring buffer
      *
      * @param EventTranslatorInterface $eventTranslator
-     * @param NoOpStackable $args
+     * @param Threaded $args
      * @return void
      */
-    public function publishEvent(EventTranslatorInterface $eventTranslator, NoOpStackable $args)
+    public function publishEvent(EventTranslatorInterface $eventTranslator, Threaded $args)
     {
         $this->ringBuffer->publishEvent($eventTranslator, $args);
     }
@@ -243,9 +229,9 @@ class Disruptor extends Worker implements EventClassCapableInterface
      */
     public function halt()
     {
-        foreach ($this->consumerRepository as $consumerInfo) {
-            /* @var ConsumerInfoInterface $consumerInfo*/
-            $consumerInfo->halt();
+        foreach ($this->consumerRepository->getConsumerInfos() as $consumerInfo) {
+            /* @var EventProcessorInfo $consumerInfo*/
+            $consumerInfo->getEventProcessor()->halt();
         }
     }
 
@@ -369,10 +355,15 @@ class Disruptor extends Worker implements EventClassCapableInterface
      * @param SequenceList|null $barrierSequences
      * @param EventHandlerList $eventHandlers
      * @return EventHandlerGroup
+     * @throws Exception\InvalidArgumentException
      */
     public function createEventProcessors(SequenceList $barrierSequences = null, EventHandlerList $eventHandlers)
     {
-        $this->_checkNotStarted();
+        if ($this->started) {
+            throw new Exception\InvalidArgumentException(
+                'All event handlers must be added before calling start'
+            );
+        }
         $processorSequences = new SequenceList();
         $barrier = $this->ringBuffer->newBarrier($barrierSequences);
 
@@ -381,8 +372,7 @@ class Disruptor extends Worker implements EventClassCapableInterface
                 $this->ringBuffer->getEventClass(),
                 $this->ringBuffer,
                 $barrier,
-                $eventHandler,
-                new \Zend\Log\Writer\Syslog() // @todo bug !!!
+                $eventHandler
             );
             if (null !== $this->exceptionHandler) {
                 $batchEventProcessor->setExceptionHandler($this->exceptionHandler);
@@ -416,32 +406,5 @@ class Disruptor extends Worker implements EventClassCapableInterface
         );
         $this->consumerRepository->addWorkerPool($workerPool, $sequenceBarrier);
         return new EventHandlerGroup($this, $this->consumerRepository, $workerPool->getWorkerSequences());
-    }
-
-    /**
-     * Check not started
-     *
-     * @return void
-     * @throws Exception\InvalidArgumentException
-     */
-    public function _checkNotStarted() // public for pthreads reasons
-    {
-        if ($this->started) {
-            throw new Exception\InvalidArgumentException(
-                'All event handlers must be added before calling starts'
-            );
-        }
-    }
-
-    public function _checkOnlyStartedOnce() // public for pthreads reasons
-    {
-        // @todo: locking????
-        if (!$this->started) {
-            $this->started = true;
-        } else {
-            throw new Exception\InvalidArgumentException(
-                'Disruptor.start() must only be called once'
-            );
-        }
     }
 }

@@ -6,9 +6,9 @@ use PhpDisruptor\EventClassCapableInterface;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\WorkerPool;
-use Stackable;
+use Threaded;
 
-class WorkerPoolInfo extends Stackable implements ConsumerInfoInterface, EventClassCapableInterface
+class WorkerPoolInfo extends Threaded implements ConsumerInfoInterface, EventClassCapableInterface
 {
     /**
      * @var WorkerPool
