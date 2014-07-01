@@ -2,16 +2,12 @@
 
 namespace PhpDisruptorTest\TestAsset;
 
-use Stackable;
+use Threaded;
 
-final class TestEvent extends Stackable
+final class TestEvent extends Threaded
 {
     public function __toString()
     {
         return 'Test Event';
-    }
-
-    public function run()
-    {
     }
 }

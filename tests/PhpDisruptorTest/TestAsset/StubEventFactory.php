@@ -3,9 +3,9 @@
 namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\EventFactoryInterface;
-use Stackable;
+use Threaded;
 
-final class StubEventFactory extends Stackable implements EventFactoryInterface
+final class StubEventFactory extends Threaded implements EventFactoryInterface
 {
     /**
      * Return the used event class name
@@ -21,9 +21,5 @@ final class StubEventFactory extends Stackable implements EventFactoryInterface
     {
         $event = new StubEvent(-1);
         return $event;
-    }
-
-    public function run()
-    {
     }
 }

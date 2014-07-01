@@ -43,8 +43,4 @@ class StubEventProcessor extends AbstractEventProcessor
     public function halt()
     {
     }
-
-    public function run()
-    {
-    }
 }

@@ -20,7 +20,7 @@ class TestEventProcessor extends AbstractEventProcessor
     /**
      * check if two stackables are the same
      *
-     * @param UuidNoOpStackable $other
+     * @param TestEventProcessor $other
      * @return bool
      */
     public function equals(self $other)
@@ -39,14 +39,7 @@ class TestEventProcessor extends AbstractEventProcessor
         return $this->sequence;
     }
 
-    /**
-     * @return void
-     */
     public function halt()
-    {
-    }
-
-    public function run()
     {
     }
 }

@@ -3,16 +3,11 @@
 namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\EventFactoryInterface;
-use ConcurrentPhpUtils\NoOpStackable;
-use Stackable;
+use Threaded;
 
-class ArrayFactory extends Stackable implements EventFactoryInterface
+class ArrayFactory extends Threaded implements EventFactoryInterface
 {
     public $size;
-
-    public function run()
-    {
-    }
 
     public function __construct($size)
     {
@@ -26,12 +21,12 @@ class ArrayFactory extends Stackable implements EventFactoryInterface
      */
     public function getEventClass()
     {
-        return 'ConcurrentPhpUtils\NoOpStackable';
+        return 'Threaded';
     }
 
     public function newInstance()
     {
-        $array = new NoOpStackable();
+        $array = new Threaded();
         for ($i = 0; $i < $this->size; $i++) {
             $array[] = null;
         }

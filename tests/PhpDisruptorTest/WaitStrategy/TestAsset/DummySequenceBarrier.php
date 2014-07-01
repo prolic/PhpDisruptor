@@ -3,10 +3,10 @@
 namespace PhpDisruptorTest\WaitStrategy\TestAsset;
 
 use PhpDisruptor\Exception;
-use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\SequenceBarrierInterface;
+use Threaded;
 
-class DummySequenceBarrier extends NoOpStackable implements SequenceBarrierInterface
+class DummySequenceBarrier extends Threaded implements SequenceBarrierInterface
 {
     /**
      * Wait for the given sequence to be available for consumption.

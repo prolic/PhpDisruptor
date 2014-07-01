@@ -1,18 +1,25 @@
 <?php
 
-namespace PhpDisruptorTest\Dsl\ConsumerRepository\TestAsset;
+namespace PhpDisruptorTest\TestAsset;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
-use ConcurrentPhpUtils\UuidNoOpStackable;
+use Threaded;
 
-class SleepingEventHandler extends UuidNoOpStackable implements EventHandlerInterface
+class SleepingEventHandler extends Threaded implements EventHandlerInterface
 {
+    /**
+     * @var string
+     */
     public $eventClass;
 
+    /**
+     * Constructor
+     *
+     * @param string $eventClass
+     */
     public function __construct($eventClass)
     {
-        parent::__construct();
         $this->eventClass = $eventClass;
     }
 

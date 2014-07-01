@@ -6,9 +6,9 @@ use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\LifecycleAwareInterface;
 use ConcurrentPhpUtils\CountDownLatch;
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 
-class EventHandler extends NoOpStackable implements EventHandlerInterface, LifecycleAwareInterface
+class EventHandler extends Threaded implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**
      * @var string
@@ -34,7 +34,7 @@ class EventHandler extends NoOpStackable implements EventHandlerInterface, Lifec
     public function __construct($eventClass, CountDownLatch $latch)
     {
         $this->eventClass = $eventClass;
-        $this->result = new NoOpStackable();
+        $this->result = new Threaded();
         $this->latch = $latch;
     }
 

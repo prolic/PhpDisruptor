@@ -3,7 +3,7 @@
 namespace PhpDisruptorTest;
 
 use PhpDisruptor\Lists\SequenceList;
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\FixedSequenceGroup;
 use PHPUnit_Framework_TestCase;

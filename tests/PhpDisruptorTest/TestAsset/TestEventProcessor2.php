@@ -24,7 +24,7 @@ class TestEventProcessor2 extends AbstractEventProcessor
     /**
      * check if two stackables are the same
      *
-     * @param UuidNoOpStackable $other
+     * @param TestEventProcessor2 $other
      * @return bool
      */
     public function equals(self $other)

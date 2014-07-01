@@ -2,11 +2,6 @@
 
 namespace PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset;
 
-use PhpDisruptor\EventHandlerInterface;
-use PhpDisruptor\Exception;
-use PhpDisruptor\LifecycleAwareInterface;
-use ConcurrentPhpUtils\UuidNoOpStackable;
-
 class ExEventHandler extends EventHandler
 {
     /**

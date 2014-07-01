@@ -2,9 +2,9 @@
 
 namespace PhpDisruptorTest\TestAsset;
 
-use Stackable;
+use Threaded;
 
-class LongEvent extends Stackable
+class LongEvent extends Threaded
 {
     public $long;
 
@@ -21,9 +21,5 @@ class LongEvent extends Stackable
     public function get()
     {
         return $this->long;
-    }
-
-    public function run()
-    {
     }
 }
