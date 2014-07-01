@@ -34,5 +34,6 @@ if (! isset($loader)) {
 
 /* @var $loader \Composer\Autoload\ClassLoader */
 $loader->add('PhpDisruptorTest\\', __DIR__);
+$loader->add('\\', __DIR__);
 
 unset($files, $file, $loader);
