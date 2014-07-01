@@ -7,9 +7,8 @@ use PhpDisruptor\EventProcessor\NoOpEventProcessor;
 use PhpDisruptor\Lists\EventProcessorList;
 use PhpDisruptor\Lists\SequenceList;
 use ConcurrentPhpUtils\CountDownLatch;
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 use PhpDisruptor\RingBuffer;
-use PhpDisruptor\Sequence;
 use PhpDisruptor\Util\Util;
 use PhpDisruptorTest\TestAsset\CountDownLatchSequence;
 use PhpDisruptorTest\TestAsset\RingBufferThread;
@@ -124,7 +123,7 @@ class SequenceBarrierTest extends \PHPUnit_Framework_TestCase
         $sequencesToTrack = Util::getSequencesFor($processors);
         $sequenceBarrier = $this->ringBuffer->newBarrier($sequencesToTrack);
 
-        $alerted = new NoOpStackable();
+        $alerted = new Threaded();
         $alerted[0] = false;
 
         $thread = new SequenceBarrierThread($sequenceBarrier, $expectedNumberMessages, $alerted);
