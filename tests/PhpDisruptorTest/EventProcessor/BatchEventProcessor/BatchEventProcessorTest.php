@@ -4,13 +4,13 @@ namespace PhpDisruptorTest\EventProcessor;
 
 use PhpDisruptor\EventProcessor\BatchEventProcessor;
 use ConcurrentPhpUtils\CountDownLatch;
-use ConcurrentPhpUtils\NoOpStackable;
 use PhpDisruptor\RingBuffer;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset\EventHandler;
 use PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset\ExEventHandler;
 use PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset\TestExceptionHandler;
 use PhpDisruptorTest\TestAsset\StubEventFactory;
+use Threaded;
 
 class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
 {
@@ -57,7 +57,7 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         $batchEventProcessor->halt();
         $batchEventProcessor->join();
 
-        $expectedResult = new NoOpStackable();
+        $expectedResult = new Threaded();
         $expectedResult[] = 'onStart';
         $expectedResult[] = 'PhpDisruptorTest\TestAsset\StubEvent-0-1';
         $expectedResult[] = 'onShutdown';
@@ -86,7 +86,7 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         $batchEventProcessor->halt();
         $batchEventProcessor->join();
 
-        $expectedResult = new NoOpStackable();
+        $expectedResult = new Threaded();
         $expectedResult[] = 'onStart';
         $expectedResult[] = 'PhpDisruptorTest\TestAsset\StubEvent-0-0';
         $expectedResult[] = 'PhpDisruptorTest\TestAsset\StubEvent-1-0';
@@ -117,13 +117,13 @@ class BatchEventProcessorTest extends \PHPUnit_Framework_TestCase
         $batchEventProcessor->halt();
         $batchEventProcessor->join();
 
-        $expectedResult = new NoOpStackable();
+        $expectedResult = new Threaded();
         $expectedResult[] = 'onStart';
         $expectedResult[] = 'onShutdown';
 
         $this->assertEquals($expectedResult, $eventHandler->getResult());
 
-        $expectedException = new NoOpStackable();
+        $expectedException = new Threaded();
         $expectedException[] = 'PhpDisruptorTest\EventProcessor\BatchEventProcessor\TestAsset\TestExceptionHandler'
             . '::handleEventExceptionException-0-PhpDisruptorTest\TestAsset\StubEvent';
 
