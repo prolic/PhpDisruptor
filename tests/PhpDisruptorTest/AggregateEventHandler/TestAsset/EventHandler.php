@@ -4,9 +4,9 @@ namespace PhpDisruptorTest\AggregateEventHandler\TestAsset;
 
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\LifecycleAwareInterface;
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 
-class EventHandler extends NoOpStackable implements EventHandlerInterface, LifecycleAwareInterface
+class EventHandler extends Threaded implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**
      * @var string
