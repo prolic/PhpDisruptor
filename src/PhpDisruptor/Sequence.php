@@ -2,13 +2,12 @@
 
 namespace PhpDisruptor;
 
-use ConcurrentPhpUtils\AtomicStackableTrait;
-use ConcurrentPhpUtils\UuidNoOpStackable;
+use ConcurrentPhpUtils\CasThreadedMemberTrait;
+use Threaded;
 
-class Sequence extends UuidNoOpStackable
+class Sequence extends Threaded
 {
-
-    use AtomicStackableTrait;
+    use CasThreadedMemberTrait;
 
     const INITIAL_VALUE = -1;
 
@@ -17,10 +16,6 @@ class Sequence extends UuidNoOpStackable
      */
     public $value;
 
-    /**
-     * @var string
-     */
-    public $hash;
 
     /**
      * Constructor
@@ -29,7 +24,6 @@ class Sequence extends UuidNoOpStackable
      */
     public function __construct($initialValue = self::INITIAL_VALUE)
     {
-        parent::__construct();
         $this->set($initialValue);
     }
 

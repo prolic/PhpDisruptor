@@ -37,13 +37,6 @@ final class NoOpEventProcessor extends AbstractEventProcessor
     }
 
     /**
-     * @inheritdoc
-     */
-    public function run()
-    {
-    }
-
-    /**
      * @return void
      */
     public function halt()

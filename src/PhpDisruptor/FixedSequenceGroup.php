@@ -5,7 +5,7 @@ namespace PhpDisruptor;
 use ArrayIterator;
 use CachingIterator;
 use PhpDisruptor\Lists\SequenceList;
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 use PhpDisruptor\Util\Util;
 
 /**

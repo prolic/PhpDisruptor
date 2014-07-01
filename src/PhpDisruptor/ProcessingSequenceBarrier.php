@@ -4,10 +4,10 @@ namespace PhpDisruptor;
 
 use PhpDisruptor\Exception;
 use PhpDisruptor\Lists\SequenceList;
-use ConcurrentPhpUtils\UuidNoOpStackable;
+use Threaded;
 use PhpDisruptor\WaitStrategy\WaitStrategyInterface;
 
-final class ProcessingSequenceBarrier extends UuidNoOpStackable implements SequenceBarrierInterface
+final class ProcessingSequenceBarrier extends Threaded implements SequenceBarrierInterface
 {
     /**
      * @var WaitStrategyInterface
@@ -53,11 +53,9 @@ final class ProcessingSequenceBarrier extends UuidNoOpStackable implements Seque
         Sequence $cursorSequence,
         SequenceList $dependentSequences
     ) {
-        // @todo: why is this required ???
         if (!class_exists('PhpDisruptor\Exception\AlertException', false)) {
             spl_autoload_call('PhpDisruptor\Exception\AlertException');
         }
-        parent::__construct();
         $this->sequencer = $sequencer;
         $this->waitStrategy = $waitStrategy;
         $this->cursorSequence = $cursorSequence;

@@ -56,7 +56,7 @@ abstract class SequenceGroups
             $newSequences = new SequenceList();
             for ($i = 0, $pos = 0; $i < $oldSize; $i++) {
                 $testSequence = $oldSequences[$i];
-                if (!$testSequence->equals($sequence)) {
+                if ($testSequence !== $sequence) {
                     $newSequences[$pos++] = $testSequence;
                 }
             }

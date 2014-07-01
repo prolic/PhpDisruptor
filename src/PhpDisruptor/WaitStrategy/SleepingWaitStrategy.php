@@ -2,7 +2,7 @@
 
 namespace PhpDisruptor\WaitStrategy;
 
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 
@@ -12,7 +12,7 @@ use PhpDisruptor\SequenceBarrierInterface;
  *
  * This strategy is a good compromise between performance and CPU resource. Latency spikes can occur after quiet periods.
  */
-final class SleepingWaitStrategy extends NoOpStackable implements WaitStrategyInterface
+final class SleepingWaitStrategy extends Threaded implements WaitStrategyInterface
 {
     /**
      * @var int

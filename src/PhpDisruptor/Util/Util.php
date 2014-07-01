@@ -6,7 +6,7 @@ use PhpDisruptor\EventProcessor\AbstractEventProcessor;
 use PhpDisruptor\Exception;
 use PhpDisruptor\Lists\EventProcessorList;
 use PhpDisruptor\Lists\SequenceList;
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceAggregateInterface;
 
@@ -32,9 +32,9 @@ final class Util
     /**
      * Get the minimum sequence from an SequenceList
      *
-     * @param SequenceList $sequences to compare with NoOpStackable as container instead of a php array
+     * @param SequenceList $sequences to compare
      * @param int|null  $minimum
-     * @return int the minimum sequence found or PHP_INT_MAX if the NoOpStackable is empty
+     * @return int the minimum sequence found or PHP_INT_MAX if the sequence list is empty
      * @throws Exception\InvalidArgumentException
      */
     public static function getMinimumSequence(SequenceList $sequences, $minimum = PHP_INT_MAX)

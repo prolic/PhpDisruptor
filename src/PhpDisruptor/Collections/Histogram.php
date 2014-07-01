@@ -3,7 +3,7 @@
 namespace PhpDisruptor\Collections;
 
 use PhpDisruptor\Exception;
-use Stackable;
+use Threaded;
 
 /**
  * Histogram for tracking the frequency of observations of values below interval upper bounds
@@ -16,7 +16,7 @@ use Stackable;
  * 0-10 will fall into the first interval bar, values 11-20 will fall into the
  * second bar, and so on.
  */
-final class Histogram extends Stackable
+final class Histogram extends Threaded
 {
     /**
      * @var array
@@ -50,10 +50,6 @@ final class Histogram extends Stackable
         $this->maxValue = 0;
         $this->_validateUpperBounds($upperBounds);
         $this->upperBounds = $upperBounds;
-    }
-
-    public function run()
-    {
     }
 
     /**

@@ -5,11 +5,11 @@ namespace PhpDisruptor\WaitStrategy;
 use Cond;
 use Mutex;
 use PhpDisruptor\Exception;
-use ConcurrentPhpUtils\NoOpStackable;
+use Threaded;
 use PhpDisruptor\Sequence;
 use PhpDisruptor\SequenceBarrierInterface;
 
-final class BlockingWaitStrategy extends NoOpStackable implements WaitStrategyInterface
+final class BlockingWaitStrategy extends Threaded implements WaitStrategyInterface
 {
     /**
      * @var int;

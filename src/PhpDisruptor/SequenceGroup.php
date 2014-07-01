@@ -13,12 +13,9 @@ final class SequenceGroup extends Sequence implements Countable, SequenceAggrega
      */
     public $sequences;
 
-    public $hash;
-
     public function __construct()
     {
         $this->value = self::INITIAL_VALUE;
-        $this->hash = uuid_create();
         $this->sequences = new SequenceList();
     }
 

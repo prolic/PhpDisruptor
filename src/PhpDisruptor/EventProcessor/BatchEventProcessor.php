@@ -6,7 +6,7 @@ use PhpDisruptor\DataProviderInterface;
 use PhpDisruptor\Exception;
 use PhpDisruptor\ExceptionHandler\ExceptionHandlerInterface;
 use PhpDisruptor\ExceptionHandler\FatalExceptionHandler;
-use ConcurrentPhpUtils\AtomicStackableTrait;
+use ConcurrentPhpUtils\CasThreadedMemberTrait;
 use PhpDisruptor\SequenceBarrierInterface;
 use PhpDisruptor\EventHandlerInterface;
 use PhpDisruptor\LifecycleAwareInterface;
@@ -24,7 +24,7 @@ use PhpDisruptor\TimeoutHandlerInterface;
  */
 final class BatchEventProcessor extends AbstractEventProcessor
 {
-    use AtomicStackableTrait;
+    use CasThreadedMemberTrait;
 
     /**
      * @var DataProviderInterface

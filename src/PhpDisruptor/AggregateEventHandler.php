@@ -3,10 +3,9 @@
 namespace PhpDisruptor;
 
 use PhpDisruptor\Lists\EventHandlerList;
-use ConcurrentPhpUtils\NoOpStackable;
-use ConcurrentPhpUtils\UuidNoOpStackable;
+use Threaded;
 
-final class AggregateEventHandler extends UuidNoOpStackable implements EventHandlerInterface, LifecycleAwareInterface
+final class AggregateEventHandler extends Threaded implements EventHandlerInterface, LifecycleAwareInterface
 {
     /**
      * @var string
@@ -27,8 +26,6 @@ final class AggregateEventHandler extends UuidNoOpStackable implements EventHand
      */
     public function __construct($eventClass, EventHandlerList $eventHandlers)
     {
-        parent::__construct();
-
         if (!class_exists($eventClass)) {
             throw new Exception\InvalidArgumentException(
                 'event class "' . $eventClass . '" does not exist'
