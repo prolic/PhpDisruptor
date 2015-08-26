@@ -11,6 +11,10 @@ A High Performance Inter-Thread Messaging Library
 
 Port of the [LMAX Disruptor](https://github.com/LMAX-Exchange/disruptor)
 
+Info
+----
+This project will get continued, when PHP 7 and pthreads 3 are released in final versions.
+
 
 Requirements
 ------------
